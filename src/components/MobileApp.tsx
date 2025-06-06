@@ -233,6 +233,85 @@ const MobileApp = () => {
     </div>
   );
 
+  // Composant pour la barre de navigation mobile
+  const MobileNavigation = ({ currentView, onViewChange }) => (
+    <div className="md:hidden mb-6">
+      <div className="flex space-x-2 p-1 bg-white rounded-lg border border-border">
+        {[
+          { key: 'dashboard', label: 'Accueil', icon: Home },
+          { key: 'explore', label: 'Explorer', icon: Search },
+          { key: 'missions', label: 'Missions', icon: Calendar },
+          { key: 'profile', label: 'Profil', icon: User }
+        ].map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => onViewChange(tab.key)}
+            className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+              currentView === tab.key
+                ? 'bg-primary text-primary-foreground'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+            aria-label={`Aller à ${tab.label}`}
+            aria-current={currentView === tab.key ? 'page' : undefined}
+          >
+            <tab.icon className="h-4 w-4 mx-auto mb-1" />
+            {tab.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
+  // Composant pour le panneau de filtres
+  const FilterSection = ({ filters, onFilterChange, onClearFilters, activeFiltersCount }) => (
+    <div className="lg:hidden">
+      <FilterPanel
+        filters={filters}
+        onFilterChange={onFilterChange}
+        onClearFilters={onClearFilters}
+        activeFiltersCount={activeFiltersCount}
+        showAdvanced={showFilters}
+        onToggleAdvanced={() => setShowFilters(!showFilters)}
+      />
+    </div>
+  );
+
+  // Composant pour la carte des missions
+  const MissionMap = ({ missions }) => (
+    <div 
+      className="bg-gray-100 rounded-xl h-48 lg:h-64 flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors"
+      role="button"
+      tabIndex={0}
+      aria-label="Voir la carte des missions"
+    >
+      <div className="text-center text-gray-500">
+        <MapPin className="h-12 w-12 mx-auto mb-2 text-blue-500" />
+        <p className="font-medium text-lg">Carte des missions à proximité</p>
+        <p className="text-sm">{missions.length} missions disponibles</p>
+      </div>
+    </div>
+  );
+
+  // Composant pour l'état de chargement
+  const LoadingState = () => (
+    <div className="flex items-center justify-center p-8" role="status" aria-label="Chargement en cours">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <span className="sr-only">Chargement...</span>
+    </div>
+  );
+
+  // Composant pour les messages d'erreur
+  const ErrorMessage = ({ message }) => (
+    <div 
+      className="bg-destructive/10 text-destructive p-4 rounded-lg mb-4"
+      role="alert"
+      aria-live="assertive"
+    >
+      <p className="font-medium">Une erreur est survenue</p>
+      <p className="text-sm">{message}</p>
+    </div>
+  );
+
   const renderHomeView = () => (
     <div className="flex-1 bg-gray-50/30 overflow-y-auto pb-20">
       <MobileHeader title="Voisin Solidaire" />
@@ -354,25 +433,15 @@ const MobileApp = () => {
           {/* Main Content */}
           <div className="lg:col-span-3 space-y-4 lg:space-y-6">
             {/* Map placeholder */}
-            <div className="bg-gray-100 rounded-xl h-48 lg:h-64 flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors">
-              <div className="text-center text-gray-500">
-                <MapPin className="h-12 w-12 mx-auto mb-2 text-blue-500" />
-                <p className="font-medium text-lg">Carte des missions à proximité</p>
-                <p className="text-sm">{filteredMissions.length} missions disponibles</p>
-              </div>
-            </div>
+            <MissionMap missions={missions} />
 
             {/* Mobile Filters */}
-            <div className="lg:hidden">
-              <FilterPanel
-                filters={filters}
-                onFilterChange={updateFilter}
-                onClearFilters={clearFilters}
-                activeFiltersCount={activeFiltersCount}
-                showAdvanced={showFilters}
-                onToggleAdvanced={() => setShowFilters(!showFilters)}
-              />
-            </div>
+            <FilterSection
+              filters={filters}
+              onFilterChange={updateFilter}
+              onClearFilters={clearFilters}
+              activeFiltersCount={activeFiltersCount}
+            />
 
             {/* Results */}
             <div>
@@ -661,65 +730,7 @@ const MobileApp = () => {
         {currentView === 'profile' && renderProfileView()}
 
         {/* Bottom Navigation - Mobile Only */}
-        <div className="lg:hidden bg-white border-t border-gray-100 px-2 py-1 fixed bottom-0 left-0 right-0 z-40 shadow-lg">
-          <div className="flex justify-around">
-            <button
-              onClick={() => setCurrentView('home')}
-              className={`flex flex-col items-center py-1 px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/20 rounded-lg ${
-                currentView === 'home' ? 'text-gray-900' : 'text-gray-500'
-              }`}
-              aria-current={currentView === 'home' ? 'page' : undefined}
-            >
-              <Home className="h-5 w-5 mb-0.5" />
-              <span className="text-[10px]">Accueil</span>
-            </button>
-            
-            <button
-              onClick={() => setCurrentView('explorer')}
-              className={`flex flex-col items-center py-1 px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/20 rounded-lg ${
-                currentView === 'explorer' ? 'text-gray-900' : 'text-gray-500'
-              }`}
-              aria-current={currentView === 'explorer' ? 'page' : undefined}
-            >
-              <Search className="h-5 w-5 mb-0.5" />
-              <span className="text-[10px]">Explorer</span>
-            </button>
-
-            <button
-              className="flex flex-col items-center py-1 px-2 focus:outline-none focus:ring-2 focus:ring-blue-500/20 rounded-lg"
-              aria-label="Créer une mission"
-            >
-              <div className="bg-blue-500 rounded-full p-2 mb-0.5 cursor-pointer hover:bg-blue-600 transition-colors">
-                <Zap className="h-5 w-5 text-white" />
-              </div>
-            </button>
-
-            <button
-              onClick={() => setCurrentView('missions')}
-              className={`flex flex-col items-center py-1 px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/20 rounded-lg relative ${
-                currentView === 'missions' ? 'text-gray-900' : 'text-gray-500'
-              }`}
-              aria-current={currentView === 'missions' ? 'page' : undefined}
-            >
-              <Calendar className="h-5 w-5 mb-0.5" />
-              <span className="text-[10px]">Missions</span>
-              {userMissions.length > 0 && (
-                <div className="absolute top-1 right-1 w-2 h-2 bg-blue-500 rounded-full"></div>
-              )}
-            </button>
-
-            <button
-              onClick={() => setCurrentView('profile')}
-              className={`flex flex-col items-center py-1 px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/20 rounded-lg ${
-                currentView === 'profile' ? 'text-gray-900' : 'text-gray-500'
-              }`}
-              aria-current={currentView === 'profile' ? 'page' : undefined}
-            >
-              <User className="h-5 w-5 mb-0.5" />
-              <span className="text-[10px]">Profil</span>
-            </button>
-          </div>
-        </div>
+        <MobileNavigation currentView={currentView} onViewChange={setCurrentView} />
       </div>
     </div>
   );
