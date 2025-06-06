@@ -302,8 +302,8 @@ const MobileApp = () => {
           </div>
           <div className="flex flex-wrap gap-2">
             <Badge className="bg-blue-600 text-white px-3 py-1">Tous</Badge>
-            <Badge variant="outline" className="px-3 py-1">< 15 min</Badge>
-            <Badge variant="outline" className="px-3 py-1">< 1 km</Badge>
+            <Badge variant="outline" className="px-3 py-1">moins de 15 min</Badge>
+            <Badge variant="outline" className="px-3 py-1">moins de 1 km</Badge>
             <Badge variant="outline" className="px-3 py-1">Aujourd'hui</Badge>
             <Badge variant="outline" className="px-3 py-1">Alimentaire</Badge>
             <Badge variant="outline" className="px-3 py-1">Social</Badge>
