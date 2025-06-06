@@ -1359,3 +1359,310 @@ DROP FUNCTION IF EXISTS add_languages_column_to_profiles();
 DROP FUNCTION IF EXISTS add_languages_needed_column_to_missions();
 DROP FUNCTION IF EXISTS create_language_levels_table();
 DROP FUNCTION IF EXISTS add_language_badges();
+
+-
+-- 1. Notification du bénévole après inscription à une mission
+CREATE OR REPLACE FUNCTION notify_volunteer_of_registration()
+RETURNS TRIGGER AS $$
+DECLARE
+    mission_title TEXT;
+    association_name TEXT;
+BEGIN
+    -- Récupérer les informations de la mission et de l'association
+    SELECT m.title, a.name INTO mission_title, association_name
+    FROM public.missions m
+    JOIN public.associations a ON m.association_id = a.id
+    WHERE m.id = NEW.mission_id;
+    
+    -- Créer la notification pour le bénévole
+    PERFORM create_notification(
+        NEW.user_id,
+        'Inscription confirmée',
+        CONCAT('Votre inscription à la mission "', mission_title, '" de ', association_name, ' a bien été enregistrée.'),
+        'registration',
+        'mission',
+        NEW.mission_id
+    );
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 2. Notification du bénévole lors de la confirmation/annulation de son inscription
+CREATE OR REPLACE FUNCTION notify_volunteer_of_registration_status_change()
+RETURNS TRIGGER AS $$
+DECLARE
+    mission_title TEXT;
+    association_name TEXT;
+    notification_title TEXT;
+    notification_message TEXT;
+BEGIN
+    -- Ne déclencher que si le statut a changé
+    IF OLD.status = NEW.status THEN
+        RETURN NEW;
+    END IF;
+    
+    -- Récupérer les informations de la mission et de l'association
+    SELECT m.title, a.name INTO mission_title, association_name
+    FROM public.missions m
+    JOIN public.associations a ON m.association_id = a.id
+    WHERE m.id = NEW.mission_id;
+    
+    -- Définir le message selon le nouveau statut
+    CASE NEW.status
+        WHEN 'confirmed' THEN
+            notification_title := 'Inscription confirmée';
+            notification_message := CONCAT('Votre inscription à la mission "', mission_title, '" de ', association_name, ' a été confirmée.');
+        WHEN 'cancelled' THEN
+            notification_title := 'Inscription annulée';
+            notification_message := CONCAT('Votre inscription à la mission "', mission_title, '" de ', association_name, ' a été annulée.');
+        ELSE
+            RETURN NEW;
+    END CASE;
+    
+    -- Créer la notification
+    PERFORM create_notification(
+        NEW.user_id,
+        notification_title,
+        notification_message,
+        'registration_status',
+        'mission',
+        NEW.mission_id
+    );
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 3. Notification des bénévoles lors de la mise à jour/annulation d'une mission
+CREATE OR REPLACE FUNCTION notify_volunteers_of_mission_update()
+RETURNS TRIGGER AS $$
+DECLARE
+    volunteer RECORD;
+    notification_title TEXT;
+    notification_message TEXT;
+BEGIN
+    -- Ne déclencher que si la mission est publiée et qu'il y a des changements importants
+    IF NEW.status != 'published' OR 
+       (OLD.title = NEW.title AND 
+        OLD.date = NEW.date AND 
+        OLD.start_time = NEW.start_time AND 
+        OLD.end_time = NEW.end_time AND 
+        OLD.address = NEW.address) THEN
+        RETURN NEW;
+    END IF;
+    
+    -- Définir le message selon les changements
+    IF NEW.status = 'cancelled' THEN
+        notification_title := 'Mission annulée';
+        notification_message := CONCAT('La mission "', NEW.title, '" a été annulée.');
+    ELSE
+        notification_title := 'Mission mise à jour';
+        notification_message := CONCAT('La mission "', NEW.title, '" a été mise à jour.');
+    END IF;
+    
+    -- Notifier tous les bénévoles inscrits
+    FOR volunteer IN 
+        SELECT DISTINCT user_id 
+        FROM public.mission_registrations 
+        WHERE mission_id = NEW.id AND status IN ('pending', 'confirmed')
+    LOOP
+        PERFORM create_notification(
+            volunteer.user_id,
+            notification_title,
+            notification_message,
+            'mission_update',
+            'mission',
+            NEW.id
+        );
+    END LOOP;
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 4. Notification lors de l'obtention d'un badge
+CREATE OR REPLACE FUNCTION notify_volunteer_of_badge()
+RETURNS TRIGGER AS $$
+DECLARE
+    badge_name TEXT;
+    badge_description TEXT;
+BEGIN
+    -- Récupérer les informations du badge
+    SELECT name, description INTO badge_name, badge_description
+    FROM public.badges
+    WHERE id = NEW.badge_id;
+    
+    -- Créer la notification
+    PERFORM create_notification(
+        NEW.user_id,
+        'Nouveau badge obtenu !',
+        CONCAT('Félicitations ! Vous avez obtenu le badge "', badge_name, '". ', badge_description),
+        'badge',
+        'badge',
+        NEW.badge_id
+    );
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 5. Notification lors de la réception d'un message
+CREATE OR REPLACE FUNCTION notify_user_of_new_message()
+RETURNS TRIGGER AS $$
+DECLARE
+    sender_name TEXT;
+BEGIN
+    -- Récupérer le nom de l'expéditeur
+    SELECT CONCAT(first_name, ' ', last_name) INTO sender_name
+    FROM public.profiles
+    WHERE id = NEW.sender_id;
+    
+    -- Créer la notification
+    PERFORM create_notification(
+        NEW.recipient_id,
+        'Nouveau message',
+        CONCAT(sender_name, ' vous a envoyé un message.'),
+        'message',
+        'message',
+        NEW.id
+    );
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 6. Notification de l'association lors d'un feedback
+CREATE OR REPLACE FUNCTION notify_association_of_feedback()
+RETURNS TRIGGER AS $$
+DECLARE
+    mission_title TEXT;
+    volunteer_name TEXT;
+BEGIN
+    -- Ne déclencher que si un feedback est ajouté
+    IF NEW.feedback IS NULL OR NEW.feedback = OLD.feedback THEN
+        RETURN NEW;
+    END IF;
+    
+    -- Récupérer les informations
+    SELECT m.title, m.association_id, CONCAT(p.first_name, ' ', p.last_name)
+    INTO mission_title, NEW.association_id, volunteer_name
+    FROM public.missions m
+    JOIN public.profiles p ON p.id = NEW.user_id
+    WHERE m.id = NEW.mission_id;
+    
+    -- Créer la notification
+    PERFORM create_notification(
+        NEW.association_id,
+        'Nouveau feedback reçu',
+        CONCAT(volunteer_name, ' a laissé un feedback pour la mission "', mission_title, '".'),
+        'feedback',
+        'mission',
+        NEW.mission_id
+    );
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 7. Notification lors d'une invitation dans une équipe
+CREATE OR REPLACE FUNCTION notify_user_of_team_invitation()
+RETURNS TRIGGER AS $$
+DECLARE
+    association_name TEXT;
+BEGIN
+    -- Ne déclencher que pour les nouvelles invitations
+    IF NEW.status != 'invited' OR OLD.status = 'invited' THEN
+        RETURN NEW;
+    END IF;
+    
+    -- Récupérer le nom de l'association
+    SELECT name INTO association_name
+    FROM public.associations
+    WHERE id = NEW.association_id;
+
+    -- Créer la notification
+    PERFORM create_notification(
+        NEW.user_id,
+        'Invitation d''équipe',
+        'Vous avez été invité(e) à rejoindre l''équipe de ' || association_name || '.',
+        'team_invitation',
+        'association',
+        NEW.association_id
+    );
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- Création des triggers
+CREATE TRIGGER on_volunteer_registration
+AFTER INSERT ON public.mission_registrations
+FOR EACH ROW EXECUTE FUNCTION notify_volunteer_of_registration();
+
+CREATE TRIGGER on_registration_status_change
+AFTER UPDATE ON public.mission_registrations
+FOR EACH ROW EXECUTE FUNCTION notify_volunteer_of_registration_status_change();
+
+CREATE TRIGGER on_mission_update
+AFTER UPDATE ON public.missions
+FOR EACH ROW EXECUTE FUNCTION notify_volunteers_of_mission_update();
+
+CREATE TRIGGER on_badge_awarded
+AFTER INSERT ON public.user_badges
+FOR EACH ROW EXECUTE FUNCTION notify_volunteer_of_badge();
+
+CREATE TRIGGER on_new_message
+AFTER INSERT ON public.messages
+FOR EACH ROW EXECUTE FUNCTION notify_user_of_new_message();
+
+CREATE TRIGGER on_feedback_submitted
+AFTER UPDATE ON public.mission_registrations
+FOR EACH ROW EXECUTE FUNCTION notify_association_of_feedback();
+
+CREATE TRIGGER on_team_invitation
+AFTER INSERT OR UPDATE ON public.association_members
+FOR EACH ROW EXECUTE FUNCTION notify_user_of_team_invitation();
+
+-- =============================================
+-- FONCTION POUR LES NOTIFICATIONS GÉNÉRALES
+-- =============================================
+
+-- Fonction pour envoyer une notification générale à tous les utilisateurs
+CREATE OR REPLACE FUNCTION send_general_notification(
+    p_title TEXT,
+    p_message TEXT
+)
+RETURNS void AS $$
+DECLARE
+    user_record RECORD;
+BEGIN
+    -- Envoyer la notification à tous les utilisateurs
+    FOR user_record IN 
+        SELECT id FROM auth.users
+    LOOP
+        PERFORM create_notification(
+            user_record.id,
+            p_title,
+            p_message,
+            'general',
+            NULL,
+            NULL
+        );
+    END LOOP;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- =============================================
+-- COMMENTAIRES
+-- =============================================
+
+COMMENT ON FUNCTION notify_volunteer_of_registration() IS 'Notifie le bénévole après son inscription à une mission';
+COMMENT ON FUNCTION notify_volunteer_of_registration_status_change() IS 'Notifie le bénévole lors de la confirmation/annulation de son inscription';
+COMMENT ON FUNCTION notify_volunteers_of_mission_update() IS 'Notifie les bénévoles lors de la mise à jour/annulation d''une mission';
+COMMENT ON FUNCTION notify_volunteer_of_badge() IS 'Notifie le bénévole lors de l''obtention d''un badge';
+COMMENT ON FUNCTION notify_user_of_new_message() IS 'Notifie l''utilisateur lors de la réception d''un message';
+COMMENT ON FUNCTION notify_association_of_feedback() IS 'Notifie l''association lors de la réception d''un feedback';
+COMMENT ON FUNCTION notify_user_of_team_invitation() IS 'Notifie l''utilisateur lors d''une invitation dans une équipe';
+COMMENT ON FUNCTION send_general_notification() IS 'Envoie une notification générale à tous les utilisateurs';

@@ -1,6 +1,19 @@
 import { useState, useCallback, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
+import type { Database } from '@/types/database';
+
+// Définir le type pour la disponibilité (peut être ajusté selon le format JSON utilisé)
+interface Availability {
+  [day: string]: { // par exemple, 'lundi', 'mardi'
+    morning?: boolean;
+    afternoon?: boolean;
+    evening?: boolean;
+  };
+}
+
+// Définir le type partiel pour les mises à jour du profil bénévole
+type ProfileUpdate = Partial<Database['public']['Tables']['profiles']['Update']> & { availability?: Availability | null };
 
 export const useUserProfile = () => {
   const { user } = useAuth();
@@ -15,6 +28,8 @@ export const useUserProfile = () => {
   const [badges, setBadges] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // Ajouter l'état pour la disponibilité
+  const [availability, setAvailability] = useState<Availability | null>(null);
 
   useEffect(() => {
     async function fetchProfileData() {
@@ -36,6 +51,8 @@ export const useUserProfile = () => {
         if (profileError) throw profileError;
 
         setUserProfile(profile);
+        // Définir la disponibilité récupérée
+        setAvailability(profile.availability as Availability || null);
 
         setUserStats({
           total_missions_completed: profile.total_missions_completed || 0,
@@ -100,34 +117,49 @@ export const useUserProfile = () => {
     fetchProfileData();
   }, [user]);
 
+  // Nouvelle fonction générique pour mettre à jour le profil
+  const updateUserProfile = useCallback(async (updates: ProfileUpdate) => {
+    if (!user) return false;
+
+    try {
+      const { error: updateError, data: updatedProfile } = await supabase
+        .from('profiles')
+        .update(updates)
+        .eq('id', user.id)
+        .select()
+        .single();
+
+      if (updateError) throw updateError;
+
+      setUserProfile(updatedProfile);
+      // Mettre à jour aussi la disponibilité si elle fait partie des mises à jour
+      if (updates.hasOwnProperty('availability')) {
+        setAvailability(updates.availability || null);
+      }
+
+      return true;
+    } catch (err) {
+      console.error("Erreur lors de la mise à jour du profil:", err);
+      setError(err instanceof Error ? err.message : "Erreur lors de la mise à jour du profil.");
+      return false;
+    }
+  }, [user]);
+
   // Les préférences de mission comme maxDistance et preferredCategories devraient
   // être dérivées de userProfile.interests et userProfile.max_distance si elles existent.
   // Sinon, utiliser des valeurs par défaut.
   const preferredCategories = userProfile?.interests || [];
   const maxDistance = userProfile?.max_distance || 15;
 
-  // Les setters pour ces préférences doivent aussi mettre à jour le profil dans la BDD.
   const setMaxDistance = useCallback(async (distance: number) => {
-      if (!user) return;
-      const { error } = await supabase
-          .from('profiles')
-          .update({ max_distance: distance })
-          .eq('id', user.id);
-      if (!error) {
-          setUserProfile(prev => prev ? { ...prev, max_distance: distance } : null);
-      }
-  }, [user]);
+      const success = await updateUserProfile({ max_distance: distance });
+      return success;
+  }, [updateUserProfile]);
 
   const setPreferredCategories = useCallback(async (categories: string[]) => {
-      if (!user) return;
-       const { error } = await supabase
-          .from('profiles')
-          .update({ interests: categories })
-          .eq('id', user.id);
-      if (!error) {
-          setUserProfile(prev => prev ? { ...prev, interests: categories } : null);
-      }
-  }, [user]);
+       const success = await updateUserProfile({ interests: categories });
+       return success;
+  }, [updateUserProfile]);
 
   return {
     userProfile,
@@ -135,8 +167,8 @@ export const useUserProfile = () => {
     badges,
     preferredCategories,
     maxDistance,
-    // preferredDuration,
-    // userAssociations, // Si besoin, ajouter la récupération ici
+    availability, // Exposer la disponibilité
+    updateUserProfile, // Exposer la fonction générique de mise à jour
     updateStats: setUserStats, // Permettre la mise à jour locale si nécessaire
     setMaxDistance,
     setPreferredCategories,

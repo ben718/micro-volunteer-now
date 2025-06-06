@@ -23,6 +23,28 @@ export const missionService = {
     return data
   },
 
+  // Récupérer les missions à venir pour l'utilisateur connecté (utilise la vue RLS)
+  getUserUpcomingMissions: async () => {
+    const { data, error } = await supabase
+      .from('user_upcoming_missions')
+      .select('*')
+      .order('date', { ascending: true });
+
+    if (error) throw error;
+    return data;
+  },
+
+  // Récupérer les missions passées pour l'utilisateur connecté (utilise la vue RLS)
+  getUserPastMissions: async () => {
+    const { data, error } = await supabase
+      .from('user_past_missions')
+      .select('*')
+      .order('date', { ascending: false }); // Trier par date descendante pour les missions passées
+
+    if (error) throw error;
+    return data;
+  },
+
   // Rechercher des missions à proximité
   searchNearbyMissions: async (params: {
     latitude: number

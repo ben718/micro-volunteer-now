@@ -1,51 +1,50 @@
 import React, { useState } from 'react';
-import { useMissions } from '@/hooks/useMissions';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Clock, MapPin, Calendar, CheckCircle, AlertCircle, Star } from 'lucide-react';
 import { useCategories } from '@/hooks/useCategories';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import { useUserMissions } from '@/hooks/useUserMissions';
+import { Mission } from '@/types/mission'; // Assurez-vous d'avoir un type Mission compatible avec les vues
 
 const MyMissions = () => {
-  const [activeTab, setActiveTab] = useState<'upcoming' | 'completed' | 'all'>('upcoming');
-  const { userMissions, loading } = useMissions();
+  const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
+  const { upcomingMissions, pastMissions, loading, error } = useUserMissions();
   const { getCategoryColor } = useCategories();
-  const { userStats } = useUserProfile();
+  const { userStats } = useUserProfile(); // Maintenir pour les stats globales
 
-  const getStatusIcon = (status: string) => {
+  const getStatusIcon = (status: string | undefined) => {
     switch (status) {
-      case 'upcoming':
-        return <Clock className="h-4 w-4 text-accent" />;
+      case 'confirmed':
+        return <CheckCircle className="h-4 w-4 text-success" />;
       case 'completed':
         return <CheckCircle className="h-4 w-4 text-success" />;
       case 'cancelled':
         return <AlertCircle className="h-4 w-4 text-destructive" />;
-      default:
+      case 'pending':
         return <Clock className="h-4 w-4 text-muted-foreground" />;
+      default:
+        return null; // Ou une icône par défaut
     }
   };
 
-  const getStatusText = (status: string) => {
+  const getStatusText = (status: string | undefined) => {
     switch (status) {
-      case 'upcoming':
-        return 'À venir';
+      case 'pending':
+        return 'En attente';
+      case 'confirmed':
+        return 'Confirmée';
       case 'completed':
         return 'Terminée';
       case 'cancelled':
         return 'Annulée';
       default:
-        return status;
+        return 'Inconnu';
     }
   };
 
-  const filteredMissions = userMissions.filter(mission => {
-    if (activeTab === 'all') return true;
-    if (activeTab === 'upcoming') return mission.status === 'upcoming';
-    if (activeTab === 'completed') return mission.status === 'completed';
-    return true;
-  });
-
-  const renderStars = (rating: number) => {
+  const renderStars = (rating: number | null | undefined) => {
+     if (rating === null || rating === undefined) return null;
     return Array.from({ length: 5 }, (_, i) => (
       <Star
         key={i}
@@ -55,8 +54,14 @@ const MyMissions = () => {
   };
 
   if (loading) {
-    return <div>Chargement...</div>;
+    return <div>Chargement de vos missions...</div>;
   }
+
+  if (error) {
+    return <div>Erreur lors du chargement de vos missions : {error}</div>;
+  }
+
+  const missionsToDisplay = activeTab === 'upcoming' ? upcomingMissions : pastMissions;
 
   return (
     <div className="space-y-6">
@@ -69,16 +74,16 @@ const MyMissions = () => {
       {/* Statistiques rapides */}
       <div className="grid grid-cols-3 gap-4">
         <div className="bg-card border border-border rounded-lg p-4 text-center">
-          <div className="text-2xl font-bold text-foreground">{userMissions.filter(m => m.status === 'upcoming').length}</div>
+          <div className="text-2xl font-bold text-foreground">{upcomingMissions.length}</div>
           <div className="text-sm text-muted-foreground">À venir</div>
         </div>
         <div className="bg-card border border-border rounded-lg p-4 text-center">
-          <div className="text-2xl font-bold text-foreground">{userMissions.filter(m => m.status === 'completed').length}</div>
+          <div className="text-2xl font-bold text-foreground">{pastMissions.filter(m => m.registration_status === 'completed').length}</div>
           <div className="text-sm text-muted-foreground">Terminées</div>
         </div>
         <div className="bg-card border border-border rounded-lg p-4 text-center">
-          <div className="text-2xl font-bold text-foreground">{userStats.total_missions_completed}</div>
-          <div className="text-sm text-muted-foreground">Total</div>
+          <div className="text-2xl font-bold text-foreground">{userStats?.total_missions_completed || 0}</div>
+          <div className="text-sm text-muted-foreground">Total (Profil)</div>
         </div>
       </div>
       {/* Onglets */}
@@ -87,87 +92,93 @@ const MyMissions = () => {
           className={`flex-1 py-2 text-center text-sm font-medium ${activeTab === 'upcoming' ? 'bg-white text-blue-600 rounded-md shadow-sm' : 'text-gray-600'}`}
           onClick={() => setActiveTab('upcoming')}
         >
-          À venir
+          À venir ({upcomingMissions.length})
         </button>
         <button
-          className={`flex-1 py-2 text-center text-sm font-medium ${activeTab === 'completed' ? 'bg-white text-blue-600 rounded-md shadow-sm' : 'text-gray-600'}`}
-          onClick={() => setActiveTab('completed')}
+          className={`flex-1 py-2 text-center text-sm font-medium ${activeTab === 'past' ? 'bg-white text-blue-600 rounded-md shadow-sm' : 'text-gray-600'}`}
+          onClick={() => setActiveTab('past')}
         >
-          Terminées
-        </button>
-        <button
-          className={`flex-1 py-2 text-center text-sm font-medium ${activeTab === 'all' ? 'bg-white text-blue-600 rounded-md shadow-sm' : 'text-gray-600'}`}
-          onClick={() => setActiveTab('all')}
-        >
-          Toutes
+          Passées ({pastMissions.length})
         </button>
       </div>
       {/* Liste des missions */}
       <div className="space-y-4">
-        {filteredMissions.map(mission => (
-          <div key={mission.id} className="bg-card border border-border rounded-xl p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex-1">
-                <div className="flex items-center space-x-2 mb-2">
-                  {getStatusIcon(mission.status)}
-                  <h3 className="font-semibold text-foreground">{mission.title}</h3>
-                  <Badge className={getCategoryColor(mission.category)}>
-                    {mission.category}
-                  </Badge>
-                </div>
-                <p className="text-sm text-muted-foreground mb-1">{mission.association_name}</p>
-                <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                  <span className="flex items-center">
-                    <Calendar className="h-4 w-4 mr-1" />
-                    {mission.date}
-                  </span>
-                  <span className="flex items-center">
-                    <Clock className="h-4 w-4 mr-1" />
-                    {mission.time}
-                  </span>
-                  <span className="flex items-center">
-                    <MapPin className="h-4 w-4 mr-1" />
-                    {mission.location}
-                  </span>
-                </div>
-              </div>
-              <div className="text-right">
-                <Badge variant={mission.status === 'completed' ? 'secondary' : 'outline'}>
-                  {getStatusText(mission.status)}
-                </Badge>
-                {mission.points && (
-                  <div className="text-sm font-medium text-success mt-1">
-                    +{mission.points} points
+        {missionsToDisplay.length > 0 ? (
+          missionsToDisplay.map(mission => (
+            <div key={mission.id} className="bg-card border border-border rounded-xl p-6">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex-1">
+                  <div className="flex items-center space-x-2 mb-2">
+                    {getStatusIcon(mission.registration_status || '')}
+                    <h3 className="font-semibold text-foreground">{mission.title}</h3>
+                    {/* Assurez-vous que la vue inclut la catégorie ou récupérez-la autrement */}
+                    {mission.category && (
+                      <Badge className={getCategoryColor(mission.category)}>
+                        {mission.category}
+                      </Badge>
+                    )}
                   </div>
-                )}
+                  <p className="text-sm text-muted-foreground mb-1">{mission.association_name}</p>
+                  <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                    <span className="flex items-center">
+                      <Calendar className="h-4 w-4 mr-1" />
+                      {/* Assurez-vous que la date est au bon format ou formatez-la */}
+                      {mission.date ? new Date(mission.date).toLocaleDateString() : 'N/A'}
+                    </span>
+                    <span className="flex items-center">
+                      <Clock className="h-4 w-4 mr-1" />
+                       {/* Assurez-vous que l'heure est au bon format ou formatez-la */}
+                      {`${mission.start_time || 'N/A'} - ${mission.end_time || 'N/A'}`}
+                    </span>
+                    <span className="flex items-center">
+                      <MapPin className="h-4 w-4 mr-1" />
+                       {/* Assurez-vous que l'adresse est au bon format */}
+                      {mission.city || 'N/A'}
+                    </span>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <Badge variant={mission.registration_status === 'completed' ? 'secondary' : 'outline'}>
+                    {getStatusText(mission.registration_status || '')}
+                  </Badge>
+                  {/* Points et feedback/rating gérés ci-dessous */}
+                </div>
               </div>
+              {/* Évaluation pour les missions terminées (vue past_missions) */}
+              {activeTab === 'past' && mission.registration_status === 'completed' && (mission.rating || mission.feedback) && (
+                <div className="flex items-start mt-2 space-x-2">
+                   {mission.rating && renderStars(mission.rating)}
+                  {mission.feedback && (
+                    <span className="ml-2 text-sm text-muted-foreground">{mission.feedback}</span>
+                  )}
+                </div>
+              )}
+               {/* Boutons d'action pour missions à venir (annuler) */}
+               {activeTab === 'upcoming' && mission.registration_status !== 'cancelled' && (
+                 <div className="mt-4 flex justify-end">
+                   {/* Ajouter ici le bouton Annuler si souhaité. Il faudrait un hook ou une fonction pour ça. */}
+                   {/* <Button variant="destructive" size="sm">Annuler inscription</Button> */}
+                 </div>
+               )}
             </div>
-            {/* Évaluation pour les missions terminées */}
-            {mission.status === 'completed' && mission.rating && (
-              <div className="flex items-center mt-2">
-                {renderStars(mission.rating)}
-                {mission.feedback && (
-                  <span className="ml-2 text-sm text-muted-foreground">{mission.feedback}</span>
-                )}
-              </div>
-            )}
-          </div>
-        ))}
-        {filteredMissions.length === 0 && (
+          ))
+        ) : (
           <div className="text-center py-12">
             <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-medium text-foreground mb-2">
-              Aucune mission {activeTab === 'upcoming' ? 'à venir' : activeTab === 'completed' ? 'terminée' : ''}
+              {activeTab === 'upcoming' ? 'Aucune mission à venir' : 'Aucune mission passée'}
             </h3>
             <p className="text-muted-foreground mb-4">
               {activeTab === 'upcoming' 
-                ? 'Explorez les missions disponibles pour vous engager'
-                : 'Commencez votre première mission de bénévolat'
+                ? 'Explorez les missions disponibles pour vous engager !'
+                : 'Vos missions terminées apparaîtront ici.'
               }
             </p>
-            <Button onClick={() => window.location.hash = '#explore'}>
-              Explorer les missions
-            </Button>
+            {activeTab === 'upcoming' && (
+              <Button onClick={() => window.location.hash = '#explore'}>
+                Explorer les missions
+              </Button>
+            )}
           </div>
         )}
       </div>
