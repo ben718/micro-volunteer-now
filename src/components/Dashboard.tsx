@@ -99,7 +99,7 @@ const Dashboard = ({ view, onViewChange }: DashboardProps) => {
             Voir détails
           </Button>
         </div>
-        <ImpactStats stats={userStats} level={userLevel} />
+        <ImpactStats />
       </div>
 
       {/* Prochaines missions */}

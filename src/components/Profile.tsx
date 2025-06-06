@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -371,7 +370,7 @@ const Profile = () => {
 
       {/* Contenu des onglets */}
       {activeTab === 'profile' && renderProfileTab()}
-      {activeTab === 'impact' && <ImpactStats stats={userStats} level={userLevel} />}
+      {activeTab === 'impact' && <ImpactStats />}
       {activeTab === 'badges' && renderBadgesTab()}
       {activeTab === 'settings' && renderSettingsTab()}
     </div>
