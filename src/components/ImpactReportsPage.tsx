@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
-export const ImpactReportsPage = () => {
+const ImpactReportsPage = () => {
   const { reports, loading, error } = useImpactReports();
 
   if (loading) return <div>Chargement des rapports d'impact...</div>;
@@ -49,4 +49,6 @@ export const ImpactReportsPage = () => {
       )}
     </div>
   );
-}; 
+};
+
+export default ImpactReportsPage; 

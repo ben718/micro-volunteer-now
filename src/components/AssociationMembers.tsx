@@ -12,7 +12,7 @@ import { UserPlus, Trash2, Mail, Send } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { supabase } from '@/lib/supabase';
 
-export const AssociationMembers = () => {
+const AssociationMembers = () => {
   const { members, loading, error, inviteMember, updateMemberRole, resendInvitation, removeMember } = useAssociationMembers();
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
@@ -223,4 +223,6 @@ export const AssociationMembers = () => {
       </Card>
     </div>
   );
-}; 
+};
+
+export default AssociationMembers; 

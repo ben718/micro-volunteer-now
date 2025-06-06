@@ -7,7 +7,8 @@ import { fr } from 'date-fns/locale';
 import { Check, X, Clock, MapPin, Users, Calendar } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 
-export const MissionManagement = () => {
+
+
   const { missionId } = useParams<{ missionId: string }>();
 
   const { missions, confirmVolunteer, completeMission } = useAssociationMissions();
@@ -242,4 +243,6 @@ export const MissionManagement = () => {
       </div>
     </div>
   );
-}; 
+};
+
+export default MissionManagement;

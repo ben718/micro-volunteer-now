@@ -9,7 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { toast } from '@/components/ui/use-toast';
 import { useCategories } from '@/hooks/useCategories';
 
-export const AssociationSettings = () => {
+const AssociationSettings = () => {
   const { association, loading, error, updateAssociation, updateNotificationPreferences } = useAssociation();
   const { categories: availableCategories, loading: categoriesLoading, error: categoriesError } = useCategories();
 
@@ -242,4 +242,6 @@ export const AssociationSettings = () => {
       </Button>
     </div>
   );
-}; 
+};
+
+export default AssociationSettings; 

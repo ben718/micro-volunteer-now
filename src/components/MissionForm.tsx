@@ -14,7 +14,7 @@ import { CalendarIcon } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from '@/components/ui/use-toast';
 
-export const MissionForm = () => {
+const MissionForm = () => {
   const { missionId } = useParams<{ missionId: string }>();
   const { missions, createMission, updateMission, loading: missionsLoading } = useAssociationMissions();
   const navigate = useNavigate();
@@ -308,4 +308,6 @@ export const MissionForm = () => {
       </form>
     </div>
   );
-}; 
+};
+
+export default MissionForm; 

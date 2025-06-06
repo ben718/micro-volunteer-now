@@ -14,15 +14,17 @@ const SignUpForm = lazy(() => import('./components/auth/SignUpForm'));
 const SignInForm = lazy(() => import('./components/auth/SignInForm'));
 
 // Lazy loading des composants association
-const AssociationDashboard = lazy(() => import('./components/association/AssociationDashboard'));
-const MissionManagement = lazy(() => import('./components/association/MissionManagement'));
-const AssociationSettings = lazy(() => import('./components/association/AssociationSettings'));
-const AssociationMembers = lazy(() => import('./components/association/AssociationMembers'));
-const ImpactReportsPage = lazy(() => import('./components/association/ImpactReportsPage'));
+const AssociationDashboard = lazy(() => import('./components/AssociationDashboard'));
+const MissionManagement = lazy(() => import('./components/MissionManagement'));
+const AssociationSettings = lazy(() => import('./components/AssociationSettings'));
+const AssociationMembers = lazy(() => import('./components/AssociationMembers'));
+const ImpactReportsPage = lazy(() => import('./components/ImpactReportsPage'));
+const MissionForm = lazy(() => import('./components/MissionForm'));
 
 // Les composants Messages et Notifications ne sont pas lazy-loaded ici
 import Notifications from './components/notifications/Notifications';
 import Messages from './components/messages/Messages';
+
 
 const ProtectedRoute: React.FC<{ children: JSX.Element, allowedRoles?: string[] }> = ({ children, allowedRoles }) => {
   const { user, loading } = useAuth();
