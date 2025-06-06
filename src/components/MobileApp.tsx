@@ -30,9 +30,10 @@ import { useCategories } from '@/hooks/useCategories';
 import MissionCard from '@/components/mobile/MissionCard';
 import FilterPanel from '@/components/mobile/FilterPanel';
 import UserStatsCard from '@/components/mobile/UserStatsCard';
+import NotificationsPage from '@/components/NotificationsPage';
 
 const MobileApp = () => {
-  const [currentView, setCurrentView] = useState<'home' | 'explorer' | 'missions' | 'profile'>('home');
+  const [currentView, setCurrentView] = useState<'home' | 'explorer' | 'missions' | 'profile' | 'notifications'>('home');
   const [showFilters, setShowFilters] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const isMobile = useIsMobile();
@@ -81,6 +82,7 @@ const MobileApp = () => {
             { key: 'explorer', label: 'Explorer', icon: Search },
             { key: 'missions', label: 'Mes Missions', icon: Calendar },
             { key: 'profile', label: 'Profil', icon: User },
+            { key: 'notifications', label: 'Notifications', icon: Bell },
           ].map((item) => (
             <button
               key={item.key}
@@ -97,6 +99,9 @@ const MobileApp = () => {
               {item.label}
               {item.key === 'missions' && userMissions.length > 0 && (
                 <Badge className="ml-auto bg-red-500 text-white text-xs">{userMissions.length}</Badge>
+              )}
+              {item.key === 'notifications' && notifications.some(notif => !notif.is_read) && (
+                <div className="ml-auto w-2 h-2 bg-red-500 rounded-full" />
               )}
             </button>
           ))}
@@ -135,13 +140,17 @@ const MobileApp = () => {
         <button 
           className="relative p-2 rounded-md text-gray-600 hover:text-gray-700 hover:bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           aria-label="Notifications"
+          onClick={() => setCurrentView('notifications')}
         >
           <Bell className="h-5 w-5" />
-          <div className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full"></div>
+          {notifications.some(notif => !notif.is_read) && (
+              <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>
+          )}
         </button>
         <button 
           className="w-7 h-7 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           aria-label="Profil"
+          onClick={() => setCurrentView('profile')}
         >
           JD
         </button>
@@ -706,6 +715,28 @@ const MobileApp = () => {
     </div>
   );
 
+  const renderNotificationsView = () => (
+    <NotificationsPage />
+  );
+
+  // Logique de rendu principal basée sur la vue actuelle
+  const renderCurrentView = () => {
+    switch (currentView) {
+      case 'home':
+        return renderHomeView();
+      case 'explorer':
+        return renderExplorerView();
+      case 'missions':
+        return renderMissionsView();
+      case 'profile':
+        return renderProfileView();
+      case 'notifications':
+        return renderNotificationsView();
+      default:
+        return renderHomeView(); // Vue par défaut
+    }
+  };
+
   return (
     <div className="h-screen flex bg-white overflow-hidden">
       {/* Desktop Sidebar */}
@@ -717,13 +748,12 @@ const MobileApp = () => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col lg:ml-64">
         {/* Main Views */}
-        {currentView === 'home' && renderHomeView()}
-        {currentView === 'explorer' && renderExplorerView()}
-        {currentView === 'missions' && renderMissionsView()}
-        {currentView === 'profile' && renderProfileView()}
+        {renderCurrentView()}
 
         {/* Bottom Navigation - Mobile Only */}
-        <MobileNavigation currentView={currentView} onViewChange={setCurrentView} />
+        {isMobile && (
+          <MobileNavigation currentView={currentView} onViewChange={setCurrentView} />
+        )}
       </div>
     </div>
   );
