@@ -16,11 +16,19 @@ const AssociationDashboard = () => {
   const navigate = useNavigate();
 
   if (associationLoading || missionsLoading) {
-    return <div>Chargement...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
   if (!association) {
-    return <div>Association non trouvée</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-lg text-muted-foreground">Association non trouvée</p>
+      </div>
+    );
   }
 
   const upcomingMissions = missions.filter(m => 
@@ -34,17 +42,22 @@ const AssociationDashboard = () => {
   const totalVolunteers = association.total_volunteers_engaged;
 
   return (
-    <div className="container mx-auto p-4 space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="container mx-auto px-4 py-6 space-y-6 max-w-7xl">
+      {/* En-tête avec bouton nouvelle mission */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-2xl font-bold">Tableau de bord</h1>
-        <Button onClick={() => navigate('/association/missions/new')}>
+        <Button 
+          onClick={() => navigate('/association/missions/new')}
+          className="w-full sm:w-auto"
+        >
           <Plus className="w-4 h-4 mr-2" />
           Nouvelle mission
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
+      {/* Cartes statistiques */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <Card className="hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Missions à venir</CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -54,7 +67,7 @@ const AssociationDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Inscriptions en attente</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
@@ -64,7 +77,7 @@ const AssociationDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Bénévoles engagés</CardTitle>
             <Award className="h-4 w-4 text-muted-foreground" />
@@ -75,14 +88,15 @@ const AssociationDashboard = () => {
         </Card>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
+      {/* Onglets */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="w-full grid grid-cols-3">
           <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
           <TabsTrigger value="missions">Missions</TabsTrigger>
           <TabsTrigger value="volunteers">Bénévoles</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-4">
+        <TabsContent value="overview" className="space-y-4 mt-4">
           <Card>
             <CardHeader>
               <CardTitle>Prochaines missions</CardTitle>
@@ -91,14 +105,18 @@ const AssociationDashboard = () => {
               {upcomingMissions.length > 0 ? (
                 <div className="space-y-4">
                   {upcomingMissions.slice(0, 5).map(mission => (
-                    <div key={mission.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div key={mission.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border rounded-lg gap-4">
                       <div>
                         <h3 className="font-medium">{mission.title}</h3>
                         <p className="text-sm text-muted-foreground">
                           {format(new Date(mission.date), 'PPP', { locale: fr })}
                         </p>
                       </div>
-                      <Button variant="outline" onClick={() => navigate(`/association/missions/${mission.id}`)}>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => navigate(`/association/missions/${mission.id}`)}
+                        className="w-full sm:w-auto"
+                      >
                         Voir les détails
                       </Button>
                     </div>
@@ -111,7 +129,7 @@ const AssociationDashboard = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="missions">
+        <TabsContent value="missions" className="mt-4">
           <Card>
             <CardHeader>
               <CardTitle>Toutes les missions</CardTitle>
@@ -120,14 +138,18 @@ const AssociationDashboard = () => {
               {missions.length > 0 ? (
                 <div className="space-y-4">
                   {missions.map(mission => (
-                    <div key={mission.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div key={mission.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border rounded-lg gap-4">
                       <div>
                         <h3 className="font-medium">{mission.title}</h3>
                         <p className="text-sm text-muted-foreground">
                           {format(new Date(mission.date), 'PPP', { locale: fr })} - {mission.spots_taken}/{mission.spots_available} places
                         </p>
                       </div>
-                      <Button variant="outline" onClick={() => navigate(`/association/missions/${mission.id}`)}>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => navigate(`/association/missions/${mission.id}`)}
+                        className="w-full sm:w-auto"
+                      >
                         Gérer
                       </Button>
                     </div>
@@ -140,7 +162,7 @@ const AssociationDashboard = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="volunteers">
+        <TabsContent value="volunteers" className="mt-4">
           <Card>
             <CardHeader>
               <CardTitle>Bénévoles récents</CardTitle>
@@ -154,7 +176,7 @@ const AssociationDashboard = () => {
                     .sort((a, b) => new Date(b.registration_date).getTime() - new Date(a.registration_date).getTime())
                     .slice(0, 5)
                     .map(registration => (
-                      <div key={registration.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div key={registration.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border rounded-lg gap-4">
                         <div className="flex items-center space-x-4">
                           {registration.volunteer.avatar_url ? (
                             <img
@@ -176,7 +198,11 @@ const AssociationDashboard = () => {
                             </p>
                           </div>
                         </div>
-                        <Button variant="outline" onClick={() => navigate(`/association/volunteers/${registration.user_id}`)}>
+                        <Button 
+                          variant="outline" 
+                          onClick={() => navigate(`/association/volunteers/${registration.user_id}`)}
+                          className="w-full sm:w-auto"
+                        >
                           Voir le profil
                         </Button>
                       </div>
