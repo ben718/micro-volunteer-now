@@ -1,10 +1,10 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Search, Filter, Map, List, Clock, MapPin, Users, SlidersHorizontal } from 'lucide-react';
 import MissionCard from './MissionCard';
+import { missionService } from '@/lib/supabase';
 
 const Explorer = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -17,6 +17,9 @@ const Explorer = () => {
     distance: 'all',
     urgency: false
   });
+  const [missions, setMissions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const categories = [
     'Aide alimentaire',
@@ -28,83 +31,33 @@ const Explorer = () => {
     'Sport'
   ];
 
-  const missions = [
-    {
-      title: "Aide aux courses",
-      association: "Épicerie Solidaire du 11ème",
-      duration: "15 min",
-      distance: "0.5 km",
-      startTime: "Dans 10 min",
-      description: "Aidez à porter les courses des bénéficiaires jusqu'à leur domicile",
-      participants: { current: 2, max: 3 },
-      category: "Aide alimentaire",
-      isUrgent: true
-    },
-    {
-      title: "Distribution de repas",
-      association: "Secours Populaire",
-      duration: "30 min",
-      distance: "1.2 km",
-      startTime: "Maintenant",
-      description: "Participez à la distribution de repas chauds aux personnes dans le besoin",
-      participants: { current: 4, max: 6 },
-      category: "Aide alimentaire"
-    },
-    {
-      title: "Accompagnement senior",
-      association: "Les Petites Sœurs",
-      duration: "45 min",
-      distance: "0.8 km",
-      startTime: "15h30",
-      description: "Accompagnez une personne âgée pour ses courses hebdomadaires",
-      participants: { current: 1, max: 2 },
-      category: "Accompagnement"
-    },
-    {
-      title: "Nettoyage parc",
-      association: "Éco-Quartier",
-      duration: "1h",
-      distance: "1.5 km",
-      startTime: "16h00",
-      description: "Participez au nettoyage et à l'entretien du parc de Belleville",
-      participants: { current: 3, max: 8 },
-      category: "Environnement"
-    },
-    {
-      title: "Aide aux devoirs",
-      association: "Aide aux Enfants",
-      duration: "45 min",
-      distance: "1.8 km",
-      startTime: "17h00",
-      description: "Aidez les enfants avec leurs devoirs et leur apprentissage",
-      participants: { current: 2, max: 4 },
-      category: "Éducation"
-    },
-    {
-      title: "Visite à l'hôpital",
-      association: "Sourire à l'Hôpital",
-      duration: "30 min",
-      distance: "2.1 km",
-      startTime: "14h30",
-      description: "Apportez un sourire aux patients hospitalisés",
-      participants: { current: 1, max: 3 },
-      category: "Santé"
+  useEffect(() => {
+    async function fetchMissions() {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await missionService.getAvailableMissions();
+        setMissions(data || []);
+      } catch (e: any) {
+        setError(e.message);
+      } finally {
+        setLoading(false);
+      }
     }
-  ];
+    fetchMissions();
+  }, []);
 
   const filteredMissions = missions.filter(mission => {
     // Recherche textuelle
     if (searchQuery && !mission.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        !mission.association.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        !mission.association_name?.toLowerCase().includes(searchQuery.toLowerCase()) &&
         !mission.description.toLowerCase().includes(searchQuery.toLowerCase())) {
       return false;
     }
-
     // Filtre par catégorie
     if (selectedFilters.category !== 'all' && mission.category !== selectedFilters.category) {
       return false;
     }
-
     // Filtre par durée
     if (selectedFilters.duration !== 'all') {
       const duration = parseInt(mission.duration);
@@ -120,12 +73,10 @@ const Explorer = () => {
           break;
       }
     }
-
     // Filtre par urgence
     if (selectedFilters.urgency && !mission.isUrgent) {
       return false;
     }
-
     return true;
   });
 
@@ -312,7 +263,9 @@ const Explorer = () => {
       </div>
 
       {/* Résultats */}
-      {viewMode === 'list' ? (
+      {loading ? (
+        <div>Chargement...</div>
+      ) : viewMode === 'list' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredMissions.map((mission, index) => (
             <MissionCard
@@ -334,7 +287,7 @@ const Explorer = () => {
       )}
 
       {/* Message si aucun résultat */}
-      {filteredMissions.length === 0 && (
+      {filteredMissions.length === 0 && !loading && (
         <div className="text-center py-12">
           <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
           <h3 className="text-lg font-medium text-foreground mb-2">

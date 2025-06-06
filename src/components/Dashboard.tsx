@@ -1,5 +1,5 @@
-
 import React, { useState } from 'react';
+import { useMissions } from '@/hooks/useMissions';
 import { Button } from '@/components/ui/button';
 import MissionCard from './MissionCard';
 import ImpactStats from './ImpactStats';
@@ -13,6 +13,11 @@ interface DashboardProps {
 }
 
 const Dashboard = ({ view, onViewChange }: DashboardProps) => {
+  const { missions, loading } = useMissions();
+
+  const urgentMissions = missions.filter(m => m.isUrgent);
+  const nearbyMissions = missions.filter(m => m.distance && parseFloat(m.distance) < 2); // exemple : moins de 2km
+
   const userStats = {
     missionsCompleted: 8,
     associationsHelped: 5,
@@ -27,49 +32,15 @@ const Dashboard = ({ view, onViewChange }: DashboardProps) => {
     missionsToNext: 2
   };
 
-  const nearbyMissions = [
-    {
-      title: "Aide aux courses",
-      association: "Épicerie Solidaire du 11ème",
-      duration: "15 min",
-      distance: "0.5 km",
-      startTime: "Dans 10 min",
-      description: "Aidez à porter les courses des bénéficiaires jusqu'à leur domicile",
-      participants: { current: 2, max: 3 },
-      category: "Aide alimentaire",
-      isUrgent: true
-    },
-    {
-      title: "Distribution de repas",
-      association: "Secours Populaire",
-      duration: "30 min",
-      distance: "1.2 km",
-      startTime: "Maintenant",
-      description: "Participez à la distribution de repas chauds aux personnes dans le besoin",
-      participants: { current: 4, max: 6 },
-      category: "Aide alimentaire"
-    },
-    {
-      title: "Accompagnement senior",
-      association: "Les Petites Sœurs",
-      duration: "45 min",
-      distance: "0.8 km",
-      startTime: "15h30",
-      description: "Accompagnez une personne âgée pour ses courses hebdomadaires",
-      participants: { current: 1, max: 2 },
-      category: "Accompagnement"
-    }
-  ];
-
   const renderDashboard = () => (
     <div className="space-y-8">
       {/* Salutation personnalisée */}
       <div className="bg-gradient-to-r from-primary/10 to-success/10 rounded-xl p-6">
         <h1 className="text-2xl font-bold text-foreground mb-2">
-          Bonjour Marie ! 👋
+          Bonjour ! 👋
         </h1>
         <p className="text-muted-foreground">
-          Prête à faire la différence aujourd'hui ? {nearbyMissions.filter(m => m.isUrgent).length} missions urgentes vous attendent.
+          Prêt à faire la différence aujourd'hui ? {urgentMissions.length} missions urgentes vous attendent.
         </p>
         <div className="flex items-center space-x-4 mt-4">
           <Button 
@@ -101,16 +72,19 @@ const Dashboard = ({ view, onViewChange }: DashboardProps) => {
             Voir toutes
           </Button>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {nearbyMissions.slice(0, 3).map((mission, index) => (
-            <MissionCard
-              key={index}
-              {...mission}
-              onParticipate={() => console.log(`Participer à: ${mission.title}`)}
-            />
-          ))}
-        </div>
+        {loading ? (
+          <div>Chargement...</div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {urgentMissions.slice(0, 3).map((mission, index) => (
+              <MissionCard
+                key={index}
+                {...mission}
+                onParticipate={() => onViewChange('missions')}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Votre impact */}
@@ -158,43 +132,11 @@ const Dashboard = ({ view, onViewChange }: DashboardProps) => {
     </div>
   );
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        {/* Navigation mobile */}
-        <div className="md:hidden mb-6">
-          <div className="flex space-x-2 p-1 bg-white rounded-lg border border-border">
-            {[
-              { key: 'dashboard', label: 'Accueil' },
-              { key: 'explore', label: 'Explorer' },
-              { key: 'missions', label: 'Missions' },
-              { key: 'profile', label: 'Profil' }
-            ].map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => onViewChange(tab.key as any)}
-                className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
-                  view === tab.key
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Contenu principal */}
-        <div className="max-w-6xl mx-auto">
-          {view === 'dashboard' && renderDashboard()}
-          {view === 'explore' && <Explorer />}
-          {view === 'missions' && <MyMissions />}
-          {view === 'profile' && <Profile />}
-        </div>
-      </div>
-    </div>
-  );
+  if (view === 'dashboard') return renderDashboard();
+  if (view === 'explore') return <Explorer />;
+  if (view === 'missions') return <MyMissions />;
+  if (view === 'profile') return <Profile />;
+  return null;
 };
 
 export default Dashboard;

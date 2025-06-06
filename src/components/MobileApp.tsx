@@ -37,7 +37,7 @@ const MobileApp = () => {
   const isMobile = useIsMobile();
   
   // Hooks
-  const { missions, userMissions, participateInMission, cancelMission } = useMissions();
+  const { missions, userMissions, participateInMission, cancelMission, loading } = useMissions();
   const { filters, filteredMissions, updateFilter, clearFilters, activeFiltersCount } = useFilters(missions);
   const { 
     userStats, 
