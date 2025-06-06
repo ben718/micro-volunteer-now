@@ -53,7 +53,7 @@ const HomePage = ({ onGetStarted }: HomePageProps) => {
               <Button variant="outline" className="text-lg px-8 py-4" onClick={() => navigate('/explore')}>
                 Découvrir
               </Button>
-              <Button variant="outline" className="text-lg px-8 py-4" onClick={() => navigate('/login')}>
+              <Button variant="default" className="text-lg px-8 py-4" onClick={() => navigate('/login')}>
                 Se connecter
               </Button>
             </div>
