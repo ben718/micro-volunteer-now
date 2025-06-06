@@ -14,12 +14,11 @@ const SignUpForm = lazy(() => import('./components/auth/SignUpForm'));
 const SignInForm = lazy(() => import('./components/auth/SignInForm'));
 
 // Lazy loading des composants association
-const AssociationDashboard = lazy(() => import('./components/AssociationDashboard'));
-const MissionManagement = lazy(() => import('./components/MissionManagement').then(module => ({ default: module.MissionManagement })));
-const AssociationSettings = lazy(() => import('./components/AssociationSettings').then(module => ({ default: module.AssociationSettings })));
-const AssociationMembers = lazy(() => import('./components/AssociationMembers').then(module => ({ default: module.AssociationMembers })));
-const ImpactReportsPage = lazy(() => import('./components/ImpactReportsPage').then(module => ({ default: module.ImpactReportsPage })));
-const MissionForm = lazy(() => import('./components/MissionForm').then(module => ({ default: module.MissionForm })));
+const AssociationDashboard = lazy(() => import('./components/association/AssociationDashboard'));
+const MissionManagement = lazy(() => import('./components/association/MissionManagement'));
+const AssociationSettings = lazy(() => import('./components/association/AssociationSettings'));
+const AssociationMembers = lazy(() => import('./components/association/AssociationMembers'));
+const ImpactReportsPage = lazy(() => import('./components/association/ImpactReportsPage'));
 
 // Les composants Messages et Notifications ne sont pas lazy-loaded ici
 import Notifications from './components/notifications/Notifications';

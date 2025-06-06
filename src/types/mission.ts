@@ -1,23 +1,39 @@
-
 export interface Mission {
   id: string;
   title: string;
   description: string;
   association: string;
-  duration: string;
-  distance: string;
-  startTime: string;
+  association_name?: string;
+  association_logo?: string;
   category: string;
+  image_url?: string;
+  address: string;
+  city: string;
+  postal_code: string;
+  latitude?: number;
+  longitude?: number;
+  date: string;
+  start_time: string;
+  end_time: string;
+  duration: number;
+  spots_taken: number;
+  spots_available: number;
+  min_age?: number;
+  requirements?: string[];
+  skills_needed?: string[];
+  languages_needed?: string[];
+  materials_provided?: string[];
+  materials_to_bring?: string[];
+  status: 'draft' | 'published' | 'completed' | 'cancelled';
+  is_recurring?: boolean;
+  recurring_pattern?: any;
+  impact_description?: string;
+  impact_metrics?: any;
+  created_at: string;
+  updated_at: string;
   isUrgent?: boolean;
-  participants: {
-    current: number;
-    max: number;
-  };
-  date?: string;
-  time?: string;
-  location: string;
-  status?: 'upcoming' | 'completed' | 'cancelled' | 'today';
-  points?: number;
+  registration_status?: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+  feedback?: string;
   rating?: number;
 }
 

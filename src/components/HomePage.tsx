@@ -3,12 +3,14 @@ import { Button } from '@/components/ui/button';
 import { Clock, MapPin, Users, Heart, Search, Award } from 'lucide-react';
 import MissionCard from './MissionCard';
 import { useHomePage } from '@/hooks/useHomePage';
+import { useNavigate } from 'react-router-dom';
 
 interface HomePageProps {
   onGetStarted: () => void;
 }
 
 const HomePage = ({ onGetStarted }: HomePageProps) => {
+  const navigate = useNavigate();
   const { data, loading, error } = useHomePage();
 
   if (loading) {
@@ -48,8 +50,11 @@ const HomePage = ({ onGetStarted }: HomePageProps) => {
                 <Heart className="h-5 w-5 mr-2" />
                 Rejoindre maintenant
               </Button>
-              <Button variant="outline" className="text-lg px-8 py-4">
+              <Button variant="outline" className="text-lg px-8 py-4" onClick={() => navigate('/explore')}>
                 Découvrir
+              </Button>
+              <Button variant="link" className="text-lg px-8 py-4" onClick={() => navigate('/login')}>
+                Se connecter
               </Button>
             </div>
 
