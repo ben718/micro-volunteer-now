@@ -9,293 +9,495 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      badges: {
+      association_contacts: {
         Row: {
+          association_id: string
           created_at: string | null
-          description: string | null
-          id: string
-          image_url: string | null
-          name: string
-          requirements: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          image_url?: string | null
-          name: string
-          requirements?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          image_url?: string | null
-          name?: string
-          requirements?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      cities: {
-        Row: {
-          created_at: string | null
-          department: string | null
-          id: string
-          name: string
-          postal_code: string
-          region: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          department?: string | null
-          id?: string
-          name: string
-          postal_code: string
-          region?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          department?: string | null
-          id?: string
-          name?: string
-          postal_code?: string
-          region?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      contact_info: {
-        Row: {
-          created_at: string | null
-          display_order: number | null
-          icon_name: string | null
-          id: string
-          is_active: boolean | null
-          label: string
-          type: string
-          updated_at: string | null
-          value: string
-        }
-        Insert: {
-          created_at?: string | null
-          display_order?: number | null
-          icon_name?: string | null
-          id?: string
-          is_active?: boolean | null
-          label: string
-          type: string
-          updated_at?: string | null
-          value: string
-        }
-        Update: {
-          created_at?: string | null
-          display_order?: number | null
-          icon_name?: string | null
-          id?: string
-          is_active?: boolean | null
-          label?: string
-          type?: string
-          updated_at?: string | null
-          value?: string
-        }
-        Relationships: []
-      }
-      contact_messages: {
-        Row: {
-          created_at: string
           email: string
           id: string
-          message: string
+          is_primary: boolean | null
           name: string
-          organization: string | null
-          phone: string | null
-          status: string
-          subject: string
-          updated_at: string
+          phone: string
+          role: string
+          updated_at: string | null
         }
         Insert: {
-          created_at?: string
+          association_id: string
+          created_at?: string | null
           email: string
           id?: string
-          message: string
+          is_primary?: boolean | null
           name: string
-          organization?: string | null
-          phone?: string | null
-          status?: string
-          subject: string
-          updated_at?: string
+          phone: string
+          role: string
+          updated_at?: string | null
         }
         Update: {
-          created_at?: string
+          association_id?: string
+          created_at?: string | null
           email?: string
           id?: string
-          message?: string
+          is_primary?: boolean | null
           name?: string
-          organization?: string | null
-          phone?: string | null
+          phone?: string
+          role?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "association_contacts_association_id_fkey"
+            columns: ["association_id"]
+            isOneToOne: false
+            referencedRelation: "associations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      association_members: {
+        Row: {
+          association_id: string
+          created_at: string | null
+          email: string
+          id: string
+          invitation_accepted_at: string | null
+          invitation_sent_at: string | null
+          invitation_token: string | null
+          role: string
+          status: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          association_id: string
+          created_at?: string | null
+          email: string
+          id?: string
+          invitation_accepted_at?: string | null
+          invitation_sent_at?: string | null
+          invitation_token?: string | null
+          role: string
           status?: string
-          subject?: string
-          updated_at?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          association_id?: string
+          created_at?: string | null
+          email?: string
+          id?: string
+          invitation_accepted_at?: string | null
+          invitation_sent_at?: string | null
+          invitation_token?: string | null
+          role?: string
+          status?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "association_members_association_id_fkey"
+            columns: ["association_id"]
+            isOneToOne: false
+            referencedRelation: "associations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      associations: {
+        Row: {
+          address: string
+          categories: string[]
+          city: string
+          created_at: string | null
+          description: string | null
+          email: string
+          id: string
+          impact_score: number | null
+          latitude: number | null
+          logo_url: string | null
+          longitude: number | null
+          name: string
+          notification_preferences: Json | null
+          phone: string
+          postal_code: string
+          siret: string | null
+          total_missions_created: number | null
+          total_volunteers_engaged: number | null
+          updated_at: string | null
+          verified: boolean | null
+          website: string | null
+        }
+        Insert: {
+          address: string
+          categories: string[]
+          city: string
+          created_at?: string | null
+          description?: string | null
+          email: string
+          id: string
+          impact_score?: number | null
+          latitude?: number | null
+          logo_url?: string | null
+          longitude?: number | null
+          name: string
+          notification_preferences?: Json | null
+          phone: string
+          postal_code: string
+          siret?: string | null
+          total_missions_created?: number | null
+          total_volunteers_engaged?: number | null
+          updated_at?: string | null
+          verified?: boolean | null
+          website?: string | null
+        }
+        Update: {
+          address?: string
+          categories?: string[]
+          city?: string
+          created_at?: string | null
+          description?: string | null
+          email?: string
+          id?: string
+          impact_score?: number | null
+          latitude?: number | null
+          logo_url?: string | null
+          longitude?: number | null
+          name?: string
+          notification_preferences?: Json | null
+          phone?: string
+          postal_code?: string
+          siret?: string | null
+          total_missions_created?: number | null
+          total_volunteers_engaged?: number | null
+          updated_at?: string | null
+          verified?: boolean | null
+          website?: string | null
         }
         Relationships: []
       }
-      difficulty_levels: {
+      badges: {
+        Row: {
+          category: string
+          created_at: string | null
+          description: string
+          icon_url: string
+          id: string
+          name: string
+          requirements: Json
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          description: string
+          icon_url: string
+          id?: string
+          name: string
+          requirements: Json
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          description?: string
+          icon_url?: string
+          id?: string
+          name?: string
+          requirements?: Json
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      conversations: {
         Row: {
           created_at: string | null
-          description: string | null
-          display_order: number | null
           id: string
-          is_active: boolean | null
-          name: string
+          last_message_id: string | null
+          participant1_id: string
+          participant2_id: string
           updated_at: string | null
         }
         Insert: {
           created_at?: string | null
-          description?: string | null
-          display_order?: number | null
           id?: string
-          is_active?: boolean | null
-          name: string
+          last_message_id?: string | null
+          participant1_id: string
+          participant2_id: string
           updated_at?: string | null
         }
         Update: {
           created_at?: string | null
-          description?: string | null
-          display_order?: number | null
           id?: string
-          is_active?: boolean | null
-          name?: string
+          last_message_id?: string | null
+          participant1_id?: string
+          participant2_id?: string
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "conversations_last_message_id_fkey"
+            columns: ["last_message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
-      engagement_levels: {
+      impact_reports: {
+        Row: {
+          association_id: string
+          completed_missions: number
+          created_at: string | null
+          id: string
+          impact_metrics: Json | null
+          period_end: string
+          period_start: string
+          total_hours: number
+          total_missions: number
+          total_volunteers: number
+        }
+        Insert: {
+          association_id: string
+          completed_missions: number
+          created_at?: string | null
+          id?: string
+          impact_metrics?: Json | null
+          period_end: string
+          period_start: string
+          total_hours: number
+          total_missions: number
+          total_volunteers: number
+        }
+        Update: {
+          association_id?: string
+          completed_missions?: number
+          created_at?: string | null
+          id?: string
+          impact_metrics?: Json | null
+          period_end?: string
+          period_start?: string
+          total_hours?: number
+          total_missions?: number
+          total_volunteers?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "impact_reports_association_id_fkey"
+            columns: ["association_id"]
+            isOneToOne: false
+            referencedRelation: "associations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      language_levels: {
         Row: {
           created_at: string | null
-          description: string | null
-          display_order: number | null
-          duration_range: string | null
           id: string
-          is_active: boolean | null
-          name: string
+          is_primary: boolean | null
+          language: string
+          level: string
           updated_at: string | null
+          user_id: string
         }
         Insert: {
           created_at?: string | null
-          description?: string | null
-          display_order?: number | null
-          duration_range?: string | null
           id?: string
-          is_active?: boolean | null
-          name: string
+          is_primary?: boolean | null
+          language: string
+          level: string
           updated_at?: string | null
+          user_id: string
         }
         Update: {
           created_at?: string | null
-          description?: string | null
-          display_order?: number | null
-          duration_range?: string | null
           id?: string
-          is_active?: boolean | null
-          name?: string
+          is_primary?: boolean | null
+          language?: string
+          level?: string
           updated_at?: string | null
+          user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "language_levels_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "language_levels_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "volunteers_with_languages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
-      mission_formats: {
+      messages: {
         Row: {
+          content: string
           created_at: string | null
-          description: string | null
-          display_order: number | null
           id: string
-          is_active: boolean | null
-          name: string
-          updated_at: string | null
+          is_read: boolean | null
+          mission_id: string | null
+          recipient_id: string
+          sender_id: string
         }
         Insert: {
+          content: string
           created_at?: string | null
-          description?: string | null
-          display_order?: number | null
           id?: string
-          is_active?: boolean | null
-          name: string
-          updated_at?: string | null
+          is_read?: boolean | null
+          mission_id?: string | null
+          recipient_id: string
+          sender_id: string
         }
         Update: {
+          content?: string
           created_at?: string | null
-          description?: string | null
-          display_order?: number | null
           id?: string
-          is_active?: boolean | null
-          name?: string
-          updated_at?: string | null
+          is_read?: boolean | null
+          mission_id?: string | null
+          recipient_id?: string
+          sender_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "messages_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "available_missions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions_enriched"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions_language_match"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "user_past_missions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "user_upcoming_missions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       mission_registrations: {
         Row: {
-          cancellation_count: number | null
+          cancellation_date: string | null
+          cancellation_reason: string | null
+          completion_date: string | null
           confirmation_date: string | null
           created_at: string | null
+          feedback: string | null
+          hours_logged: number | null
           id: string
           mission_id: string
-          organization_feedback: string | null
-          organization_rating: number | null
+          rating: number | null
           registration_date: string | null
-          status: string | null
+          status: string
           updated_at: string | null
           user_id: string
-          volunteer_feedback: string | null
-          volunteer_rating: number | null
         }
         Insert: {
-          cancellation_count?: number | null
+          cancellation_date?: string | null
+          cancellation_reason?: string | null
+          completion_date?: string | null
           confirmation_date?: string | null
           created_at?: string | null
+          feedback?: string | null
+          hours_logged?: number | null
           id?: string
           mission_id: string
-          organization_feedback?: string | null
-          organization_rating?: number | null
+          rating?: number | null
           registration_date?: string | null
-          status?: string | null
+          status?: string
           updated_at?: string | null
           user_id: string
-          volunteer_feedback?: string | null
-          volunteer_rating?: number | null
         }
         Update: {
-          cancellation_count?: number | null
+          cancellation_date?: string | null
+          cancellation_reason?: string | null
+          completion_date?: string | null
           confirmation_date?: string | null
           created_at?: string | null
+          feedback?: string | null
+          hours_logged?: number | null
           id?: string
           mission_id?: string
-          organization_feedback?: string | null
-          organization_rating?: number | null
+          rating?: number | null
           registration_date?: string | null
-          status?: string | null
+          status?: string
           updated_at?: string | null
           user_id?: string
-          volunteer_feedback?: string | null
-          volunteer_rating?: number | null
         }
         Relationships: [
           {
             foreignKeyName: "mission_registrations_mission_id_fkey"
             columns: ["mission_id"]
             isOneToOne: false
-            referencedRelation: "available_missions_details"
-            referencedColumns: ["mission_id"]
+            referencedRelation: "available_missions"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "mission_registrations_mission_id_fkey"
             columns: ["mission_id"]
             isOneToOne: false
             referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mission_registrations_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions_enriched"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mission_registrations_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions_language_match"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mission_registrations_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "user_past_missions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mission_registrations_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "user_upcoming_missions"
             referencedColumns: ["id"]
           },
           {
@@ -305,622 +507,235 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
-        ]
-      }
-      mission_reviews: {
-        Row: {
-          comment: string | null
-          created_at: string
-          id: string
-          is_anonymous: boolean | null
-          mission_id: string
-          rating: number | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          comment?: string | null
-          created_at?: string
-          id?: string
-          is_anonymous?: boolean | null
-          mission_id: string
-          rating?: number | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          comment?: string | null
-          created_at?: string
-          id?: string
-          is_anonymous?: boolean | null
-          mission_id?: string
-          rating?: number | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
           {
-            foreignKeyName: "mission_reviews_mission_id_fkey"
-            columns: ["mission_id"]
-            isOneToOne: false
-            referencedRelation: "available_missions_details"
-            referencedColumns: ["mission_id"]
-          },
-          {
-            foreignKeyName: "mission_reviews_mission_id_fkey"
-            columns: ["mission_id"]
-            isOneToOne: false
-            referencedRelation: "missions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "mission_reviews_user_id_fkey"
+            foreignKeyName: "mission_registrations_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "volunteers_with_languages"
             referencedColumns: ["id"]
           },
         ]
-      }
-      mission_skills: {
-        Row: {
-          created_at: string | null
-          id: string
-          is_required: boolean | null
-          mission_id: string
-          required_level: string | null
-          skill_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          is_required?: boolean | null
-          mission_id: string
-          required_level?: string | null
-          skill_id: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          is_required?: boolean | null
-          mission_id?: string
-          required_level?: string | null
-          skill_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "mission_skills_mission_id_fkey"
-            columns: ["mission_id"]
-            isOneToOne: false
-            referencedRelation: "available_missions_details"
-            referencedColumns: ["mission_id"]
-          },
-          {
-            foreignKeyName: "mission_skills_mission_id_fkey"
-            columns: ["mission_id"]
-            isOneToOne: false
-            referencedRelation: "missions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "mission_skills_skill_id_fkey"
-            columns: ["skill_id"]
-            isOneToOne: false
-            referencedRelation: "popular_skills"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "mission_skills_skill_id_fkey"
-            columns: ["skill_id"]
-            isOneToOne: false
-            referencedRelation: "skills"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      mission_types: {
-        Row: {
-          created_at: string | null
-          description: string | null
-          id: string
-          name: string
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          name: string
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          name?: string
-          updated_at?: string | null
-        }
-        Relationships: []
       }
       missions: {
         Row: {
-          address: string | null
-          available_spots: number | null
+          address: string
+          association_id: string
+          category: string
+          city: string
           created_at: string | null
+          date: string
           description: string
-          desired_impact: string | null
-          difficulty_level: string | null
-          duration_minutes: number
-          end_date: string | null
-          engagement_level: string | null
-          format: string | null
-          geo_location: unknown | null
+          duration: number
+          end_time: string
           id: string
           image_url: string | null
+          impact_description: string | null
+          impact_metrics: Json | null
+          is_recurring: boolean | null
+          languages_needed: string[] | null
           latitude: number | null
-          location: string | null
           longitude: number | null
-          mission_type_id: string | null
-          organization_id: string
-          postal_code: string | null
-          start_date: string
-          status: string | null
+          materials_provided: string[] | null
+          materials_to_bring: string[] | null
+          min_age: number | null
+          postal_code: string
+          recurring_pattern: Json | null
+          requirements: string[] | null
+          short_description: string
+          skills_needed: string[] | null
+          spots_available: number
+          spots_taken: number | null
+          start_time: string
+          status: string
           title: string
           updated_at: string | null
         }
         Insert: {
-          address?: string | null
-          available_spots?: number | null
+          address: string
+          association_id: string
+          category: string
+          city: string
           created_at?: string | null
+          date: string
           description: string
-          desired_impact?: string | null
-          difficulty_level?: string | null
-          duration_minutes: number
-          end_date?: string | null
-          engagement_level?: string | null
-          format?: string | null
-          geo_location?: unknown | null
+          duration: number
+          end_time: string
           id?: string
           image_url?: string | null
+          impact_description?: string | null
+          impact_metrics?: Json | null
+          is_recurring?: boolean | null
+          languages_needed?: string[] | null
           latitude?: number | null
-          location?: string | null
           longitude?: number | null
-          mission_type_id?: string | null
-          organization_id: string
-          postal_code?: string | null
-          start_date: string
-          status?: string | null
+          materials_provided?: string[] | null
+          materials_to_bring?: string[] | null
+          min_age?: number | null
+          postal_code: string
+          recurring_pattern?: Json | null
+          requirements?: string[] | null
+          short_description: string
+          skills_needed?: string[] | null
+          spots_available: number
+          spots_taken?: number | null
+          start_time: string
+          status?: string
           title: string
           updated_at?: string | null
         }
         Update: {
-          address?: string | null
-          available_spots?: number | null
+          address?: string
+          association_id?: string
+          category?: string
+          city?: string
           created_at?: string | null
+          date?: string
           description?: string
-          desired_impact?: string | null
-          difficulty_level?: string | null
-          duration_minutes?: number
-          end_date?: string | null
-          engagement_level?: string | null
-          format?: string | null
-          geo_location?: unknown | null
+          duration?: number
+          end_time?: string
           id?: string
           image_url?: string | null
+          impact_description?: string | null
+          impact_metrics?: Json | null
+          is_recurring?: boolean | null
+          languages_needed?: string[] | null
           latitude?: number | null
-          location?: string | null
           longitude?: number | null
-          mission_type_id?: string | null
-          organization_id?: string
-          postal_code?: string | null
-          start_date?: string
-          status?: string | null
+          materials_provided?: string[] | null
+          materials_to_bring?: string[] | null
+          min_age?: number | null
+          postal_code?: string
+          recurring_pattern?: Json | null
+          requirements?: string[] | null
+          short_description?: string
+          skills_needed?: string[] | null
+          spots_available?: number
+          spots_taken?: number | null
+          start_time?: string
+          status?: string
           title?: string
           updated_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "missions_mission_type_id_fkey"
-            columns: ["mission_type_id"]
+            foreignKeyName: "missions_association_id_fkey"
+            columns: ["association_id"]
             isOneToOne: false
-            referencedRelation: "mission_types"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "missions_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organization_profiles"
+            referencedRelation: "associations"
             referencedColumns: ["id"]
           },
         ]
       }
       notifications: {
         Row: {
-          content: string
           created_at: string | null
           id: string
           is_read: boolean | null
-          link_url: string | null
+          message: string
+          related_entity_id: string | null
+          related_entity_type: string | null
           title: string
+          type: string
           user_id: string
         }
         Insert: {
-          content: string
           created_at?: string | null
           id?: string
           is_read?: boolean | null
-          link_url?: string | null
+          message: string
+          related_entity_id?: string | null
+          related_entity_type?: string | null
           title: string
+          type: string
           user_id: string
         }
         Update: {
-          content?: string
           created_at?: string | null
           id?: string
           is_read?: boolean | null
-          link_url?: string | null
+          message?: string
+          related_entity_id?: string | null
+          related_entity_type?: string | null
           title?: string
+          type?: string
           user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "notifications_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      organization_followers: {
-        Row: {
-          created_at: string
-          id: string
-          organization_id: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          organization_id: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          organization_id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "organization_followers_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organization_profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      organization_profiles: {
-        Row: {
-          address: string | null
-          created_at: string | null
-          creation_date: string | null
-          description: string | null
-          id: string
-          latitude: number | null
-          location: unknown | null
-          logo_url: string | null
-          longitude: number | null
-          organization_name: string
-          sector_id: string | null
-          siret_number: string | null
-          updated_at: string | null
-          user_id: string
-          website_url: string | null
-        }
-        Insert: {
-          address?: string | null
-          created_at?: string | null
-          creation_date?: string | null
-          description?: string | null
-          id?: string
-          latitude?: number | null
-          location?: unknown | null
-          logo_url?: string | null
-          longitude?: number | null
-          organization_name: string
-          sector_id?: string | null
-          siret_number?: string | null
-          updated_at?: string | null
-          user_id: string
-          website_url?: string | null
-        }
-        Update: {
-          address?: string | null
-          created_at?: string | null
-          creation_date?: string | null
-          description?: string | null
-          id?: string
-          latitude?: number | null
-          location?: unknown | null
-          logo_url?: string | null
-          longitude?: number | null
-          organization_name?: string
-          sector_id?: string | null
-          siret_number?: string | null
-          updated_at?: string | null
-          user_id?: string
-          website_url?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "organization_profiles_sector_id_fkey"
-            columns: ["sector_id"]
-            isOneToOne: false
-            referencedRelation: "organization_sectors"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      organization_sectors: {
-        Row: {
-          created_at: string | null
-          description: string | null
-          id: string
-          name: string
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          name: string
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          name?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      platform_features: {
-        Row: {
-          color_class: string | null
-          created_at: string | null
-          description: string
-          display_order: number | null
-          icon_name: string
-          id: string
-          title: string
-          updated_at: string | null
-        }
-        Insert: {
-          color_class?: string | null
-          created_at?: string | null
-          description: string
-          display_order?: number | null
-          icon_name: string
-          id?: string
-          title: string
-          updated_at?: string | null
-        }
-        Update: {
-          color_class?: string | null
-          created_at?: string | null
-          description?: string
-          display_order?: number | null
-          icon_name?: string
-          id?: string
-          title?: string
-          updated_at?: string | null
         }
         Relationships: []
       }
       profiles: {
         Row: {
           address: string | null
+          availability: Json | null
+          avatar_url: string | null
           bio: string | null
           city: string | null
           created_at: string | null
-          email: string | null
-          first_name: string | null
+          email: string
+          first_name: string
           id: string
-          is_organization: boolean | null
-          last_login: string | null
-          last_name: string | null
+          impact_score: number | null
+          interests: string[] | null
+          languages: string[] | null
+          last_name: string
           latitude: number | null
           longitude: number | null
+          max_distance: number | null
           phone: string | null
           postal_code: string | null
-          profile_picture_url: string | null
+          role: string | null
+          skills: string[] | null
+          total_hours_volunteered: number | null
+          total_missions_completed: number | null
           updated_at: string | null
-          website: string | null
         }
         Insert: {
           address?: string | null
+          availability?: Json | null
+          avatar_url?: string | null
           bio?: string | null
           city?: string | null
           created_at?: string | null
-          email?: string | null
-          first_name?: string | null
+          email: string
+          first_name: string
           id: string
-          is_organization?: boolean | null
-          last_login?: string | null
-          last_name?: string | null
+          impact_score?: number | null
+          interests?: string[] | null
+          languages?: string[] | null
+          last_name: string
           latitude?: number | null
           longitude?: number | null
+          max_distance?: number | null
           phone?: string | null
           postal_code?: string | null
-          profile_picture_url?: string | null
+          role?: string | null
+          skills?: string[] | null
+          total_hours_volunteered?: number | null
+          total_missions_completed?: number | null
           updated_at?: string | null
-          website?: string | null
         }
         Update: {
           address?: string | null
+          availability?: Json | null
+          avatar_url?: string | null
           bio?: string | null
           city?: string | null
           created_at?: string | null
-          email?: string | null
-          first_name?: string | null
+          email?: string
+          first_name?: string
           id?: string
-          is_organization?: boolean | null
-          last_login?: string | null
-          last_name?: string | null
+          impact_score?: number | null
+          interests?: string[] | null
+          languages?: string[] | null
+          last_name?: string
           latitude?: number | null
           longitude?: number | null
+          max_distance?: number | null
           phone?: string | null
           postal_code?: string | null
-          profile_picture_url?: string | null
-          updated_at?: string | null
-          website?: string | null
-        }
-        Relationships: []
-      }
-      review_responses: {
-        Row: {
-          created_at: string
-          id: string
-          organization_id: string
-          response_text: string
-          review_id: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          organization_id: string
-          response_text: string
-          review_id: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          organization_id?: string
-          response_text?: string
-          review_id?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "review_responses_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organization_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "review_responses_review_id_fkey"
-            columns: ["review_id"]
-            isOneToOne: false
-            referencedRelation: "mission_reviews"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      saved_missions: {
-        Row: {
-          created_at: string
-          id: string
-          mission_id: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          mission_id: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          mission_id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "saved_missions_mission_id_fkey"
-            columns: ["mission_id"]
-            isOneToOne: false
-            referencedRelation: "available_missions_details"
-            referencedColumns: ["mission_id"]
-          },
-          {
-            foreignKeyName: "saved_missions_mission_id_fkey"
-            columns: ["mission_id"]
-            isOneToOne: false
-            referencedRelation: "missions"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      site_content: {
-        Row: {
-          content: string | null
-          created_at: string | null
-          display_order: number | null
-          id: string
-          is_active: boolean | null
-          metadata: Json | null
-          section_key: string
-          subtitle: string | null
-          title: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          content?: string | null
-          created_at?: string | null
-          display_order?: number | null
-          id?: string
-          is_active?: boolean | null
-          metadata?: Json | null
-          section_key: string
-          subtitle?: string | null
-          title?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          content?: string | null
-          created_at?: string | null
-          display_order?: number | null
-          id?: string
-          is_active?: boolean | null
-          metadata?: Json | null
-          section_key?: string
-          subtitle?: string | null
-          title?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      skills: {
-        Row: {
-          category: string | null
-          created_at: string | null
-          description: string | null
-          id: string
-          name: string
-          updated_at: string | null
-        }
-        Insert: {
-          category?: string | null
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          name: string
-          updated_at?: string | null
-        }
-        Update: {
-          category?: string | null
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          name?: string
+          role?: string | null
+          skills?: string[] | null
+          total_hours_volunteered?: number | null
+          total_missions_completed?: number | null
           updated_at?: string | null
         }
         Relationships: []
@@ -949,70 +764,22 @@ export type Database = {
         }
         Relationships: []
       }
-      testimonials: {
-        Row: {
-          author_name: string | null
-          author_role: string | null
-          avatar_url: string | null
-          content: string | null
-          created_at: string | null
-          display_order: number | null
-          id: string
-          is_visible: boolean | null
-          job_title: string | null
-          quote: string | null
-          updated_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          author_name?: string | null
-          author_role?: string | null
-          avatar_url?: string | null
-          content?: string | null
-          created_at?: string | null
-          display_order?: number | null
-          id?: string
-          is_visible?: boolean | null
-          job_title?: string | null
-          quote?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          author_name?: string | null
-          author_role?: string | null
-          avatar_url?: string | null
-          content?: string | null
-          created_at?: string | null
-          display_order?: number | null
-          id?: string
-          is_visible?: boolean | null
-          job_title?: string | null
-          quote?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: []
-      }
       user_badges: {
         Row: {
-          acquisition_date: string | null
+          awarded_at: string | null
           badge_id: string
-          created_at: string | null
           id: string
           user_id: string
         }
         Insert: {
-          acquisition_date?: string | null
+          awarded_at?: string | null
           badge_id: string
-          created_at?: string | null
           id?: string
           user_id: string
         }
         Update: {
-          acquisition_date?: string | null
+          awarded_at?: string | null
           badge_id?: string
-          created_at?: string | null
           id?: string
           user_id?: string
         }
@@ -1031,88 +798,62 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
-        ]
-      }
-      user_skills: {
-        Row: {
-          created_at: string | null
-          id: string
-          level: string | null
-          skill_id: string
-          updated_at: string | null
-          user_id: string
-          validation_date: string | null
-          validator_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          level?: string | null
-          skill_id: string
-          updated_at?: string | null
-          user_id: string
-          validation_date?: string | null
-          validator_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          level?: string | null
-          skill_id?: string
-          updated_at?: string | null
-          user_id?: string
-          validation_date?: string | null
-          validator_id?: string | null
-        }
-        Relationships: [
           {
-            foreignKeyName: "user_skills_skill_id_fkey"
-            columns: ["skill_id"]
-            isOneToOne: false
-            referencedRelation: "popular_skills"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_skills_skill_id_fkey"
-            columns: ["skill_id"]
-            isOneToOne: false
-            referencedRelation: "skills"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_skills_user_id_fkey"
+            foreignKeyName: "user_badges_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "volunteers_with_languages"
             referencedColumns: ["id"]
           },
         ]
       }
     }
     Views: {
-      available_missions_details: {
+      available_missions: {
         Row: {
-          available_spots: number | null
+          address: string | null
+          association_id: string | null
+          association_logo: string | null
+          association_name: string | null
+          category: string | null
+          city: string | null
+          created_at: string | null
+          date: string | null
           description: string | null
-          desired_impact: string | null
-          difficulty_level: string | null
-          duration_minutes: number | null
-          engagement_level: string | null
-          format: string | null
+          duration: number | null
+          end_time: string | null
+          id: string | null
           image_url: string | null
+          impact_description: string | null
+          impact_metrics: Json | null
+          is_recurring: boolean | null
+          languages_needed: string[] | null
           latitude: number | null
-          location: string | null
-          logo_url: string | null
           longitude: number | null
-          mission_id: string | null
-          mission_type_name: string | null
-          organization_name: string | null
-          required_skills: string[] | null
-          sector_name: string | null
-          start_date: string | null
+          materials_provided: string[] | null
+          materials_to_bring: string[] | null
+          min_age: number | null
+          postal_code: string | null
+          recurring_pattern: Json | null
+          requirements: string[] | null
+          short_description: string | null
+          skills_needed: string[] | null
+          spots_available: number | null
+          spots_taken: number | null
+          start_time: string | null
+          status: string | null
           title: string | null
+          updated_at: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "missions_association_id_fkey"
+            columns: ["association_id"]
+            isOneToOne: false
+            referencedRelation: "associations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       geography_columns: {
         Row: {
@@ -1156,18 +897,221 @@ export type Database = {
         }
         Relationships: []
       }
-      missions_by_location: {
+      missions_enriched: {
         Row: {
-          location: string | null
-          mission_count: number | null
-        }
-        Relationships: []
-      }
-      popular_skills: {
-        Row: {
+          address: string | null
+          association_id: string | null
+          association_logo: string | null
+          association_name: string | null
+          category: string | null
+          city: string | null
+          created_at: string | null
+          date: string | null
+          description: string | null
+          duration: number | null
+          end_time: string | null
           id: string | null
-          mission_count: number | null
-          name: string | null
+          image_url: string | null
+          impact_description: string | null
+          impact_metrics: Json | null
+          is_recurring: boolean | null
+          languages_needed: string[] | null
+          latitude: number | null
+          longitude: number | null
+          materials_provided: string[] | null
+          materials_to_bring: string[] | null
+          min_age: number | null
+          postal_code: string | null
+          recurring_pattern: Json | null
+          requirements: string[] | null
+          short_description: string | null
+          skills_needed: string[] | null
+          spots_available: number | null
+          spots_taken: number | null
+          start_time: string | null
+          status: string | null
+          title: string | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "missions_association_id_fkey"
+            columns: ["association_id"]
+            isOneToOne: false
+            referencedRelation: "associations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      missions_language_match: {
+        Row: {
+          address: string | null
+          association_id: string | null
+          association_logo: string | null
+          association_name: string | null
+          category: string | null
+          city: string | null
+          created_at: string | null
+          date: string | null
+          description: string | null
+          duration: number | null
+          end_time: string | null
+          id: string | null
+          image_url: string | null
+          impact_description: string | null
+          impact_metrics: Json | null
+          is_recurring: boolean | null
+          languages_needed: string[] | null
+          latitude: number | null
+          longitude: number | null
+          matching_volunteers: string[] | null
+          materials_provided: string[] | null
+          materials_to_bring: string[] | null
+          min_age: number | null
+          postal_code: string | null
+          recurring_pattern: Json | null
+          requirements: string[] | null
+          short_description: string | null
+          skills_needed: string[] | null
+          spots_available: number | null
+          spots_taken: number | null
+          start_time: string | null
+          status: string | null
+          title: string | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "missions_association_id_fkey"
+            columns: ["association_id"]
+            isOneToOne: false
+            referencedRelation: "associations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_past_missions: {
+        Row: {
+          address: string | null
+          association_id: string | null
+          association_logo: string | null
+          association_name: string | null
+          category: string | null
+          city: string | null
+          created_at: string | null
+          date: string | null
+          description: string | null
+          duration: number | null
+          end_time: string | null
+          feedback: string | null
+          id: string | null
+          image_url: string | null
+          impact_description: string | null
+          impact_metrics: Json | null
+          is_recurring: boolean | null
+          languages_needed: string[] | null
+          latitude: number | null
+          longitude: number | null
+          materials_provided: string[] | null
+          materials_to_bring: string[] | null
+          min_age: number | null
+          postal_code: string | null
+          rating: number | null
+          recurring_pattern: Json | null
+          registration_status: string | null
+          requirements: string[] | null
+          short_description: string | null
+          skills_needed: string[] | null
+          spots_available: number | null
+          spots_taken: number | null
+          start_time: string | null
+          status: string | null
+          title: string | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "missions_association_id_fkey"
+            columns: ["association_id"]
+            isOneToOne: false
+            referencedRelation: "associations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_upcoming_missions: {
+        Row: {
+          address: string | null
+          association_id: string | null
+          association_logo: string | null
+          association_name: string | null
+          category: string | null
+          city: string | null
+          created_at: string | null
+          date: string | null
+          description: string | null
+          duration: number | null
+          end_time: string | null
+          id: string | null
+          image_url: string | null
+          impact_description: string | null
+          impact_metrics: Json | null
+          is_recurring: boolean | null
+          languages_needed: string[] | null
+          latitude: number | null
+          longitude: number | null
+          materials_provided: string[] | null
+          materials_to_bring: string[] | null
+          min_age: number | null
+          postal_code: string | null
+          recurring_pattern: Json | null
+          registration_status: string | null
+          requirements: string[] | null
+          short_description: string | null
+          skills_needed: string[] | null
+          spots_available: number | null
+          spots_taken: number | null
+          start_time: string | null
+          status: string | null
+          title: string | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "missions_association_id_fkey"
+            columns: ["association_id"]
+            isOneToOne: false
+            referencedRelation: "associations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      volunteers_with_languages: {
+        Row: {
+          address: string | null
+          availability: Json | null
+          avatar_url: string | null
+          bio: string | null
+          city: string | null
+          created_at: string | null
+          email: string | null
+          first_name: string | null
+          id: string | null
+          impact_score: number | null
+          interests: string[] | null
+          language_details: Json | null
+          languages: string[] | null
+          last_name: string | null
+          latitude: number | null
+          longitude: number | null
+          max_distance: number | null
+          phone: string | null
+          postal_code: string | null
+          role: string | null
+          skills: string[] | null
+          total_hours_volunteered: number | null
+          total_missions_completed: number | null
+          updated_at: string | null
         }
         Relationships: []
       }
@@ -1287,6 +1231,14 @@ export type Database = {
         Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
+      add_language_to_profile: {
+        Args: { p_language: string; p_level: string; p_is_primary?: boolean }
+        Returns: boolean
+      }
+      add_languages_to_user_profile: {
+        Args: { user_id: string; languages_str: string }
+        Returns: undefined
+      }
       addauth: {
         Args: { "": string }
         Returns: boolean
@@ -1366,27 +1318,31 @@ export type Database = {
         Args: { "": unknown } | { "": unknown }
         Returns: string
       }
-      bytea_to_text: {
-        Args: { data: string }
+      cancel_mission_registration: {
+        Args: { p_mission_id: string; p_reason?: string }
+        Returns: boolean
+      }
+      complete_mission: {
+        Args: { p_mission_id: string }
+        Returns: boolean
+      }
+      confirm_volunteer: {
+        Args: { p_mission_id: string; p_user_id: string }
+        Returns: boolean
+      }
+      create_notification: {
+        Args: {
+          p_user_id: string
+          p_title: string
+          p_message: string
+          p_type: string
+          p_related_entity_type?: string
+          p_related_entity_id?: string
+        }
         Returns: string
       }
-      cluster_nearby_missions: {
-        Args: {
-          p_center_lat: number
-          p_center_lon: number
-          p_radius_km?: number
-          p_cluster_radius_km?: number
-        }
-        Returns: {
-          cluster_id: number
-          center_lat: number
-          center_lon: number
-          mission_count: number
-          missions: Json
-        }[]
-      }
-      create_mission_reminder: {
-        Args: Record<PropertyKey, never>
+      decrement_spots_taken: {
+        Args: { mission_id: string }
         Returns: undefined
       }
       disablelongtransactions: {
@@ -1419,14 +1375,6 @@ export type Database = {
       equals: {
         Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
-      }
-      geocode_address: {
-        Args: { p_address: string }
-        Returns: {
-          latitude: number
-          longitude: number
-          formatted_address: string
-        }[]
       }
       geography: {
         Args: { "": string } | { "": unknown }
@@ -1652,56 +1600,9 @@ export type Database = {
         Args: { "": string }
         Returns: unknown
       }
-      get_distance_statistics: {
-        Args: { user_id?: string; days?: number }
-        Returns: {
-          total_distance_km: number
-          average_distance_km: number
-          max_distance_km: number
-          missions_count: number
-          missions_by_distance: Json
-        }[]
-      }
-      get_optimized_route_details: {
-        Args: { p_route_id: string }
-        Returns: {
-          step_number: number
-          mission_id: string
-          title: string
-          starts_at: string
-          duration_minutes: number
-          travel_time_minutes: number
-          distance_km: number
-          address: string
-          latitude: number
-          longitude: number
-        }[]
-      }
-      get_platform_features: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          id: string
-          title: string
-          description: string
-          icon_name: string
-          color_class: string
-          display_order: number
-        }[]
-      }
       get_proj4_from_srid: {
         Args: { "": number }
         Returns: string
-      }
-      get_testimonials: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          id: string
-          quote: string
-          author_name: string
-          author_role: string
-          avatar_url: string
-          display_order: number
-        }[]
       }
       gettransactionid: {
         Args: Record<PropertyKey, never>
@@ -1715,56 +1616,25 @@ export type Database = {
         Args: { "": unknown }
         Returns: unknown
       }
-      http: {
-        Args: { request: Database["public"]["CompositeTypes"]["http_request"] }
-        Returns: Database["public"]["CompositeTypes"]["http_response"]
+      gtrgm_compress: {
+        Args: { "": unknown }
+        Returns: unknown
       }
-      http_delete: {
-        Args:
-          | { uri: string }
-          | { uri: string; content: string; content_type: string }
-        Returns: Database["public"]["CompositeTypes"]["http_response"]
+      gtrgm_decompress: {
+        Args: { "": unknown }
+        Returns: unknown
       }
-      http_get: {
-        Args: { uri: string } | { uri: string; data: Json }
-        Returns: Database["public"]["CompositeTypes"]["http_response"]
+      gtrgm_in: {
+        Args: { "": unknown }
+        Returns: unknown
       }
-      http_head: {
-        Args: { uri: string }
-        Returns: Database["public"]["CompositeTypes"]["http_response"]
+      gtrgm_options: {
+        Args: { "": unknown }
+        Returns: undefined
       }
-      http_header: {
-        Args: { field: string; value: string }
-        Returns: Database["public"]["CompositeTypes"]["http_header"]
-      }
-      http_list_curlopt: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          curlopt: string
-          value: string
-        }[]
-      }
-      http_patch: {
-        Args: { uri: string; content: string; content_type: string }
-        Returns: Database["public"]["CompositeTypes"]["http_response"]
-      }
-      http_post: {
-        Args:
-          | { uri: string; content: string; content_type: string }
-          | { uri: string; data: Json }
-        Returns: Database["public"]["CompositeTypes"]["http_response"]
-      }
-      http_put: {
-        Args: { uri: string; content: string; content_type: string }
-        Returns: Database["public"]["CompositeTypes"]["http_response"]
-      }
-      http_reset_curlopt: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      http_set_curlopt: {
-        Args: { curlopt: string; value: string }
-        Returns: boolean
+      gtrgm_out: {
+        Args: { "": unknown }
+        Returns: unknown
       }
       json: {
         Args: { "": unknown }
@@ -1774,53 +1644,13 @@ export type Database = {
         Args: { "": unknown }
         Returns: Json
       }
+      leave_mission_feedback: {
+        Args: { p_mission_id: string; p_feedback: string; p_rating: number }
+        Returns: boolean
+      }
       longtransactionsenabled: {
         Args: Record<PropertyKey, never>
         Returns: boolean
-      }
-      manage_location_webhook: {
-        Args:
-          | {
-              p_user_id: string
-              p_endpoint_url: string
-              p_secret_key: string
-              p_action?: string
-            }
-          | {
-              p_user_id: string
-              p_endpoint_url: string
-              p_secret_key: string
-              p_action?: string
-            }
-        Returns: string
-      }
-      nearby_missions: {
-        Args: { user_uuid: string; max_distance_km?: number }
-        Returns: {
-          mission_id: string
-          title: string
-          organization_name: string
-          start_date: string
-          duration_minutes: number
-          distance_km: number
-          mission_type_name: string
-          sector_name: string
-        }[]
-      }
-      optimize_mission_route: {
-        Args: {
-          p_user_id: string
-          p_mission_ids: string[]
-          p_max_daily_missions?: number
-          p_max_daily_hours?: number
-        }
-        Returns: {
-          route_id: string
-          total_distance_km: number
-          total_duration_minutes: number
-          mission_count: number
-          route_order: Json
-        }[]
       }
       path: {
         Args: { "": unknown }
@@ -2011,6 +1841,99 @@ export type Database = {
       postgis_wagyu_version: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      register_for_mission: {
+        Args: { p_mission_id: string }
+        Returns: boolean
+      }
+      remove_language_from_profile: {
+        Args: { p_language: string }
+        Returns: boolean
+      }
+      search_nearby_missions: {
+        Args: {
+          p_latitude: number
+          p_longitude: number
+          p_distance?: number
+          p_category?: string
+          p_date_start?: string
+          p_date_end?: string
+          p_duration_max?: number
+          p_language?: string
+        }
+        Returns: {
+          address: string
+          association_id: string
+          category: string
+          city: string
+          created_at: string | null
+          date: string
+          description: string
+          duration: number
+          end_time: string
+          id: string
+          image_url: string | null
+          impact_description: string | null
+          impact_metrics: Json | null
+          is_recurring: boolean | null
+          languages_needed: string[] | null
+          latitude: number | null
+          longitude: number | null
+          materials_provided: string[] | null
+          materials_to_bring: string[] | null
+          min_age: number | null
+          postal_code: string
+          recurring_pattern: Json | null
+          requirements: string[] | null
+          short_description: string
+          skills_needed: string[] | null
+          spots_available: number
+          spots_taken: number | null
+          start_time: string
+          status: string
+          title: string
+          updated_at: string | null
+        }[]
+      }
+      search_volunteers_by_language: {
+        Args: { p_language: string }
+        Returns: {
+          address: string | null
+          availability: Json | null
+          avatar_url: string | null
+          bio: string | null
+          city: string | null
+          created_at: string | null
+          email: string
+          first_name: string
+          id: string
+          impact_score: number | null
+          interests: string[] | null
+          languages: string[] | null
+          last_name: string
+          latitude: number | null
+          longitude: number | null
+          max_distance: number | null
+          phone: string | null
+          postal_code: string | null
+          role: string | null
+          skills: string[] | null
+          total_hours_volunteered: number | null
+          total_missions_completed: number | null
+          updated_at: string | null
+        }[]
+      }
+      set_limit: {
+        Args: { "": number }
+        Returns: number
+      }
+      show_limit: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      show_trgm: {
+        Args: { "": string }
+        Returns: string[]
       }
       spheroid_in: {
         Args: { "": unknown }
@@ -3081,24 +3004,8 @@ export type Database = {
         Args: { "": unknown }
         Returns: number
       }
-      suggest_complementary_missions: {
-        Args: { p_route_id: string; p_max_additional_missions?: number }
-        Returns: {
-          mission_id: string
-          title: string
-          starts_at: string
-          duration_minutes: number
-          travel_time_minutes: number
-          distance_km: number
-          score: number
-        }[]
-      }
       text: {
         Args: { "": unknown }
-        Returns: string
-      }
-      text_to_bytea: {
-        Args: { data: string }
         Returns: string
       }
       unlockrows: {
@@ -3115,10 +3022,6 @@ export type Database = {
         }
         Returns: string
       }
-      urlencode: {
-        Args: { data: Json } | { string: string } | { string: string }
-        Returns: string
-      }
     }
     Enums: {
       [_ in never]: never
@@ -3127,23 +3030,6 @@ export type Database = {
       geometry_dump: {
         path: number[] | null
         geom: unknown | null
-      }
-      http_header: {
-        field: string | null
-        value: string | null
-      }
-      http_request: {
-        method: unknown | null
-        uri: string | null
-        headers: Database["public"]["CompositeTypes"]["http_header"][] | null
-        content_type: string | null
-        content: string | null
-      }
-      http_response: {
-        status: number | null
-        content_type: string | null
-        headers: Database["public"]["CompositeTypes"]["http_header"][] | null
-        content: string | null
       }
       valid_detail: {
         valid: boolean | null
