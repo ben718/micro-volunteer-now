@@ -53,10 +53,10 @@ const MobileApp = () => {
   } = useUserProfile();
 
   const categories = [
-    { name: "Alimentaire", icon: "🍽️", color: "bg-blue-50 text-blue-600" },
-    { name: "Education", icon: "📚", color: "bg-blue-50 text-blue-600" },
-    { name: "Social", icon: "😊", color: "bg-blue-50 text-blue-600" },
-    { name: "Plus", icon: "+", color: "bg-blue-50 text-blue-600" }
+    { name: "Alimentaire", icon: "🍽️", color: "bg-blue-50 text-gray-700" },
+    { name: "Education", icon: "📚", color: "bg-blue-50 text-gray-700" },
+    { name: "Social", icon: "😊", color: "bg-blue-50 text-gray-700" },
+    { name: "Plus", icon: "+", color: "bg-blue-50 text-gray-700" }
   ];
 
   const handleParticipate = (missionId: string) => {
@@ -129,16 +129,16 @@ const MobileApp = () => {
       <div className="flex items-center">
         <button
           onClick={() => setSidebarOpen(true)}
-          className="lg:hidden p-2 rounded-md text-blue-500 hover:text-blue-600 hover:bg-blue-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          className="lg:hidden p-2 rounded-md text-gray-600 hover:text-gray-700 hover:bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           aria-label="Menu"
         >
           <Menu className="h-5 w-5" />
         </button>
-        <h1 className="ml-2 text-lg font-bold text-blue-700 truncate">{title}</h1>
+        <h1 className="ml-2 text-lg font-bold text-gray-900 truncate">{title}</h1>
       </div>
       <div className="flex items-center space-x-2">
         <button 
-          className="relative p-2 rounded-md text-blue-500 hover:text-blue-600 hover:bg-blue-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          className="relative p-2 rounded-md text-gray-600 hover:text-gray-700 hover:bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           aria-label="Notifications"
         >
           <Bell className="h-5 w-5" />
@@ -168,11 +168,11 @@ const MobileApp = () => {
             <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-2 rounded-xl">
               <Zap className="h-6 w-6 text-white" />
             </div>
-            <span className="ml-2 text-lg font-bold text-blue-700">Voisin Solidaire</span>
+            <span className="ml-2 text-lg font-bold text-gray-900">Voisin Solidaire</span>
           </div>
           <button
             onClick={() => setSidebarOpen(false)}
-            className="p-2 rounded-md text-blue-500 hover:text-blue-600 hover:bg-blue-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            className="p-2 rounded-md text-gray-600 hover:text-gray-700 hover:bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             aria-label="Fermer le menu"
           >
             <X className="h-6 w-6" />
@@ -193,13 +193,13 @@ const MobileApp = () => {
               }}
               className={`group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg w-full transition-colors ${
                 currentView === item.key
-                  ? 'bg-blue-50/50 text-blue-600'
-                  : 'text-blue-500 hover:bg-blue-50/50 hover:text-blue-600'
+                  ? 'bg-blue-50/50 text-gray-900'
+                  : 'text-gray-600 hover:bg-gray-50/50 hover:text-gray-900'
               }`}
               aria-current={currentView === item.key ? 'page' : undefined}
             >
               <item.icon className={`mr-3 h-5 w-5 ${
-                currentView === item.key ? 'text-blue-600' : 'text-blue-500 group-hover:text-blue-600'
+                currentView === item.key ? 'text-blue-500' : 'text-gray-500 group-hover:text-gray-700'
               }`} />
               {item.label}
             </button>
@@ -234,15 +234,15 @@ const MobileApp = () => {
   );
 
   const renderHomeView = () => (
-    <div className="flex-1 bg-blue-50/30 overflow-y-auto pb-20">
+    <div className="flex-1 bg-gray-50/30 overflow-y-auto pb-20">
       <MobileHeader title="Voisin Solidaire" />
       <DesktopHeader title="Tableau de bord" />
 
       <div className="p-3 lg:p-6 space-y-4 lg:space-y-6">
         {/* Welcome */}
         <div className="bg-white rounded-xl p-4 shadow-sm">
-          <h2 className="text-lg lg:text-2xl font-bold text-blue-700 mb-1">Bonjour, Jean 👋</h2>
-          <p className="text-blue-500 text-sm lg:text-base">Prêt à aider près de chez vous aujourd'hui ?</p>
+          <h2 className="text-lg lg:text-2xl font-bold text-gray-900 mb-1">Bonjour, Jean 👋</h2>
+          <p className="text-gray-600 text-sm lg:text-base">Prêt à aider près de chez vous aujourd'hui ?</p>
         </div>
 
         {/* Grid Layout for Desktop */}
@@ -255,7 +255,7 @@ const MobileApp = () => {
           {/* Quick Actions - Desktop Only */}
           <div className="hidden lg:block lg:col-span-2">
             <div className="bg-white rounded-xl p-6 shadow-sm">
-              <h3 className="font-semibold text-blue-700 mb-4">Actions rapides</h3>
+              <h3 className="font-semibold text-gray-900 mb-4">Actions rapides</h3>
               <div className="grid grid-cols-2 gap-4">
                 <Button 
                   onClick={() => setCurrentView('explorer')}
@@ -267,7 +267,7 @@ const MobileApp = () => {
                 <Button 
                   variant="outline"
                   onClick={() => setCurrentView('missions')}
-                  className="h-20 flex flex-col items-center justify-center space-y-2 hover:scale-[1.02] transition-transform border-blue-500 text-blue-500 hover:bg-blue-50/50"
+                  className="h-20 flex flex-col items-center justify-center space-y-2 hover:scale-[1.02] transition-transform border-gray-300 text-gray-700 hover:bg-gray-50/50"
                 >
                   <Calendar className="h-6 w-6" />
                   <span>Mes missions</span>
@@ -279,7 +279,7 @@ const MobileApp = () => {
 
         {/* Categories */}
         <div className="bg-white rounded-xl p-4 shadow-sm">
-          <h3 className="font-semibold text-blue-700 mb-3 text-sm lg:text-base">Catégories</h3>
+          <h3 className="font-semibold text-gray-900 mb-3 text-sm lg:text-base">Catégories</h3>
           <div className="grid grid-cols-4 lg:grid-cols-8 gap-3 lg:gap-4">
             {categories.map((category, index) => (
               <button
@@ -295,7 +295,7 @@ const MobileApp = () => {
                 <div className={`w-10 h-10 lg:w-16 lg:h-16 rounded-full ${category.color} flex items-center justify-center mb-1 lg:mb-2 transition-transform group-hover:scale-105`}>
                   <span className="text-lg lg:text-2xl">{category.icon}</span>
                 </div>
-                <span className="text-xs lg:text-sm text-blue-500">{category.name}</span>
+                <span className="text-xs lg:text-sm text-gray-600">{category.name}</span>
               </button>
             ))}
           </div>
@@ -661,12 +661,12 @@ const MobileApp = () => {
         {currentView === 'profile' && renderProfileView()}
 
         {/* Bottom Navigation - Mobile Only */}
-        <div className="lg:hidden bg-white border-t border-blue-100 px-2 py-1 fixed bottom-0 left-0 right-0 z-40 shadow-lg">
+        <div className="lg:hidden bg-white border-t border-gray-100 px-2 py-1 fixed bottom-0 left-0 right-0 z-40 shadow-lg">
           <div className="flex justify-around">
             <button
               onClick={() => setCurrentView('home')}
               className={`flex flex-col items-center py-1 px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/20 rounded-lg ${
-                currentView === 'home' ? 'text-blue-500' : 'text-blue-400'
+                currentView === 'home' ? 'text-gray-900' : 'text-gray-500'
               }`}
               aria-current={currentView === 'home' ? 'page' : undefined}
             >
@@ -677,7 +677,7 @@ const MobileApp = () => {
             <button
               onClick={() => setCurrentView('explorer')}
               className={`flex flex-col items-center py-1 px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/20 rounded-lg ${
-                currentView === 'explorer' ? 'text-blue-500' : 'text-blue-400'
+                currentView === 'explorer' ? 'text-gray-900' : 'text-gray-500'
               }`}
               aria-current={currentView === 'explorer' ? 'page' : undefined}
             >
@@ -697,7 +697,7 @@ const MobileApp = () => {
             <button
               onClick={() => setCurrentView('missions')}
               className={`flex flex-col items-center py-1 px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/20 rounded-lg relative ${
-                currentView === 'missions' ? 'text-blue-500' : 'text-blue-400'
+                currentView === 'missions' ? 'text-gray-900' : 'text-gray-500'
               }`}
               aria-current={currentView === 'missions' ? 'page' : undefined}
             >
@@ -711,7 +711,7 @@ const MobileApp = () => {
             <button
               onClick={() => setCurrentView('profile')}
               className={`flex flex-col items-center py-1 px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/20 rounded-lg ${
-                currentView === 'profile' ? 'text-blue-500' : 'text-blue-400'
+                currentView === 'profile' ? 'text-gray-900' : 'text-gray-500'
               }`}
               aria-current={currentView === 'profile' ? 'page' : undefined}
             >
