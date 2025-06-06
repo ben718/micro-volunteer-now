@@ -42,8 +42,8 @@ export const useHomePage = () => {
         const { data: missions, error: missionsError } = await supabase
           .from('missions')
           .select('*')
-          .eq('status', 'active')
-          .order('participants_count', { ascending: false })
+          .eq('status', 'published')
+          .order('spots_taken', { ascending: false })
           .limit(3);
 
         if (missionsError) throw missionsError;
