@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 
@@ -7,17 +7,34 @@ export default function SignInForm() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const { signIn } = useAuth()
+  const { signIn, user, loading: authLoading } = useAuth()
   const navigate = useNavigate()
+
+  useEffect(() => {
+    if (user && !authLoading) {
+      if (user.role === 'association') {
+        navigate('/association')
+      } else {
+        navigate('/dashboard')
+      }
+    }
+  }, [user, authLoading, navigate])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
     setLoading(true)
-
+  
     try {
       await signIn(email, password)
-      navigate('/')
+      // Attendre un court instant pour que l'utilisateur soit chargé
+      setTimeout(() => {
+        if (user?.role === 'association') {
+          navigate('/association')
+        } else {
+          navigate('/dashboard')
+        }
+      }, 100)
     } catch (err: any) {
       setError(err.message)
     } finally {
