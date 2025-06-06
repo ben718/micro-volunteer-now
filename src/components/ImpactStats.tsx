@@ -39,7 +39,7 @@ const ImpactStats = () => {
           <div className="flex items-center justify-center mb-2">
             <Heart className="h-6 w-6 text-success" />
           </div>
-          <div className="text-2xl font-bold text-foreground">{data.stats.missionsCompleted}</div>
+          <div className="text-2xl font-bold text-foreground">{data.stats.total_missions_completed}</div>
           <div className="text-sm text-muted-foreground">missions complétées</div>
         </div>
 
@@ -47,7 +47,7 @@ const ImpactStats = () => {
           <div className="flex items-center justify-center mb-2">
             <Users className="h-6 w-6 text-impact" />
           </div>
-          <div className="text-2xl font-bold text-foreground">{data.stats.associationsHelped}</div>
+          <div className="text-2xl font-bold text-foreground">{data.stats.associations_helped}</div>
           <div className="text-sm text-muted-foreground">associations aidées</div>
         </div>
 
@@ -55,15 +55,15 @@ const ImpactStats = () => {
           <div className="flex items-center justify-center mb-2">
             <Clock className="h-6 w-6 text-accent" />
           </div>
-          <div className="text-2xl font-bold text-foreground">{data.stats.timeVolunteered}</div>
-          <div className="text-sm text-muted-foreground">minutes données</div>
+          <div className="text-2xl font-bold text-foreground">{data.stats.total_hours_volunteered}</div>
+          <div className="text-sm text-muted-foreground">heures données</div>
         </div>
 
         <div className="impact-stat">
           <div className="flex items-center justify-center mb-2">
             <Award className="h-6 w-6 text-warning" />
           </div>
-          <div className="text-2xl font-bold text-foreground">{data.stats.pointsEarned}</div>
+          <div className="text-2xl font-bold text-foreground">{data.stats.impact_score}</div>
           <div className="text-sm text-muted-foreground">points d'impact</div>
         </div>
       </div>
@@ -97,12 +97,17 @@ const ImpactStats = () => {
       <div className="bg-card border border-border rounded-xl p-4">
         <h3 className="font-semibold text-foreground mb-3">Badges récents</h3>
         <div className="flex flex-wrap gap-2">
+          {data.recentBadges.length === 0 && (
+            <span className="text-muted-foreground text-sm">Aucun badge obtenu récemment</span>
+          )}
           {data.recentBadges.map(badge => (
             <span 
               key={badge.id} 
-              className={`badge-earned ${badge.earned ? '' : 'opacity-50'}`}
+              className="badge-earned flex items-center gap-1"
+              title={badge.name}
             >
-              {badge.icon} {badge.name}
+              <img src={badge.icon_url} alt={badge.name} className="w-5 h-5 inline-block mr-1" />
+              {badge.name}
             </span>
           ))}
         </div>

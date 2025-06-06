@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useMissions } from '@/hooks/useMissions';
 import { Button } from '@/components/ui/button';
 import MissionCard from './MissionCard';
@@ -6,6 +6,7 @@ import ImpactStats from './ImpactStats';
 import MyMissions from './MyMissions';
 import Explorer from './Explorer';
 import Profile from './Profile';
+import { useUserProfile } from '@/hooks/useUserProfile';
 
 interface DashboardProps {
   view: 'dashboard' | 'explore' | 'missions' | 'profile';
@@ -14,23 +15,10 @@ interface DashboardProps {
 
 const Dashboard = ({ view, onViewChange }: DashboardProps) => {
   const { missions, loading } = useMissions();
+  const { userStats } = useUserProfile();
 
   const urgentMissions = missions.filter(m => m.isUrgent);
   const nearbyMissions = missions.filter(m => m.distance && parseFloat(m.distance) < 2); // exemple : moins de 2km
-
-  const userStats = {
-    missionsCompleted: 8,
-    associationsHelped: 5,
-    timeVolunteered: 285,
-    pointsEarned: 420
-  };
-
-  const userLevel = {
-    current: "Voisin Solidaire Intermédiaire",
-    progress: 75,
-    nextLevel: "Expert",
-    missionsToNext: 2
-  };
 
   const renderDashboard = () => (
     <div className="space-y-8">
@@ -90,7 +78,7 @@ const Dashboard = ({ view, onViewChange }: DashboardProps) => {
       {/* Votre impact */}
       <div>
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-foreground">Votre impact cette semaine</h2>
+          <h2 className="text-xl font-semibold text-foreground">Votre impact</h2>
           <Button 
             variant="outline" 
             onClick={() => onViewChange('profile')}
@@ -104,30 +92,7 @@ const Dashboard = ({ view, onViewChange }: DashboardProps) => {
 
       {/* Prochaines missions */}
       <div>
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-foreground">Vos prochaines missions</h2>
-          <Button 
-            variant="outline" 
-            onClick={() => onViewChange('missions')}
-            className="text-sm"
-          >
-            Gérer mes missions
-          </Button>
-        </div>
-        
-        <div className="bg-card border border-border rounded-xl p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-semibold text-foreground mb-1">Aide aux devoirs</h3>
-              <p className="text-sm text-muted-foreground mb-2">Aide aux Enfants</p>
-              <p className="text-sm text-primary font-medium">Demain à 16h00 • 45 minutes</p>
-            </div>
-            <div className="flex space-x-2">
-              <Button variant="outline" size="sm">Détails</Button>
-              <Button size="sm">Confirmer</Button>
-            </div>
-          </div>
-        </div>
+        <MyMissions />
       </div>
     </div>
   );

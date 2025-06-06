@@ -4,11 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Clock, MapPin, Calendar, CheckCircle, AlertCircle, Star } from 'lucide-react';
 import { useCategories } from '@/hooks/useCategories';
+import { useUserProfile } from '@/hooks/useUserProfile';
 
 const MyMissions = () => {
   const [activeTab, setActiveTab] = useState<'upcoming' | 'completed' | 'all'>('upcoming');
   const { userMissions, loading } = useMissions();
   const { getCategoryColor } = useCategories();
+  const { userStats } = useUserProfile();
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -75,31 +77,30 @@ const MyMissions = () => {
           <div className="text-sm text-muted-foreground">Terminées</div>
         </div>
         <div className="bg-card border border-border rounded-lg p-4 text-center">
-          <div className="text-2xl font-bold text-foreground">
-            {userMissions.filter(m => m.status === 'completed').reduce((acc, m) => acc + (m.points || 0), 0)}
-          </div>
-          <div className="text-sm text-muted-foreground">Points gagnés</div>
+          <div className="text-2xl font-bold text-foreground">{userStats.total_missions_completed}</div>
+          <div className="text-sm text-muted-foreground">Total</div>
         </div>
       </div>
       {/* Onglets */}
-      <div className="flex space-x-2 my-4">
-        {[
-          { key: 'upcoming', label: 'À venir' },
-          { key: 'completed', label: 'Terminées' },
-          { key: 'all', label: 'Toutes' }
-        ].map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key as any)}
-            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-              activeTab === tab.key
-                ? 'bg-background text-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+      <div className="flex bg-gray-100 rounded-lg p-1 max-w-md">
+        <button
+          className={`flex-1 py-2 text-center text-sm font-medium ${activeTab === 'upcoming' ? 'bg-white text-blue-600 rounded-md shadow-sm' : 'text-gray-600'}`}
+          onClick={() => setActiveTab('upcoming')}
+        >
+          À venir
+        </button>
+        <button
+          className={`flex-1 py-2 text-center text-sm font-medium ${activeTab === 'completed' ? 'bg-white text-blue-600 rounded-md shadow-sm' : 'text-gray-600'}`}
+          onClick={() => setActiveTab('completed')}
+        >
+          Terminées
+        </button>
+        <button
+          className={`flex-1 py-2 text-center text-sm font-medium ${activeTab === 'all' ? 'bg-white text-blue-600 rounded-md shadow-sm' : 'text-gray-600'}`}
+          onClick={() => setActiveTab('all')}
+        >
+          Toutes
+        </button>
       </div>
       {/* Liste des missions */}
       <div className="space-y-4">
