@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -126,24 +125,31 @@ const MobileApp = () => {
 
   // Mobile Header Component
   const MobileHeader = ({ title }: { title: string }) => (
-    <div className="lg:hidden bg-white px-4 py-4 flex items-center justify-between border-b">
+    <div className="lg:hidden bg-white px-4 py-3 flex items-center justify-between border-b sticky top-0 z-40 shadow-sm">
       <div className="flex items-center">
         <button
           onClick={() => setSidebarOpen(true)}
-          className="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
+          className="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20"
+          aria-label="Menu"
         >
-          <Menu className="h-6 w-6" />
+          <Menu className="h-5 w-5" />
         </button>
-        <h1 className="ml-2 text-xl font-bold text-gray-800">{title}</h1>
+        <h1 className="ml-2 text-lg font-bold text-gray-800 truncate">{title}</h1>
       </div>
-      <div className="flex items-center space-x-3">
-        <div className="relative">
-          <Bell className="h-6 w-6 text-gray-600" />
-          <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>
-        </div>
-        <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
+      <div className="flex items-center space-x-2">
+        <button 
+          className="relative p-2 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20"
+          aria-label="Notifications"
+        >
+          <Bell className="h-5 w-5 text-gray-600" />
+          <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>
+        </button>
+        <button 
+          className="w-7 h-7 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          aria-label="Profil"
+        >
           JD
-        </div>
+        </button>
       </div>
     </div>
   );
@@ -151,8 +157,12 @@ const MobileApp = () => {
   // Mobile Sidebar Overlay
   const MobileSidebar = () => (
     <div className={`lg:hidden fixed inset-0 z-50 ${sidebarOpen ? 'block' : 'hidden'}`}>
-      <div className="fixed inset-0 bg-black bg-opacity-25" onClick={() => setSidebarOpen(false)} />
-      <div className="fixed inset-y-0 left-0 flex flex-col w-64 bg-white">
+      <div 
+        className="fixed inset-0 bg-black bg-opacity-25 transition-opacity" 
+        onClick={() => setSidebarOpen(false)}
+        aria-hidden="true"
+      />
+      <div className="fixed inset-y-0 left-0 flex flex-col w-64 bg-white shadow-xl transform transition-transform duration-300 ease-in-out">
         <div className="flex items-center justify-between h-16 px-4 border-b">
           <div className="flex items-center">
             <div className="bg-gradient-to-r from-primary to-success p-2 rounded-xl">
@@ -162,12 +172,13 @@ const MobileApp = () => {
           </div>
           <button
             onClick={() => setSidebarOpen(false)}
-            className="p-2 rounded-md text-gray-400 hover:text-gray-500"
+            className="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20"
+            aria-label="Fermer le menu"
           >
             <X className="h-6 w-6" />
           </button>
         </div>
-        <nav className="flex-1 px-2 py-4 space-y-1">
+        <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
           {[
             { key: 'home', label: 'Accueil', icon: Home },
             { key: 'explorer', label: 'Explorer', icon: Search },
@@ -180,11 +191,12 @@ const MobileApp = () => {
                 setCurrentView(item.key as any);
                 setSidebarOpen(false);
               }}
-              className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md w-full transition-colors ${
+              className={`group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg w-full transition-colors ${
                 currentView === item.key
                   ? 'bg-primary/10 text-primary'
                   : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}
+              aria-current={currentView === item.key ? 'page' : undefined}
             >
               <item.icon className={`mr-3 h-5 w-5 ${
                 currentView === item.key ? 'text-primary' : 'text-gray-400 group-hover:text-gray-500'
@@ -222,19 +234,19 @@ const MobileApp = () => {
   );
 
   const renderHomeView = () => (
-    <div className="flex-1 bg-gray-50 overflow-y-auto">
+    <div className="flex-1 bg-gray-50 overflow-y-auto pb-20">
       <MobileHeader title="Voisin Solidaire" />
       <DesktopHeader title="Tableau de bord" />
 
-      <div className="p-4 lg:p-6 space-y-6">
+      <div className="p-3 lg:p-6 space-y-4 lg:space-y-6">
         {/* Welcome */}
-        <div>
-          <h2 className="text-xl lg:text-2xl font-bold text-gray-800 mb-1">Bonjour, Jean 👋</h2>
+        <div className="bg-white rounded-xl p-4 shadow-sm">
+          <h2 className="text-lg lg:text-2xl font-bold text-gray-800 mb-1">Bonjour, Jean 👋</h2>
           <p className="text-gray-600 text-sm lg:text-base">Prêt à aider près de chez vous aujourd'hui ?</p>
         </div>
 
         {/* Grid Layout for Desktop */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
           {/* Impact Stats */}
           <div className="lg:col-span-1">
             <UserStatsCard stats={userStats} />
@@ -242,12 +254,12 @@ const MobileApp = () => {
 
           {/* Quick Actions - Desktop Only */}
           <div className="hidden lg:block lg:col-span-2">
-            <div className="bg-white rounded-xl p-6">
+            <div className="bg-white rounded-xl p-6 shadow-sm">
               <h3 className="font-semibold text-gray-800 mb-4">Actions rapides</h3>
               <div className="grid grid-cols-2 gap-4">
                 <Button 
                   onClick={() => setCurrentView('explorer')}
-                  className="h-20 flex flex-col items-center justify-center space-y-2"
+                  className="h-20 flex flex-col items-center justify-center space-y-2 hover:scale-[1.02] transition-transform"
                 >
                   <Search className="h-6 w-6" />
                   <span>Explorer les missions</span>
@@ -255,7 +267,7 @@ const MobileApp = () => {
                 <Button 
                   variant="outline"
                   onClick={() => setCurrentView('missions')}
-                  className="h-20 flex flex-col items-center justify-center space-y-2"
+                  className="h-20 flex flex-col items-center justify-center space-y-2 hover:scale-[1.02] transition-transform"
                 >
                   <Calendar className="h-6 w-6" />
                   <span>Mes missions</span>
@@ -265,86 +277,26 @@ const MobileApp = () => {
           </div>
         </div>
 
-        {/* Missions Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Instant Missions */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold text-gray-800">Missions instantanées</h3>
-              <button 
-                className="text-blue-600 text-sm hover:text-blue-800"
-                onClick={() => setCurrentView('explorer')}
-              >
-                Voir tout
-              </button>
-            </div>
-            <div className="space-y-3">
-              {missions.filter(m => m.isUrgent || m.startTime.includes('min')).slice(0, 2).map((mission) => (
-                <MissionCard
-                  key={mission.id}
-                  mission={mission}
-                  onParticipate={handleParticipate}
-                  variant="default"
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Upcoming Missions */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold text-gray-800">Vos missions à venir</h3>
-              <button 
-                className="text-blue-600 text-sm hover:text-blue-800"
-                onClick={() => setCurrentView('missions')}
-              >
-                Voir tout
-              </button>
-            </div>
-            {userMissions.length > 0 ? (
-              userMissions.slice(0, 2).map((mission) => (
-                <MissionCard
-                  key={mission.id}
-                  mission={mission}
-                  onCancel={cancelMission}
-                  variant="upcoming"
-                />
-              ))
-            ) : (
-              <div className="bg-white rounded-xl p-4 text-center">
-                <p className="text-gray-500 text-sm">Aucune mission à venir</p>
-                <Button 
-                  size="sm" 
-                  className="mt-2"
-                  onClick={() => setCurrentView('explorer')}
-                >
-                  Explorer les missions
-                </Button>
-              </div>
-            )}
-          </div>
-        </div>
-
         {/* Categories */}
-        <div>
-          <h3 className="font-semibold text-gray-800 mb-3">Catégories</h3>
-          <div className="grid grid-cols-4 lg:grid-cols-8 gap-4">
+        <div className="bg-white rounded-xl p-4 shadow-sm">
+          <h3 className="font-semibold text-gray-800 mb-3 text-sm lg:text-base">Catégories</h3>
+          <div className="grid grid-cols-4 lg:grid-cols-8 gap-3 lg:gap-4">
             {categories.map((category, index) => (
-              <div 
-                key={index} 
-                className="text-center cursor-pointer group"
+              <button
+                key={index}
                 onClick={() => {
                   if (category.name !== "Plus") {
                     setCurrentView('explorer');
                     updateFilter('category', category.name.toLowerCase());
                   }
                 }}
+                className="text-center group focus:outline-none focus:ring-2 focus:ring-primary/20 rounded-lg p-1"
               >
-                <div className={`w-12 h-12 lg:w-16 lg:h-16 rounded-full ${category.color} flex items-center justify-center mb-2 transition-transform group-hover:scale-105`}>
-                  <span className="text-xl lg:text-2xl">{category.icon}</span>
+                <div className={`w-10 h-10 lg:w-16 lg:h-16 rounded-full ${category.color} flex items-center justify-center mb-1 lg:mb-2 transition-transform group-hover:scale-105`}>
+                  <span className="text-lg lg:text-2xl">{category.icon}</span>
                 </div>
                 <span className="text-xs lg:text-sm text-gray-600">{category.name}</span>
-              </div>
+              </button>
             ))}
           </div>
         </div>
@@ -693,7 +645,7 @@ const MobileApp = () => {
   );
 
   return (
-    <div className="h-screen flex bg-white">
+    <div className="h-screen flex bg-white overflow-hidden">
       {/* Desktop Sidebar */}
       <DesktopSidebar />
       
@@ -709,42 +661,48 @@ const MobileApp = () => {
         {currentView === 'profile' && renderProfileView()}
 
         {/* Bottom Navigation - Mobile Only */}
-        <div className="lg:hidden bg-white border-t border-gray-200 px-4 py-2">
+        <div className="lg:hidden bg-white border-t border-gray-200 px-2 py-1 fixed bottom-0 left-0 right-0 z-40 shadow-lg">
           <div className="flex justify-around">
             <button
               onClick={() => setCurrentView('home')}
-              className={`flex flex-col items-center py-2 px-3 transition-colors ${
+              className={`flex flex-col items-center py-1 px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20 rounded-lg ${
                 currentView === 'home' ? 'text-blue-600' : 'text-gray-500'
               }`}
+              aria-current={currentView === 'home' ? 'page' : undefined}
             >
-              <Home className="h-6 w-6 mb-1" />
-              <span className="text-xs">Accueil</span>
+              <Home className="h-5 w-5 mb-0.5" />
+              <span className="text-[10px]">Accueil</span>
             </button>
             
             <button
               onClick={() => setCurrentView('explorer')}
-              className={`flex flex-col items-center py-2 px-3 transition-colors ${
+              className={`flex flex-col items-center py-1 px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20 rounded-lg ${
                 currentView === 'explorer' ? 'text-blue-600' : 'text-gray-500'
               }`}
+              aria-current={currentView === 'explorer' ? 'page' : undefined}
             >
-              <Search className="h-6 w-6 mb-1" />
-              <span className="text-xs">Explorer</span>
+              <Search className="h-5 w-5 mb-0.5" />
+              <span className="text-[10px]">Explorer</span>
             </button>
 
-            <div className="flex flex-col items-center py-2 px-3">
-              <div className="bg-orange-500 rounded-full p-3 mb-1 cursor-pointer hover:bg-orange-600 transition-colors">
-                <Zap className="h-6 w-6 text-white" />
+            <button
+              className="flex flex-col items-center py-1 px-2 focus:outline-none focus:ring-2 focus:ring-orange-500/20 rounded-lg"
+              aria-label="Créer une mission"
+            >
+              <div className="bg-orange-500 rounded-full p-2 mb-0.5 cursor-pointer hover:bg-orange-600 transition-colors">
+                <Zap className="h-5 w-5 text-white" />
               </div>
-            </div>
+            </button>
 
             <button
               onClick={() => setCurrentView('missions')}
-              className={`flex flex-col items-center py-2 px-3 transition-colors relative ${
+              className={`flex flex-col items-center py-1 px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20 rounded-lg relative ${
                 currentView === 'missions' ? 'text-blue-600' : 'text-gray-500'
               }`}
+              aria-current={currentView === 'missions' ? 'page' : undefined}
             >
-              <Calendar className="h-6 w-6 mb-1" />
-              <span className="text-xs">Missions</span>
+              <Calendar className="h-5 w-5 mb-0.5" />
+              <span className="text-[10px]">Missions</span>
               {userMissions.length > 0 && (
                 <div className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></div>
               )}
@@ -752,12 +710,13 @@ const MobileApp = () => {
 
             <button
               onClick={() => setCurrentView('profile')}
-              className={`flex flex-col items-center py-2 px-3 transition-colors ${
+              className={`flex flex-col items-center py-1 px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20 rounded-lg ${
                 currentView === 'profile' ? 'text-blue-600' : 'text-gray-500'
               }`}
+              aria-current={currentView === 'profile' ? 'page' : undefined}
             >
-              <User className="h-6 w-6 mb-1" />
-              <span className="text-xs">Profil</span>
+              <User className="h-5 w-5 mb-0.5" />
+              <span className="text-[10px]">Profil</span>
             </button>
           </div>
         </div>
