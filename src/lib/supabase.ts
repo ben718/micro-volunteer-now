@@ -171,4 +171,69 @@ export const authService = {
     const { error } = await supabase.auth.signOut()
     if (error) throw error
   }
-} 
+}
+
+export const categoryService = {
+  async getCategories() {
+    const { data, error } = await supabase
+      .from('categories')
+      .select('*')
+      .order('name');
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async getCategoryById(id: string) {
+    const { data, error } = await supabase
+      .from('categories')
+      .select('*')
+      .eq('id', id)
+      .single();
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async createCategory(category: {
+    name: string;
+    icon: string;
+    color: string;
+    description?: string;
+  }) {
+    const { data, error } = await supabase
+      .from('categories')
+      .insert([category])
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async updateCategory(id: string, category: {
+    name?: string;
+    icon?: string;
+    color?: string;
+    description?: string;
+  }) {
+    const { data, error } = await supabase
+      .from('categories')
+      .update(category)
+      .eq('id', id)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async deleteCategory(id: string) {
+    const { error } = await supabase
+      .from('categories')
+      .delete()
+      .eq('id', id);
+    
+    if (error) throw error;
+  }
+}; 

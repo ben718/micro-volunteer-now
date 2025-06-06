@@ -24,6 +24,7 @@ import { useMissions } from '@/hooks/useMissions';
 import { useFilters } from '@/hooks/useFilters';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useCategories } from '@/hooks/useCategories';
 
 // Components
 import MissionCard from '@/components/mobile/MissionCard';
@@ -51,13 +52,7 @@ const MobileApp = () => {
     setMaxDistance,
     setDuration
   } = useUserProfile();
-
-  const categories = [
-    { name: "Alimentaire", icon: "🍽️", color: "bg-blue-50 text-gray-700" },
-    { name: "Education", icon: "📚", color: "bg-blue-50 text-gray-700" },
-    { name: "Social", icon: "😊", color: "bg-blue-50 text-gray-700" },
-    { name: "Plus", icon: "+", color: "bg-blue-50 text-gray-700" }
-  ];
+  const { categories, loading: categoriesLoading } = useCategories();
 
   const handleParticipate = (missionId: string) => {
     participateInMission(missionId);
@@ -357,17 +352,15 @@ const MobileApp = () => {
         </div>
 
         {/* Categories */}
-        <div className="bg-white rounded-xl p-4 shadow-sm">
+        <div className="bg-white rounded-xl p-6 shadow-sm">
           <h3 className="font-semibold text-gray-900 mb-3 text-sm lg:text-base">Catégories</h3>
           <div className="grid grid-cols-4 lg:grid-cols-8 gap-3 lg:gap-4">
-            {categories.map((category, index) => (
+            {categories.map((category) => (
               <button
-                key={index}
+                key={category.id}
                 onClick={() => {
-                  if (category.name !== "Plus") {
-                    setCurrentView('explorer');
-                    updateFilter('category', category.name.toLowerCase());
-                  }
+                  setCurrentView('explorer');
+                  updateFilter('category', category.name.toLowerCase());
                 }}
                 className="text-center group focus:outline-none focus:ring-2 focus:ring-blue-500/20 rounded-lg p-1"
               >

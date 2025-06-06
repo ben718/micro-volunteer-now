@@ -3,10 +3,12 @@ import { useMissions } from '@/hooks/useMissions';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Clock, MapPin, Calendar, CheckCircle, AlertCircle, Star } from 'lucide-react';
+import { useCategories } from '@/hooks/useCategories';
 
 const MyMissions = () => {
   const [activeTab, setActiveTab] = useState<'upcoming' | 'completed' | 'all'>('upcoming');
   const { userMissions, loading } = useMissions();
+  const { getCategoryColor } = useCategories();
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -31,21 +33,6 @@ const MyMissions = () => {
         return 'Annulée';
       default:
         return status;
-    }
-  };
-
-  const getCategoryColor = (category: string) => {
-    switch (category?.toLowerCase()) {
-      case 'aide alimentaire':
-        return 'bg-green-100 text-green-700';
-      case 'accompagnement':
-        return 'bg-blue-100 text-blue-700';
-      case 'éducation':
-        return 'bg-purple-100 text-purple-700';
-      case 'environnement':
-        return 'bg-emerald-100 text-emerald-700';
-      default:
-        return 'bg-gray-100 text-gray-700';
     }
   };
 

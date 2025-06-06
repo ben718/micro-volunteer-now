@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Search, Filter, Map, List, Clock, MapPin, Users, SlidersHorizontal } from 'lucide-react';
 import MissionCard from './MissionCard';
 import { missionService } from '@/lib/supabase';
+import { useCategories } from '@/hooks/useCategories';
 
 const Explorer = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -20,16 +21,7 @@ const Explorer = () => {
   const [missions, setMissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const categories = [
-    'Aide alimentaire',
-    'Accompagnement',
-    'Environnement',
-    'Éducation',
-    'Santé',
-    'Culture',
-    'Sport'
-  ];
+  const { categories, loading: categoriesLoading } = useCategories();
 
   useEffect(() => {
     async function fetchMissions() {
@@ -219,7 +211,7 @@ const Explorer = () => {
                 >
                   <option value="all">Toutes catégories</option>
                   {categories.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
+                    <option key={cat.id} value={cat.name.toLowerCase()}>{cat.name}</option>
                   ))}
                 </select>
               </div>
