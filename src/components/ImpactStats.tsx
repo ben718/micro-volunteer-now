@@ -1,7 +1,7 @@
 import React from 'react';
 import { Heart, Users, Clock, Award } from 'lucide-react';
 import { useImpactStats } from '@/hooks/useImpactStats';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/contexts/AuthContext';
 
 const ImpactStats = () => {
   const { user } = useAuth();
