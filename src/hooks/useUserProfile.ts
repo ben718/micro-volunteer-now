@@ -1,35 +1,51 @@
-
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
 import { UserStats, Badge, Category, Association } from '@/types/mission';
 
 export const useUserProfile = () => {
-  const [userStats, setUserStats] = useState<UserStats>({
-    missions: 5,
-    timeGiven: "3h",
-    associations: 2
-  });
-
-  const [badges, setBadges] = useState<Badge[]>([
-    { name: "Premier pas", icon: "⭐", color: "bg-yellow-400", earned: true },
-    { name: "Alimentaire", icon: "🍽️", color: "bg-green-400", earned: true },
-    { name: "Réactif", icon: "⚡", color: "bg-blue-400", earned: true },
-    { name: "À débloquer", icon: "🔒", color: "bg-gray-300", earned: false }
-  ]);
-
-  const [preferredCategories, setPreferredCategories] = useState<Category[]>([
-    { name: "Alimentaire", icon: "🍽️", color: "bg-blue-500 text-white", active: true },
-    { name: "Social", icon: "😊", color: "bg-green-500 text-white", active: true },
-    { name: "Education", icon: "📚", color: "bg-yellow-500 text-white", active: true },
-    { name: "+ Ajouter", icon: "+", color: "border-dashed", active: false }
-  ]);
-
+  const { user } = useAuth();
+  const [userStats, setUserStats] = useState<UserStats>({ missions: 0, timeGiven: '0h', associations: 0 });
+  const [badges, setBadges] = useState<Badge[]>([]);
+  const [preferredCategories, setPreferredCategories] = useState<Category[]>([]);
   const [maxDistance, setMaxDistance] = useState([3]);
-  const [preferredDuration, setPreferredDuration] = useState("15 min");
+  const [preferredDuration, setPreferredDuration] = useState('15 min');
+  const [userAssociations, setUserAssociations] = useState<Association[]>([]);
 
-  const [userAssociations] = useState<Association[]>([
-    { name: "Les Restos du Cœur", missions: 3, avatar: "👨‍🍳" },
-    { name: "Secours Populaire", missions: 2, avatar: "👩‍⚕️" }
-  ]);
+  useEffect(() => {
+    async function fetchProfileData() {
+      if (!user) return;
+      // Récupérer le profil utilisateur
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      if (profile && !profileError) {
+        setUserStats({
+          missions: profile.missions_count || 0,
+          timeGiven: profile.time_given || '0h',
+          associations: profile.associations_count || 0
+        });
+        setPreferredCategories(profile.preferred_categories || []);
+        setMaxDistance([profile.max_distance || 3]);
+        setPreferredDuration(profile.preferred_duration || '15 min');
+      }
+      // Récupérer les badges
+      const { data: userBadges } = await supabase
+        .from('badges')
+        .select('*')
+        .eq('user_id', user.id);
+      setBadges(userBadges || []);
+      // Récupérer les associations de l'utilisateur
+      const { data: associations } = await supabase
+        .from('associations')
+        .select('*')
+        .in('id', profile?.association_ids || []);
+      setUserAssociations(associations || []);
+    }
+    fetchProfileData();
+  }, [user]);
 
   const updateStats = useCallback((newStats: Partial<UserStats>) => {
     setUserStats(prev => ({ ...prev, ...newStats }));
