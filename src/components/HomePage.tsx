@@ -1,47 +1,34 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Clock, MapPin, Users, Heart, Search, Award } from 'lucide-react';
 import MissionCard from './MissionCard';
+import { useHomePage } from '@/hooks/useHomePage';
 
 interface HomePageProps {
   onGetStarted: () => void;
 }
 
 const HomePage = ({ onGetStarted }: HomePageProps) => {
-  const featuredMissions = [
-    {
-      title: "Aide aux courses",
-      association: "Épicerie Solidaire du 11ème",
-      duration: "15 min",
-      distance: "0.5 km",
-      startTime: "Dans 10 min",
-      description: "Aidez à porter les courses des bénéficiaires jusqu'à leur domicile",
-      participants: { current: 2, max: 3 },
-      category: "Aide alimentaire",
-      isUrgent: true
-    },
-    {
-      title: "Distribution de repas",
-      association: "Secours Populaire",
-      duration: "30 min",
-      distance: "1.2 km",
-      startTime: "Maintenant",
-      description: "Participez à la distribution de repas chauds aux personnes dans le besoin",
-      participants: { current: 4, max: 6 },
-      category: "Aide alimentaire"
-    },
-    {
-      title: "Accompagnement senior",
-      association: "Les Petites Sœurs",
-      duration: "45 min",
-      distance: "0.8 km",
-      startTime: "15h30",
-      description: "Accompagnez une personne âgée pour ses courses hebdomadaires",
-      participants: { current: 1, max: 2 },
-      category: "Accompagnement"
-    }
-  ];
+  const { data, loading, error } = useHomePage();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold text-destructive mb-2">Une erreur est survenue</h2>
+          <p className="text-muted-foreground">{error}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -144,10 +131,10 @@ const HomePage = ({ onGetStarted }: HomePageProps) => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-            {featuredMissions.map((mission, index) => (
-              <div key={index} className="animate-slide-up" style={{ animationDelay: `${index * 0.1}s` }}>
+            {data.featuredMissions.map((mission, index) => (
+              <div key={mission.id} className="animate-slide-up" style={{ animationDelay: `${index * 0.1}s` }}>
                 <MissionCard
-                  {...mission}
+                  mission={mission}
                   onParticipate={() => console.log(`Participer à: ${mission.title}`)}
                 />
               </div>
@@ -175,50 +162,20 @@ const HomePage = ({ onGetStarted }: HomePageProps) => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            <div className="bg-card border border-border rounded-xl p-6 animate-slide-up">
-              <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-gradient-to-r from-primary to-success rounded-full flex items-center justify-center text-white font-semibold">
-                  M
+            {data.testimonials.map((testimonial, index) => (
+              <div key={testimonial.id} className="bg-card border border-border rounded-xl p-6 animate-slide-up" style={{ animationDelay: `${index * 0.1}s` }}>
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-primary to-success rounded-full flex items-center justify-center text-white font-semibold">
+                    {testimonial.avatar || testimonial.name[0]}
+                  </div>
+                  <div className="ml-3">
+                    <p className="font-semibold text-foreground">{testimonial.name}, {testimonial.age} ans</p>
+                    <p className="text-sm text-muted-foreground">{testimonial.missions_count} missions • Niveau {testimonial.level}</p>
+                  </div>
                 </div>
-                <div className="ml-3">
-                  <p className="font-semibold text-foreground">Marie, 32 ans</p>
-                  <p className="text-sm text-muted-foreground">15 missions • Niveau Experte</p>
-                </div>
+                <p className="text-muted-foreground">{testimonial.content}</p>
               </div>
-              <p className="text-muted-foreground">
-                "En 15 minutes entre deux rendez-vous, j'aide une épicerie solidaire. Simple et gratifiant !"
-              </p>
-            </div>
-
-            <div className="bg-card border border-border rounded-xl p-6 animate-slide-up" style={{ animationDelay: '0.1s' }}>
-              <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-gradient-to-r from-accent to-warning rounded-full flex items-center justify-center text-white font-semibold">
-                  P
-                </div>
-                <div className="ml-3">
-                  <p className="font-semibold text-foreground">Pierre, 28 ans</p>
-                  <p className="text-sm text-muted-foreground">8 missions • Niveau Intermédiaire</p>
-                </div>
-              </div>
-              <p className="text-muted-foreground">
-                "Parfait pour moi qui n'ai pas beaucoup de temps libre. Je peux aider quand je veux !"
-              </p>
-            </div>
-
-            <div className="bg-card border border-border rounded-xl p-6 animate-slide-up" style={{ animationDelay: '0.2s' }}>
-              <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-gradient-to-r from-impact to-primary rounded-full flex items-center justify-center text-white font-semibold">
-                  S
-                </div>
-                <div className="ml-3">
-                  <p className="font-semibold text-foreground">Sophie, 45 ans</p>
-                  <p className="text-sm text-muted-foreground">22 missions • Niveau Ambassadrice</p>
-                </div>
-              </div>
-              <p className="text-muted-foreground">
-                "Une vraie révolution ! J'ai rencontré mes voisins et créé du lien social dans mon quartier."
-              </p>
-            </div>
+            ))}
           </div>
         </div>
       </section>
