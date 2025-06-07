@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
@@ -5,7 +6,6 @@ import { useAuth } from '../../contexts/AuthContext'
 import type { Database } from '../../types/database'
 
 type Mission = Database['public']['Tables']['missions']['Row']
-type Profile = Database['public']['Tables']['profiles']['Row']
 
 export default function MissionDetails() {
   const { id } = useParams<{ id: string }>()
@@ -38,7 +38,7 @@ export default function MissionDetails() {
           .from('mission_registrations')
           .select('*')
           .eq('mission_id', id)
-          .eq('volunteer_id', user.id)
+          .eq('user_id', user.id)
           .single()
 
         setIsRegistered(!!registration)
@@ -61,9 +61,9 @@ export default function MissionDetails() {
         .from('mission_registrations')
         .insert([
           {
-            mission_id: id,
-            volunteer_id: user.id,
-            status: 'pending'
+            mission_id: id!,
+            user_id: user.id,
+            status: 'confirmed'
           }
         ])
 
@@ -106,7 +106,7 @@ export default function MissionDetails() {
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
             <span className="text-blue-600 font-medium">
-              {mission.association_name}
+              Association
             </span>
             <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
               {mission.category}
@@ -119,16 +119,16 @@ export default function MissionDetails() {
             <div>
               <h3 className="font-semibold mb-2">Informations</h3>
               <ul className="space-y-2 text-gray-600">
-                <li>📍 {mission.location}</li>
-                <li>⏱️ {mission.duration} heures</li>
-                <li>👥 {mission.required_volunteers} bénévoles recherchés</li>
-                <li>📅 {new Date(mission.start_date).toLocaleDateString()}</li>
+                <li>📍 {mission.city}</li>
+                <li>⏱️ {mission.duration} minutes</li>
+                <li>👥 {mission.spots_available} places disponibles</li>
+                <li>📅 {new Date(mission.date).toLocaleDateString()}</li>
               </ul>
             </div>
             <div>
               <h3 className="font-semibold mb-2">Compétences requises</h3>
               <ul className="space-y-2 text-gray-600">
-                {mission.required_skills?.map((skill, index) => (
+                {mission.skills_needed?.map((skill, index) => (
                   <li key={index}>• {skill}</li>
                 ))}
               </ul>
@@ -151,4 +151,4 @@ export default function MissionDetails() {
       </div>
     </div>
   )
-} 
+}

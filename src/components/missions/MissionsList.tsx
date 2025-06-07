@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
@@ -20,7 +21,7 @@ export default function MissionsList() {
       const { data, error } = await supabase
         .from('missions')
         .select('*')
-        .eq('status', 'open')
+        .eq('status', 'published')
         .order('created_at', { ascending: false })
 
       if (error) throw error
@@ -65,12 +66,12 @@ export default function MissionsList() {
               <h2 className="text-xl font-semibold mb-2">{mission.title}</h2>
               <p className="text-gray-600 mb-4">{mission.description}</p>
               <div className="flex items-center justify-between text-sm text-gray-500">
-                <span>{mission.location}</span>
-                <span>{mission.duration} heures</span>
+                <span>{mission.city}</span>
+                <span>{mission.duration} minutes</span>
               </div>
               <div className="mt-4 flex items-center justify-between">
                 <span className="text-blue-600 font-medium">
-                  {mission.association_name}
+                  Association
                 </span>
                 <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
                   {mission.category}
@@ -87,4 +88,4 @@ export default function MissionsList() {
       )}
     </div>
   )
-} 
+}

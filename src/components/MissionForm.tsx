@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useAssociationMissions } from '@/hooks/useAssociationMissions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -125,8 +126,8 @@ const MissionForm = () => {
        impact_metrics: null,
     };
 
-    let success = false;
     try {
+      let success = false;
       if (isEditing && missionId) {
         success = await updateMission(missionId, missionDataToSend);
       } else {

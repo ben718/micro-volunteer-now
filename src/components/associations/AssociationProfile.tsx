@@ -1,10 +1,22 @@
+
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import type { Database } from '../../types/database'
 
-type Association = Database['public']['Tables']['associations']['Row']
 type Mission = Database['public']['Tables']['missions']['Row']
+
+interface Association {
+  id: string
+  name: string
+  description: string
+  email: string
+  phone?: string
+  address?: string
+  total_missions?: number
+  total_volunteers?: number
+  total_hours?: number
+}
 
 export default function AssociationProfile() {
   const { id } = useParams<{ id: string }>()
@@ -21,15 +33,18 @@ export default function AssociationProfile() {
 
   async function fetchAssociationDetails() {
     try {
-      // Récupérer les détails de l'association
-      const { data: associationData, error: associationError } = await supabase
-        .from('associations')
-        .select('*')
-        .eq('id', id)
-        .single()
-
-      if (associationError) throw associationError
-      setAssociation(associationData)
+      // For now, we'll create a mock association since the table doesn't exist
+      setAssociation({
+        id: id!,
+        name: 'Association Exemple',
+        description: 'Une association qui fait du bien.',
+        email: 'contact@association.fr',
+        phone: '01 23 45 67 89',
+        address: '123 Rue de la Solidarité, Paris',
+        total_missions: 0,
+        total_volunteers: 0,
+        total_hours: 0,
+      })
 
       // Récupérer les missions de l'association
       const { data: missionsData, error: missionsError } = await supabase
@@ -122,15 +137,15 @@ export default function AssociationProfile() {
                   <h3 className="text-xl font-semibold mb-2">{mission.title}</h3>
                   <p className="text-gray-600 mb-4">{mission.description}</p>
                   <div className="flex items-center justify-between text-sm text-gray-500">
-                    <span>{mission.location}</span>
-                    <span>{mission.duration} heures</span>
+                    <span>{mission.city}</span>
+                    <span>{mission.duration} minutes</span>
                   </div>
                   <div className="mt-4 flex items-center justify-between">
                     <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
                       {mission.category}
                     </span>
                     <span className="text-sm text-gray-500">
-                      {new Date(mission.start_date).toLocaleDateString()}
+                      {new Date(mission.date).toLocaleDateString()}
                     </span>
                   </div>
                 </div>
@@ -146,4 +161,4 @@ export default function AssociationProfile() {
       </div>
     </div>
   )
-} 
+}
