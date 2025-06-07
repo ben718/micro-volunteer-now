@@ -4,10 +4,12 @@ import { Button } from '@/components/ui/button';
 import { ChevronRight, Settings, Star, Award, Heart } from 'lucide-react';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useUserMissions } from '@/hooks/useUserMissions';
+import { useCategories } from '@/hooks/useCategories';
 
 const MobileProfile = () => {
   const { userProfile, userStats, badges, loading, error } = useUserProfile();
   const { upcomingMissions, pastMissions } = useUserMissions();
+  const { categories } = useCategories();
 
   // Calculer les associations uniques depuis les missions passées
   const uniqueAssociations = pastMissions.reduce((acc: any[], mission: any) => {
@@ -21,19 +23,19 @@ const MobileProfile = () => {
     return acc;
   }, []);
 
-  // Badges par défaut (à adapter selon votre système de badges)
-  const defaultBadges = [
-    { name: 'Premier pas', icon: '⭐', earned: pastMissions.length > 0 },
-    { name: 'Alimentaire', icon: '🍽️', earned: pastMissions.some(m => m.category === 'alimentaire') },
-    { name: 'Réactif', icon: '⚡', earned: pastMissions.length >= 3 },
-    { name: 'À débloquer', icon: '🔒', earned: false }
-  ];
+  // Générer les préférences à partir des catégories de la BDD
+  const preferences = categories.map(category => ({
+    name: category.name,
+    selected: userProfile?.interests?.includes(category.name.toLowerCase()) || false,
+    icon: category.icon
+  }));
 
-  // Préférences par défaut (à adapter selon votre système)
-  const preferences = [
-    { name: 'Alimentaire', selected: userProfile?.interests?.includes('alimentaire') || false },
-    { name: 'Social', selected: userProfile?.interests?.includes('social') || false },
-    { name: 'Éducation', selected: userProfile?.interests?.includes('education') || false }
+  // Badges par défaut si aucun badge n'est disponible
+  const displayBadges = badges.length > 0 ? badges : [
+    { badges: { name: 'Premier pas', icon_url: '⭐' }, earned: pastMissions.length > 0 },
+    { badges: { name: 'Alimentaire', icon_url: '🍽️' }, earned: pastMissions.some(m => m.category === 'alimentaire') },
+    { badges: { name: 'Réactif', icon_url: '⚡' }, earned: pastMissions.length >= 3 },
+    { badges: { name: 'À débloquer', icon_url: '🔒' }, earned: false }
   ];
 
   if (loading) {
@@ -97,7 +99,7 @@ const MobileProfile = () => {
             <div className="impact-label">Temps donné</div>
           </div>
           <div className="impact-stat">
-            <div className="impact-number text-orange-500">{uniqueAssociations.length}</div>
+            <div className="impact-number text-orange-500">{userStats.associations_helped}</div>
             <div className="impact-label">Associations</div>
           </div>
         </div>
@@ -111,16 +113,16 @@ const MobileProfile = () => {
         </div>
         
         <div className="flex gap-3">
-          {defaultBadges.map((badge, index) => (
+          {displayBadges.slice(0, 4).map((userBadge, index) => (
             <div
               key={index}
               className={`w-16 h-16 rounded-2xl flex items-center justify-center text-2xl ${
-                badge.earned 
+                userBadge.earned !== false
                   ? 'bg-gradient-to-br from-yellow-100 to-orange-100' 
                   : 'bg-gray-100'
               }`}
             >
-              {badge.icon}
+              {userBadge.badges?.icon_url || '🏆'}
             </div>
           ))}
         </div>
@@ -143,7 +145,7 @@ const MobileProfile = () => {
                       : 'bg-gray-100 text-gray-600'
                   }`}
                 >
-                  {pref.name}
+                  {pref.icon} {pref.name}
                 </span>
               ))}
               <button className="px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-600">
@@ -158,11 +160,11 @@ const MobileProfile = () => {
               <div className="flex-1 bg-gray-200 rounded-full h-2">
                 <div 
                   className="bg-blue-500 h-2 rounded-full" 
-                  style={{ width: `${Math.min((userProfile?.max_distance || 3) * 20, 100)}%` }}
+                  style={{ width: `${Math.min((userProfile?.max_distance || 15) * 6.67, 100)}%` }}
                 ></div>
               </div>
               <span className="text-sm font-medium text-blue-600">
-                {userProfile?.max_distance || 3} km
+                {userProfile?.max_distance || 15} km
               </span>
             </div>
           </div>

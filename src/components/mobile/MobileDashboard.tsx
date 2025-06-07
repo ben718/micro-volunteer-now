@@ -6,21 +6,53 @@ import MobileMissionCard from './MissionCard';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useMissions } from '@/hooks/useMissions';
 import { useUserMissions } from '@/hooks/useUserMissions';
+import { useCategories } from '@/hooks/useCategories';
 
 const MobileDashboard = () => {
-  const { userProfile } = useUserProfile();
+  const { userProfile, userStats } = useUserProfile();
   const { missions, loading: missionsLoading } = useMissions();
   const { upcomingMissions, loading: userMissionsLoading } = useUserMissions();
+  const { categories } = useCategories();
 
   // Prendre les 2 premières missions pour les "missions instantanées"
   const instantMissions = missions.slice(0, 2);
+
+  // Mapping des icônes par défaut pour les catégories courantes
+  const getDefaultIcon = (categoryName: string) => {
+    const iconMap: { [key: string]: string } = {
+      'alimentaire': '🍽️',
+      'education': '📚',
+      'social': '😊',
+      'santé': '🏥',
+      'environnement': '🌱',
+      'culture': '🎨',
+      'sport': '⚽'
+    };
+    return iconMap[categoryName.toLowerCase()] || '❤️';
+  };
+
+  // Préparer les catégories pour l'affichage avec les 3 premières + "Plus"
+  const displayCategories = categories.slice(0, 3).map(category => ({
+    name: category.name,
+    icon: category.icon || getDefaultIcon(category.name),
+    color: category.color || 'bg-gray-100'
+  }));
+
+  // Ajouter la catégorie "Plus" si il y a plus de 3 catégories
+  if (categories.length > 3) {
+    displayCategories.push({
+      name: 'Plus',
+      icon: '➕',
+      color: 'bg-gray-100'
+    });
+  }
 
   return (
     <div className="space-y-6">
       {/* Header de bienvenue */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
         <h1 className="text-xl font-bold text-gray-900 mb-2">
-          Bonjour, {userProfile?.first_name || 'Jean'} 👋
+          Bonjour, {userProfile?.first_name || 'Utilisateur'} 👋
         </h1>
         <p className="text-gray-600 text-sm">
           Prêt à aider près de chez vous aujourd'hui ?
@@ -35,15 +67,15 @@ const MobileDashboard = () => {
         
         <div className="grid grid-cols-3 gap-4">
           <div className="impact-stat">
-            <div className="impact-number text-blue-500">{userProfile?.total_missions_completed || 0}</div>
+            <div className="impact-number text-blue-500">{userStats.total_missions_completed}</div>
             <div className="impact-label">Missions</div>
           </div>
           <div className="impact-stat">
-            <div className="impact-number text-green-500">{userProfile?.total_hours_volunteered || 0}h</div>
+            <div className="impact-number text-green-500">{userStats.total_hours_volunteered}h</div>
             <div className="impact-label">Temps donné</div>
           </div>
           <div className="impact-stat">
-            <div className="impact-number text-orange-500">{userProfile?.impact_score || 0}</div>
+            <div className="impact-number text-orange-500">{userStats.impact_score}</div>
             <div className="impact-label">Impact</div>
           </div>
         </div>
@@ -83,12 +115,7 @@ const MobileDashboard = () => {
         </div>
 
         <div className="grid grid-cols-4 gap-4">
-          {[
-            { name: 'Alimentaire', icon: '🍽️', color: 'bg-green-100' },
-            { name: 'Éducation', icon: '📚', color: 'bg-blue-100' },
-            { name: 'Social', icon: '😊', color: 'bg-orange-100' },
-            { name: 'Plus', icon: '➕', color: 'bg-gray-100' }
-          ].map((category, index) => (
+          {displayCategories.map((category, index) => (
             <button
               key={index}
               className={`${category.color} rounded-2xl p-4 flex flex-col items-center space-y-2 transition-transform active:scale-95`}

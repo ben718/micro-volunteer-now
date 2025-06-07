@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react'
 import { profileService } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 
 export const useUserProfile = () => {
   const [userProfile, setUserProfile] = useState<any>(null)
@@ -23,12 +24,38 @@ export const useUserProfile = () => {
       setUserProfile(profile)
       setAvailability(profile?.availability || {})
       
+      // Load user badges
+      const { data: userBadges } = await supabase
+        .from('user_badges')
+        .select(`
+          badge_id,
+          awarded_at,
+          badges (
+            id,
+            name,
+            icon_url,
+            description,
+            category
+          )
+        `)
+        .eq('user_id', profile.id)
+      
+      setBadges(userBadges || [])
+
+      // Calculate associations helped from past missions
+      const { data: pastMissions } = await supabase
+        .from('user_past_missions')
+        .select('association_id')
+        .eq('user_id', profile.id)
+      
+      const uniqueAssociations = [...new Set(pastMissions?.map(m => m.association_id) || [])]
+      
       // Set user stats from profile data
       setUserStats({
         total_missions_completed: profile?.total_missions_completed || 0,
         total_hours_volunteered: profile?.total_hours_volunteered || 0,
         impact_score: profile?.impact_score || 0,
-        associations_helped: 0,
+        associations_helped: uniqueAssociations.length,
         languages: profile?.languages || []
       })
     } catch (err: any) {
