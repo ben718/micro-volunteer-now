@@ -117,7 +117,7 @@ export function useUserMissions(): UseUserMissionsResult {
 
         if (upcomingError) throw upcomingError;
         
-        setUpcomingMissions(upcomingData as UpcomingMission[] || []);
+        setUpcomingMissions(upcomingData || []);
 
         // Fetch past missions
         const { data: pastData, error: pastError } = await supabase
@@ -127,7 +127,7 @@ export function useUserMissions(): UseUserMissionsResult {
 
         if (pastError) throw pastError;
         
-        setPastMissions(pastData as PastMission[] || []);
+        setPastMissions(pastData || []);
 
       } catch (err: any) {
         console.error("Error loading user missions:", err);
