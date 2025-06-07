@@ -1,21 +1,21 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-import { useAssociation } from './useAssociation'; // Assurez-vous que le chemin est correct
+import { useAssociation } from './useAssociation';
 
 export interface AssociationMember {
   id: string;
   association_id: string;
-  user_id: string | null; // Peut être null si l'utilisateur n'a pas encore accepté l'invitation
+  user_id: string | null;
   email: string;
-  role: string; // Ex: 'admin', 'manager', 'member'
+  role: string;
   status: 'invited' | 'active' | 'inactive';
-  invitation_token: string | null; // Token d'invitation si applicable
+  invitation_token: string | null;
   invitation_sent_at: string | null;
   invitation_accepted_at: string | null;
   created_at: string;
   updated_at: string;
-  // Relation potentielle vers le profil utilisateur si user_id n'est pas null
   user: {
     first_name: string;
     last_name: string;
@@ -53,7 +53,18 @@ export const useAssociationMembers = () => {
 
         if (fetchError) throw fetchError;
 
-        setMembers(data || []);
+        // Type assertion to fix the data structure
+        const typedMembers: AssociationMember[] = (data || []).map((member: any) => ({
+          ...member,
+          status: member.status as 'invited' | 'active' | 'inactive',
+          user: member.user ? {
+            first_name: member.user.first_name,
+            last_name: member.user.last_name,
+            avatar_url: member.user.avatar_url
+          } : null
+        }));
+
+        setMembers(typedMembers);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Une erreur est survenue lors du chargement des membres de l\'équipe.');
         setMembers([]);
@@ -69,17 +80,12 @@ export const useAssociationMembers = () => {
     if (!association) return false;
 
     try {
-      // Vérifier si l'email est déjà membre ou invité
       const existingMember = members.find(m => m.email === email);
       if (existingMember) {
-        console.warn(`L'utilisateur avec l'email ${email} est déjà membre ou invité.`);
-        // Vous pourriez vouloir gérer cela côté UI ou retourner une indication spécifique
         setError(`L'utilisateur avec l'email ${email} est déjà membre ou invité.`);
         return false;
       }
 
-      // Créer une entrée dans association_members pour déclencher le trigger Supabase
-      // Le trigger s'occupera d'envoyer l'email d'invitation et de générer le token
       const { data, error: insertError } = await supabase
         .from('association_members')
         .insert({
@@ -87,7 +93,6 @@ export const useAssociationMembers = () => {
           email: email,
           role: role,
           status: 'invited',
-          // invitation_sent_at est géré par le trigger/BDD lors de la création du token
         })
         .select(`
           *,
@@ -97,8 +102,18 @@ export const useAssociationMembers = () => {
 
       if (insertError) throw insertError;
 
-      setMembers(prev => [...prev, data]);
-      setError(null); // Effacer l'erreur si l'invitation réussit
+      const typedMember: AssociationMember = {
+        ...data,
+        status: data.status as 'invited' | 'active' | 'inactive',
+        user: data.user ? {
+          first_name: data.user.first_name,
+          last_name: data.user.last_name,
+          avatar_url: data.user.avatar_url
+        } : null
+      };
+
+      setMembers(prev => [...prev, typedMember]);
+      setError(null);
       return true;
     } catch (err) {
       console.error("Erreur lors de l'envoi de l'invitation:", err);
@@ -115,7 +130,7 @@ export const useAssociationMembers = () => {
         .from('association_members')
         .update({ role: newRole })
         .eq('id', memberId)
-        .eq('association_id', association.id) // S'assurer que seule l'association peut modifier ses membres
+        .eq('association_id', association.id)
         .select(`
             *,
             user:profiles(first_name, last_name, avatar_url)
@@ -124,7 +139,17 @@ export const useAssociationMembers = () => {
 
       if (updateError) throw updateError;
 
-      setMembers(prev => prev.map(member => member.id === memberId ? data : member));
+      const typedMember: AssociationMember = {
+        ...data,
+        status: data.status as 'invited' | 'active' | 'inactive',
+        user: data.user ? {
+          first_name: data.user.first_name,
+          last_name: data.user.last_name,
+          avatar_url: data.user.avatar_url
+        } : null
+      };
+
+      setMembers(prev => prev.map(member => member.id === memberId ? typedMember : member));
       setError(null);
       return true;
     } catch (err) {
@@ -138,15 +163,12 @@ export const useAssociationMembers = () => {
       if (!association) return false;
 
       try {
-          // Appeler une fonction RPC ou mettre à jour l'entrée pour déclencher le trigger
-          // Supposons qu'une simple mise à jour du champ invitation_sent_at déclenche le renvoi
-          // Vous devrez peut-être créer une fonction RPC spécifique si ce n'est pas le cas
           const { data, error: updateError } = await supabase
             .from('association_members')
             .update({ 
-                status: 'invited', // S'assurer du statut invité
-                invitation_sent_at: new Date().toISOString(), // Mettre à jour la date pour potentiellement déclencher un trigger
-                invitation_accepted_at: null // Réinitialiser si déjà accepté
+                status: 'invited',
+                invitation_sent_at: new Date().toISOString(),
+                invitation_accepted_at: null
             })
             .eq('id', memberId)
             .eq('association_id', association.id)
@@ -158,9 +180,18 @@ export const useAssociationMembers = () => {
 
           if (updateError) throw updateError;
 
-           setMembers(prev => prev.map(member => member.id === memberId ? data : member));
+          const typedMember: AssociationMember = {
+            ...data,
+            status: data.status as 'invited' | 'active' | 'inactive',
+            user: data.user ? {
+              first_name: data.user.first_name,
+              last_name: data.user.last_name,
+              avatar_url: data.user.avatar_url
+            } : null
+          };
+
+           setMembers(prev => prev.map(member => member.id === memberId ? typedMember : member));
            setError(null);
-           // Afficher une notification indiquant que l'invitation a été renvoyée
            return true;
       } catch (err) {
           console.error("Erreur lors du renvoi de l'invitation:", err);
@@ -177,7 +208,7 @@ export const useAssociationMembers = () => {
         .from('association_members')
         .delete()
         .eq('id', memberId)
-        .eq('association_id', association.id); // S'assurer que seule l'association peut supprimer ses membres
+        .eq('association_id', association.id);
 
       if (deleteError) throw deleteError;
 
@@ -191,8 +222,6 @@ export const useAssociationMembers = () => {
     }
   };
 
-  // Vous pourriez ajouter des fonctions pour updateMember, resendInvitation, etc.
-
   return {
     members,
     loading,
@@ -202,4 +231,4 @@ export const useAssociationMembers = () => {
     resendInvitation,
     removeMember,
   };
-}; 
+};

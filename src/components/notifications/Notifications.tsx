@@ -61,7 +61,7 @@ export default function Notifications() {
     try {
       const { error } = await supabase
         .from('notifications')
-        .update({ read: true })
+        .update({ is_read: true })
         .eq('id', notificationId)
 
       if (error) throw error
@@ -69,7 +69,7 @@ export default function Notifications() {
       setNotifications((current) =>
         current.map((notification) =>
           notification.id === notificationId
-            ? { ...notification, read: true }
+            ? { ...notification, is_read: true }
             : notification
         )
       )
@@ -104,7 +104,7 @@ export default function Notifications() {
             <div
               key={notification.id}
               className={`bg-white rounded-lg shadow-md p-6 ${
-                !notification.read ? 'border-l-4 border-blue-600' : ''
+                !notification.is_read ? 'border-l-4 border-blue-600' : ''
               }`}
             >
               <div className="flex justify-between items-start">
@@ -114,7 +114,7 @@ export default function Notifications() {
                     {new Date(notification.created_at).toLocaleString()}
                   </p>
                 </div>
-                {!notification.read && (
+                {!notification.is_read && (
                   <button
                     onClick={() => markAsRead(notification.id)}
                     className="text-sm text-blue-600 hover:text-blue-800"
@@ -135,4 +135,4 @@ export default function Notifications() {
       </div>
     </div>
   )
-} 
+}

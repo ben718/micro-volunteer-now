@@ -38,7 +38,7 @@ export default function Messages() {
       const { data, error } = await supabase
         .from('conversations')
         .select('*')
-        .or(`user1_id.eq.${user?.id},user2_id.eq.${user?.id}`)
+        .or(`participant1_id.eq.${user?.id},participant2_id.eq.${user?.id}`)
         .order('updated_at', { ascending: false })
 
       if (error) throw error
@@ -55,7 +55,7 @@ export default function Messages() {
       const { data, error } = await supabase
         .from('messages')
         .select('*')
-        .eq('conversation_id', selectedConversation)
+        .or(`sender_id.eq.${user?.id},recipient_id.eq.${user?.id}`)
         .order('created_at', { ascending: true })
 
       if (error) throw error
@@ -74,7 +74,7 @@ export default function Messages() {
           event: 'INSERT',
           schema: 'public',
           table: 'messages',
-          filter: `conversation_id=eq.${selectedConversation}`
+          filter: `sender_id=eq.${user?.id}`
         },
         (payload) => {
           setMessages((current) => [...current, payload.new as Message])
@@ -94,8 +94,8 @@ export default function Messages() {
     try {
       const { error } = await supabase.from('messages').insert([
         {
-          conversation_id: selectedConversation,
-          sender_id: user?.id,
+          sender_id: user?.id || '',
+          recipient_id: selectedConversation,
           content: newMessage.trim()
         }
       ])
@@ -150,9 +150,9 @@ export default function Messages() {
                   }`}
                 >
                   <p className="font-medium">
-                    {conversation.user1_id === user?.id
-                      ? conversation.user2_name
-                      : conversation.user1_name}
+                    {conversation.participant1_id === user?.id
+                      ? conversation.participant2_name
+                      : conversation.participant1_name}
                   </p>
                   <p className="text-sm text-gray-500 truncate">
                     {conversation.last_message}
@@ -222,4 +222,4 @@ export default function Messages() {
       </div>
     </div>
   )
-} 
+}

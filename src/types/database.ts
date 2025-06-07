@@ -1,3 +1,4 @@
+
 export type Json =
   | string
   | number
@@ -235,6 +236,167 @@ export interface Database {
           hours_logged?: number | null
           created_at?: string
           updated_at?: string
+        }
+      }
+      associations: {
+        Row: {
+          id: string
+          name: string
+          description: string | null
+          logo_url: string | null
+          website: string | null
+          email: string
+          phone: string
+          address: string
+          city: string
+          postal_code: string
+          siret: string | null
+          categories: string[]
+          latitude: number | null
+          longitude: number | null
+          verified: boolean
+          impact_score: number
+          total_missions_created: number
+          total_volunteers_engaged: number
+          notification_preferences: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          description?: string | null
+          logo_url?: string | null
+          website?: string | null
+          email: string
+          phone: string
+          address: string
+          city: string
+          postal_code: string
+          siret?: string | null
+          categories: string[]
+          latitude?: number | null
+          longitude?: number | null
+          verified?: boolean
+          impact_score?: number
+          total_missions_created?: number
+          total_volunteers_engaged?: number
+          notification_preferences?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          description?: string | null
+          logo_url?: string | null
+          website?: string | null
+          email?: string
+          phone?: string
+          address?: string
+          city?: string
+          postal_code?: string
+          siret?: string | null
+          categories?: string[]
+          latitude?: number | null
+          longitude?: number | null
+          verified?: boolean
+          impact_score?: number
+          total_missions_created?: number
+          total_volunteers_engaged?: number
+          notification_preferences?: Json
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      messages: {
+        Row: {
+          id: string
+          sender_id: string
+          recipient_id: string
+          content: string
+          mission_id: string | null
+          is_read: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          sender_id: string
+          recipient_id: string
+          content: string
+          mission_id?: string | null
+          is_read?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          sender_id?: string
+          recipient_id?: string
+          content?: string
+          mission_id?: string | null
+          is_read?: boolean
+          created_at?: string
+        }
+      }
+      conversations: {
+        Row: {
+          id: string
+          participant1_id: string
+          participant2_id: string
+          last_message_id: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          participant1_id: string
+          participant2_id: string
+          last_message_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          participant1_id?: string
+          participant2_id?: string
+          last_message_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      notifications: {
+        Row: {
+          id: string
+          user_id: string
+          type: string
+          title: string
+          message: string
+          related_entity_type: string | null
+          related_entity_id: string | null
+          is_read: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          type: string
+          title: string
+          message: string
+          related_entity_type?: string | null
+          related_entity_id?: string | null
+          is_read?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          type?: string
+          title?: string
+          message?: string
+          related_entity_type?: string | null
+          related_entity_id?: string | null
+          is_read?: boolean
+          created_at?: string
         }
       }
     }

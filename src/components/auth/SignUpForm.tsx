@@ -22,7 +22,6 @@ export default function SignUpForm() {
   const [contactRole, setContactRole] = useState('');
   const [contactEmail, setContactEmail] = useState('');
 
-
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { signUp } = useAuth();
@@ -77,15 +76,10 @@ export default function SignUpForm() {
     }
 
     try {
-      const { error: authError } = await signUp(email, password, metadata);
-
-      if (authError) {
-        setError(authError.message);
-      } else {
-        // Redirect after successful signup
-        // Depending on your flow, you might want to redirect associations to a different page
-        navigate('/auth/verify-email');
-      }
+      await signUp(email, password, metadata);
+      // Redirect after successful signup
+      // Depending on your flow, you might want to redirect associations to a different page
+      navigate('/auth/verify-email');
     } catch (err: any) {
       setError(err.message);
     } finally {
