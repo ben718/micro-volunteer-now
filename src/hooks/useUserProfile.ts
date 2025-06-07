@@ -25,10 +25,6 @@ interface UserBadge {
   badges: BadgeData;
 }
 
-interface PastMission {
-  association_id: string;
-}
-
 export const useUserProfile = () => {
   const [userProfile, setUserProfile] = useState<any>(null)
   const [userStats, setUserStats] = useState<UserStats>({
@@ -71,22 +67,22 @@ export const useUserProfile = () => {
           setBadges(userBadges as UserBadge[])
         }
 
-        // Calculate associations helped from past missions - simplified query
-        const { data: missionsData } = await supabase
+        // Calculate associations helped from past missions - use explicit type
+        const { data: rawMissions } = await supabase
           .from('user_past_missions')
           .select('association_id')
           .eq('user_id', profile.id)
         
-        // Count unique associations manually to avoid type issues
+        // Count unique associations with explicit typing
         let uniqueAssociationsCount = 0;
-        if (missionsData) {
-          const seenAssociations = new Set<string>();
-          for (const mission of missionsData) {
-            if (mission.association_id) {
-              seenAssociations.add(mission.association_id);
+        if (rawMissions) {
+          const associationIds: string[] = [];
+          rawMissions.forEach((item: any) => {
+            if (item.association_id && !associationIds.includes(item.association_id)) {
+              associationIds.push(item.association_id);
             }
-          }
-          uniqueAssociationsCount = seenAssociations.size;
+          });
+          uniqueAssociationsCount = associationIds.length;
         }
         
         // Set user stats from profile data
