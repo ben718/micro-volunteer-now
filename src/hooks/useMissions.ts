@@ -18,7 +18,7 @@ export const useMissions = () => {
       const transformedData: Mission[] = data.map(mission => ({
         ...mission,
         is_urgent: false, // Default value since it's not in the database
-        association_name: mission.association_name || 'Association',
+        association_name: 'Association', // Default value since it's not in the database
         date: mission.date || new Date().toISOString().split('T')[0],
         start_time: mission.start_time || '09:00',
         end_time: mission.end_time || '17:00',
@@ -41,7 +41,7 @@ export const useMissions = () => {
       const allUserMissions: Mission[] = [...upcoming, ...past].map(mission => ({
         ...mission,
         is_urgent: false, // Default value since it's not in the database
-        association_name: mission.association_name || 'Association',
+        association_name: 'Association', // Default value since it's not in the database
         date: mission.date || new Date().toISOString().split('T')[0],
         start_time: mission.start_time || '09:00',
         end_time: mission.end_time || '17:00',
@@ -86,7 +86,7 @@ export const useMissions = () => {
       const transformedData: Mission[] = data.map(mission => ({
         ...mission,
         is_urgent: false, // Default value since it's not in the database
-        association_name: mission.association_name || 'Association',
+        association_name: 'Association', // Default value since it's not in the database
         date: mission.date || new Date().toISOString().split('T')[0],
         start_time: mission.start_time || '09:00',
         end_time: mission.end_time || '17:00',

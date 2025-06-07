@@ -601,6 +601,39 @@ export interface Database {
           association_logo: string | null
         }
       }
+      user_upcoming_missions: {
+        Row: {
+          id: string
+          user_id: string
+          mission_id: string
+          mission_title: string
+          mission_description: string
+          mission_date: string
+          mission_start_time: string
+          mission_end_time: string
+          association_name: string
+          status: string
+          registration_date: string
+        }
+      }
+      user_past_missions: {
+        Row: {
+          id: string
+          user_id: string
+          mission_id: string
+          mission_title: string
+          mission_description: string
+          mission_date: string
+          mission_start_time: string
+          mission_end_time: string
+          association_name: string
+          status: string
+          completion_date: string | null
+          feedback: string | null
+          rating: number | null
+          hours_logged: number | null
+        }
+      }
     }
     Functions: {
       search_nearby_missions: {

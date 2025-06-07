@@ -46,7 +46,7 @@ export const useAssociationMembers = () => {
           .from('association_members')
           .select(`
             *,
-            profiles!user_id(first_name, last_name, avatar_url)
+            user:profiles(first_name, last_name, avatar_url)
           `)
           .eq('association_id', association.id)
           .order('created_at', { ascending: true });
@@ -57,10 +57,10 @@ export const useAssociationMembers = () => {
         const typedMembers: AssociationMember[] = (data || []).map((member: any) => ({
           ...member,
           status: member.status as 'invited' | 'active' | 'inactive',
-          user: member.profiles ? {
-            first_name: member.profiles.first_name || '',
-            last_name: member.profiles.last_name || '',
-            avatar_url: member.profiles.avatar_url || null
+          user: member.user ? {
+            first_name: member.user.first_name || '',
+            last_name: member.user.last_name || '',
+            avatar_url: member.user.avatar_url || null
           } : null
         }));
 
@@ -96,7 +96,7 @@ export const useAssociationMembers = () => {
         })
         .select(`
           *,
-          profiles!user_id(first_name, last_name, avatar_url)
+          user:profiles(first_name, last_name, avatar_url)
         `)
         .single();
 
@@ -105,10 +105,10 @@ export const useAssociationMembers = () => {
       const typedMember: AssociationMember = {
         ...data,
         status: data.status as 'invited' | 'active' | 'inactive',
-        user: data.profiles ? {
-          first_name: data.profiles.first_name || '',
-          last_name: data.profiles.last_name || '',
-          avatar_url: data.profiles.avatar_url || null
+        user: data.user ? {
+          first_name: data.user.first_name || '',
+          last_name: data.user.last_name || '',
+          avatar_url: data.user.avatar_url || null
         } : null
       };
 
@@ -133,7 +133,7 @@ export const useAssociationMembers = () => {
         .eq('association_id', association.id)
         .select(`
           *,
-          profiles!user_id(first_name, last_name, avatar_url)
+          user:profiles(first_name, last_name, avatar_url)
         `)
         .single();
 
@@ -142,10 +142,10 @@ export const useAssociationMembers = () => {
       const typedMember: AssociationMember = {
         ...data,
         status: data.status as 'invited' | 'active' | 'inactive',
-        user: data.profiles ? {
-          first_name: data.profiles.first_name || '',
-          last_name: data.profiles.last_name || '',
-          avatar_url: data.profiles.avatar_url || null
+        user: data.user ? {
+          first_name: data.user.first_name || '',
+          last_name: data.user.last_name || '',
+          avatar_url: data.user.avatar_url || null
         } : null
       };
 
@@ -174,7 +174,7 @@ export const useAssociationMembers = () => {
         .eq('association_id', association.id)
         .select(`
           *,
-          profiles!user_id(first_name, last_name, avatar_url)
+          user:profiles(first_name, last_name, avatar_url)
         `)
         .single();
 
@@ -183,10 +183,10 @@ export const useAssociationMembers = () => {
       const typedMember: AssociationMember = {
         ...data,
         status: data.status as 'invited' | 'active' | 'inactive',
-        user: data.profiles ? {
-          first_name: data.profiles.first_name || '',
-          last_name: data.profiles.last_name || '',
-          avatar_url: data.profiles.avatar_url || null
+        user: data.user ? {
+          first_name: data.user.first_name || '',
+          last_name: data.user.last_name || '',
+          avatar_url: data.user.avatar_url || null
         } : null
       };
 

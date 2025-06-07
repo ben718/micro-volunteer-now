@@ -1,7 +1,8 @@
+
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/types/database';
-import { useAuth } from '@/contexts/AuthContext'; // Importer le hook d'authentification
+import { useAuth } from '@/contexts/AuthContext';
 
 // Définir les types basés sur les vues
 type UpcomingMission = Database['public']['Views']['user_upcoming_missions']['Row'];
@@ -15,7 +16,7 @@ interface UseUserMissionsResult {
 }
 
 export function useUserMissions(): UseUserMissionsResult {
-  const { user } = useAuth(); // Utiliser le hook d'authentification pour obtenir l'utilisateur
+  const { user } = useAuth();
   const [upcomingMissions, setUpcomingMissions] = useState<UpcomingMission[]>([]);
   const [pastMissions, setPastMissions] = useState<PastMission[]>([]);
   const [loading, setLoading] = useState(true);
@@ -23,7 +24,7 @@ export function useUserMissions(): UseUserMissionsResult {
 
   useEffect(() => {
     async function fetchUserMissions() {
-      if (!user) { // Ne pas charger si l'utilisateur n'est pas connecté
+      if (!user) {
         setLoading(false);
         return;
       }
@@ -59,7 +60,7 @@ export function useUserMissions(): UseUserMissionsResult {
     }
 
     fetchUserMissions();
-  }, [user]); // Recharger quand l'utilisateur change
+  }, [user]);
 
   return {
     upcomingMissions,
@@ -68,5 +69,3 @@ export function useUserMissions(): UseUserMissionsResult {
     error,
   };
 }
-
-// export default useUserMissions; // Utilisation d'un export nommé pour être cohérent avec d'autres hooks
