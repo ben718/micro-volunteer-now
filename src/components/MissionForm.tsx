@@ -117,22 +117,38 @@ const MissionForm = () => {
        ...formData,
        date: formData.date.toISOString().split('T')[0],
        duration: finalDuration,
+       latitude: null,
+       longitude: null,
+       status: 'draft' as const,
+       is_recurring: false,
+       recurring_pattern: null,
+       impact_metrics: null,
     };
 
     let success = false;
-    if (isEditing && missionId) {
-      success = await updateMission(missionId, missionDataToSend);
-    } else {
-       success = await createMission(missionDataToSend);
-    }
+    try {
+      if (isEditing && missionId) {
+        success = await updateMission(missionId, missionDataToSend);
+      } else {
+         success = await createMission(missionDataToSend);
+      }
 
-    if (success) {
-      toast({
-        title: isEditing ? "Mission modifiée" : "Mission créée",
-        description: `La mission "${formData.title}" a été ${isEditing ? 'modifiée' : 'créée'} avec succès.`,
-      });
-      navigate('/association');
-    } else {
+      if (success) {
+        toast({
+          title: isEditing ? "Mission modifiée" : "Mission créée",
+          description: `La mission "${formData.title}" a été ${isEditing ? 'modifiée' : 'créée'} avec succès.`,
+        });
+        navigate('/association');
+      } else {
+        const errorMessage = isEditing ? "Échec de la modification de la mission." : "Échec de la création de la mission.";
+        setFormError(errorMessage);
+        toast({
+          title: "Erreur",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
       const errorMessage = isEditing ? "Échec de la modification de la mission." : "Échec de la création de la mission.";
       setFormError(errorMessage);
       toast({

@@ -22,7 +22,16 @@ const AssociationMembers = () => {
   const [isUpdatingRole, setIsUpdatingRole] = useState(false);
   const [isResending, setIsResending] = useState(false);
 
-  const currentUserId = supabase.auth.user()?.id;
+  // Get current user ID from auth
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    const getCurrentUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setCurrentUserId(user?.id || null);
+    };
+    getCurrentUser();
+  }, []);
 
   const handleSendInvitation = async () => {
     if (!inviteEmail || !inviteRole) {
@@ -225,4 +234,4 @@ const AssociationMembers = () => {
   );
 };
 
-export default AssociationMembers; 
+export default AssociationMembers;
