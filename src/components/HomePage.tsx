@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Clock, MapPin, Users, Heart, Search, Award } from 'lucide-react';
@@ -53,7 +54,7 @@ const HomePage = ({ onGetStarted }: HomePageProps) => {
               <Button variant="outline" className="text-lg px-8 py-4" onClick={() => navigate('/explore')}>
                 Découvrir
               </Button>
-              <Button variant="default" className="text-lg px-8 py-4" onClick={() => navigate('/login')}>
+              <Button variant="default" className="text-lg px-8 py-4" onClick={() => navigate('/signin')}>
                 Se connecter
               </Button>
             </div>
