@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { Database } from '@/types/database';
 import { useAuth } from '@/contexts/AuthContext';
 
-// Définir les types basés sur les vues
+// Use the exact types from the database views
 type UpcomingMission = Database['public']['Views']['user_upcoming_missions']['Row'];
 type PastMission = Database['public']['Views']['user_past_missions']['Row'];
 
@@ -33,7 +33,7 @@ export function useUserMissions(): UseUserMissionsResult {
       setError(null);
 
       try {
-        // Récupérer les missions à venir
+        // Fetch upcoming missions
         const { data: upcomingData, error: upcomingError } = await supabase
           .from('user_upcoming_missions')
           .select('*')
@@ -43,7 +43,7 @@ export function useUserMissions(): UseUserMissionsResult {
         
         setUpcomingMissions(upcomingData || []);
 
-        // Récupérer les missions passées
+        // Fetch past missions
         const { data: pastData, error: pastError } = await supabase
           .from('user_past_missions')
           .select('*')
@@ -54,7 +54,7 @@ export function useUserMissions(): UseUserMissionsResult {
         setPastMissions(pastData || []);
 
       } catch (err: any) {
-        console.error("Erreur lors du chargement des missions utilisateur:", err);
+        console.error("Error loading user missions:", err);
         setError(err.message);
       } finally {
         setLoading(false);

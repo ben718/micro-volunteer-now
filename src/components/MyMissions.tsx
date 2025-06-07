@@ -11,9 +11,9 @@ const MyMissions = () => {
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
   const { upcomingMissions, pastMissions, loading, error } = useUserMissions();
   const { getCategoryColor } = useCategories();
-  const { userStats } = useUserProfile(); // Maintenir pour les stats globales
+  const { userStats } = useUserProfile();
 
-  const getStatusIcon = (status: string | undefined) => {
+  const getStatusIcon = (status: string | undefined | null) => {
     switch (status) {
       case 'confirmed':
         return <CheckCircle className="h-4 w-4 text-success" />;
@@ -24,11 +24,11 @@ const MyMissions = () => {
       case 'pending':
         return <Clock className="h-4 w-4 text-muted-foreground" />;
       default:
-        return null; // Ou une icône par défaut
+        return null;
     }
   };
 
-  const getStatusText = (status: string | undefined) => {
+  const getStatusText = (status: string | undefined | null) => {
     switch (status) {
       case 'pending':
         return 'En attente';
@@ -44,11 +44,12 @@ const MyMissions = () => {
   };
 
   const renderStars = (rating: number | null | undefined) => {
-     if (rating === null || rating === undefined) return null;
+    if (rating === null || rating === undefined) return null;
+    const ratingNumber = typeof rating === 'number' ? rating : 0;
     return Array.from({ length: 5 }, (_, i) => (
       <Star
         key={i}
-        className={`h-4 w-4 ${i < rating ? 'text-warning fill-current' : 'text-gray-300'}`}
+        className={`h-4 w-4 ${i < ratingNumber ? 'text-warning fill-current' : 'text-gray-300'}`}
       />
     ));
   };
@@ -71,7 +72,8 @@ const MyMissions = () => {
           Découvrir plus
         </Button>
       </div>
-      {/* Statistiques rapides */}
+      
+      {/* Statistics */}
       <div className="grid grid-cols-3 gap-4">
         <div className="bg-card border border-border rounded-lg p-4 text-center">
           <div className="text-2xl font-bold text-foreground">{upcomingMissions.length}</div>
@@ -86,7 +88,8 @@ const MyMissions = () => {
           <div className="text-sm text-muted-foreground">Total (Profil)</div>
         </div>
       </div>
-      {/* Onglets */}
+      
+      {/* Tabs */}
       <div className="flex bg-gray-100 rounded-lg p-1 max-w-md">
         <button
           className={`flex-1 py-2 text-center text-sm font-medium ${activeTab === 'upcoming' ? 'bg-white text-blue-600 rounded-md shadow-sm' : 'text-gray-600'}`}
@@ -101,7 +104,8 @@ const MyMissions = () => {
           Passées ({pastMissions.length})
         </button>
       </div>
-      {/* Liste des missions */}
+      
+      {/* Mission list */}
       <div className="space-y-4">
         {missionsToDisplay.length > 0 ? (
           missionsToDisplay.map(mission => (
@@ -139,22 +143,25 @@ const MyMissions = () => {
                   </Badge>
                 </div>
               </div>
-              {/* Évaluation pour les missions terminées (vue past_missions) */}
+              
+              {/* Rating for completed missions (past missions view) */}
               {activeTab === 'past' && mission.registration_status === 'completed' && ('rating' in mission || 'feedback' in mission) && (
                 <div className="flex items-start mt-2 space-x-2">
-                   {'rating' in mission && mission.rating && renderStars(mission.rating)}
+                  {'rating' in mission && mission.rating && renderStars(mission.rating)}
                   {'feedback' in mission && mission.feedback && (
-                    <span className="ml-2 text-sm text-muted-foreground">{mission.feedback}</span>
+                    <span className="ml-2 text-sm text-muted-foreground">
+                      {typeof mission.feedback === 'string' ? mission.feedback : ''}
+                    </span>
                   )}
                 </div>
               )}
-               {/* Boutons d'action pour missions à venir (annuler) */}
-               {activeTab === 'upcoming' && mission.registration_status !== 'cancelled' && (
-                 <div className="mt-4 flex justify-end">
-                   {/* Ajouter ici le bouton Annuler si souhaité. Il faudrait un hook ou une fonction pour ça. */}
-                   {/* <Button variant="destructive" size="sm">Annuler inscription</Button> */}
-                 </div>
-               )}
+              
+              {/* Action buttons for upcoming missions */}
+              {activeTab === 'upcoming' && mission.registration_status !== 'cancelled' && (
+                <div className="mt-4 flex justify-end">
+                  {/* Cancel button can be added here if needed */}
+                </div>
+              )}
             </div>
           ))
         ) : (
