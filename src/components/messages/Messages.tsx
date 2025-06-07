@@ -1,10 +1,15 @@
+
 import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../../lib/supabase'
 import type { Database } from '../../types/database'
 
 type Message = Database['public']['Tables']['messages']['Row']
-type Conversation = Database['public']['Tables']['conversations']['Row']
+type Conversation = Database['public']['Tables']['conversations']['Row'] & {
+  participant1_name?: string;
+  participant2_name?: string;
+  last_message?: string;
+}
 
 export default function Messages() {
   const { user } = useAuth()
@@ -42,7 +47,16 @@ export default function Messages() {
         .order('updated_at', { ascending: false })
 
       if (error) throw error
-      setConversations(data || [])
+      
+      // Simple mapping without trying to get names for now
+      const conversationsWithNames = (data || []).map(conv => ({
+        ...conv,
+        participant1_name: conv.participant1_id,
+        participant2_name: conv.participant2_id,
+        last_message: 'Aucun message'
+      }))
+      
+      setConversations(conversationsWithNames)
     } catch (err: any) {
       setError(err.message)
     } finally {
@@ -151,11 +165,11 @@ export default function Messages() {
                 >
                   <p className="font-medium">
                     {conversation.participant1_id === user?.id
-                      ? conversation.participant2_name
-                      : conversation.participant1_name}
+                      ? conversation.participant2_name || 'Utilisateur inconnu'
+                      : conversation.participant1_name || 'Utilisateur inconnu'}
                   </p>
                   <p className="text-sm text-gray-500 truncate">
-                    {conversation.last_message}
+                    {conversation.last_message || 'Aucun message'}
                   </p>
                 </button>
               ))}

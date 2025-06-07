@@ -118,7 +118,20 @@ export const useAssociation = () => {
 
         if (fetchError) throw fetchError;
 
-        setAssociation(data);
+        // Type cast with proper handling of notification_preferences
+        const typedAssociation: Association = {
+          ...data,
+          notification_preferences: typeof data.notification_preferences === 'object' && data.notification_preferences !== null
+            ? data.notification_preferences as Association['notification_preferences']
+            : {
+                new_volunteer: true,
+                mission_reminder: true,
+                mission_completed: true,
+                platform_updates: false
+              }
+        };
+
+        setAssociation(typedAssociation);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Une erreur est survenue lors du chargement des données de l\'association.');
         setAssociation(null);
@@ -184,4 +197,4 @@ export const useAssociation = () => {
     updateAssociation,
     updateNotificationPreferences
   };
-}; 
+};

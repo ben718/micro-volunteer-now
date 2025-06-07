@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -37,7 +38,7 @@ export const useAssociationMissions = () => {
               feedback,
               rating,
               hours_logged,
-              volunteer:profiles(
+              volunteer:user_id(
                 first_name,
                 last_name,
                 avatar_url
@@ -49,7 +50,22 @@ export const useAssociationMissions = () => {
 
         if (fetchError) throw fetchError;
 
-        setMissions(data || []);
+        // Type assertion to ensure proper typing
+        const typedMissions: AssociationMission[] = (data || []).map((mission: any) => ({
+          ...mission,
+          status: mission.status as 'draft' | 'published' | 'completed' | 'cancelled',
+          registrations: (mission.registrations || []).map((reg: any) => ({
+            ...reg,
+            status: reg.status as 'pending' | 'confirmed' | 'completed' | 'cancelled',
+            volunteer: {
+              first_name: reg.volunteer?.first_name || '',
+              last_name: reg.volunteer?.last_name || '',
+              avatar_url: reg.volunteer?.avatar_url || null
+            }
+          }))
+        }));
+
+        setMissions(typedMissions);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Une erreur est survenue lors du chargement des missions.');
         setMissions([]);
@@ -77,7 +93,14 @@ export const useAssociationMissions = () => {
 
       if (createError) throw createError;
 
-      setMissions(prev => [data, ...prev]);
+      // Add the new mission with empty registrations
+      const newMission: AssociationMission = {
+        ...data,
+        status: data.status as 'draft' | 'published' | 'completed' | 'cancelled',
+        registrations: []
+      };
+
+      setMissions(prev => [newMission, ...prev]);
       return data;
     } catch (err) {
       console.error("Erreur lors de la création de la mission:", err);
@@ -140,7 +163,7 @@ export const useAssociationMissions = () => {
 
       if (updateError) throw updateError;
 
-      // Rafraîchir les données de la mission
+      // Refresh mission data
       const { data, error: fetchError } = await supabase
         .from('missions')
         .select(`
@@ -157,7 +180,7 @@ export const useAssociationMissions = () => {
             feedback,
             rating,
             hours_logged,
-            volunteer:profiles(
+            volunteer:user_id(
               first_name,
               last_name,
               avatar_url
@@ -169,8 +192,22 @@ export const useAssociationMissions = () => {
 
       if (fetchError) throw fetchError;
 
+      const typedMission: AssociationMission = {
+        ...data,
+        status: data.status as 'draft' | 'published' | 'completed' | 'cancelled',
+        registrations: (data.registrations || []).map((reg: any) => ({
+          ...reg,
+          status: reg.status as 'pending' | 'confirmed' | 'completed' | 'cancelled',
+          volunteer: {
+            first_name: reg.volunteer?.first_name || '',
+            last_name: reg.volunteer?.last_name || '',
+            avatar_url: reg.volunteer?.avatar_url || null
+          }
+        }))
+      };
+
       setMissions(prev => prev.map(mission => 
-        mission.id === missionId ? data : mission
+        mission.id === missionId ? typedMission : mission
       ));
 
       return true;
@@ -191,7 +228,7 @@ export const useAssociationMissions = () => {
 
       if (completeError) throw completeError;
 
-      // Rafraîchir les données de la mission
+      // Refresh mission data
       const { data, error: fetchError } = await supabase
         .from('missions')
         .select(`
@@ -208,7 +245,7 @@ export const useAssociationMissions = () => {
             feedback,
             rating,
             hours_logged,
-            volunteer:profiles(
+            volunteer:user_id(
               first_name,
               last_name,
               avatar_url
@@ -220,8 +257,22 @@ export const useAssociationMissions = () => {
 
       if (fetchError) throw fetchError;
 
+      const typedMission: AssociationMission = {
+        ...data,
+        status: data.status as 'draft' | 'published' | 'completed' | 'cancelled',
+        registrations: (data.registrations || []).map((reg: any) => ({
+          ...reg,
+          status: reg.status as 'pending' | 'confirmed' | 'completed' | 'cancelled',
+          volunteer: {
+            first_name: reg.volunteer?.first_name || '',
+            last_name: reg.volunteer?.last_name || '',
+            avatar_url: reg.volunteer?.avatar_url || null
+          }
+        }))
+      };
+
       setMissions(prev => prev.map(mission => 
-        mission.id === missionId ? data : mission
+        mission.id === missionId ? typedMission : mission
       ));
 
       return true;
@@ -241,4 +292,4 @@ export const useAssociationMissions = () => {
     confirmVolunteer,
     completeMission
   };
-}; 
+};
