@@ -109,26 +109,26 @@ export function useUserMissions(): UseUserMissionsResult {
       setError(null);
 
       try {
-        // Fetch upcoming missions - use any to avoid type inference issues
-        const upcomingResponse = await supabase
+        // Fetch upcoming missions - use explicit any to avoid all type inference
+        const upcomingResponse: any = await (supabase as any)
           .from('user_upcoming_missions')
           .select('*')
           .eq('user_id', user.id);
 
         if (upcomingResponse.error) throw upcomingResponse.error;
         
-        const upcomingData = (upcomingResponse.data || []) as UpcomingMission[];
+        const upcomingData: UpcomingMission[] = upcomingResponse.data || [];
         setUpcomingMissions(upcomingData);
 
-        // Fetch past missions - use any to avoid type inference issues
-        const pastResponse = await supabase
+        // Fetch past missions - use explicit any to avoid all type inference
+        const pastResponse: any = await (supabase as any)
           .from('user_past_missions')
           .select('*')
           .eq('user_id', user.id);
 
         if (pastResponse.error) throw pastResponse.error;
         
-        const pastData = (pastResponse.data || []) as PastMission[];
+        const pastData: PastMission[] = pastResponse.data || [];
         setPastMissions(pastData);
 
       } catch (err: any) {
