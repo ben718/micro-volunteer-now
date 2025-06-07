@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -5,7 +6,6 @@ import { Clock, MapPin, Calendar, CheckCircle, AlertCircle, Star } from 'lucide-
 import { useCategories } from '@/hooks/useCategories';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useUserMissions } from '@/hooks/useUserMissions';
-import { Mission } from '@/types/mission'; // Assurez-vous d'avoir un type Mission compatible avec les vues
 
 const MyMissions = () => {
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
@@ -78,7 +78,7 @@ const MyMissions = () => {
           <div className="text-sm text-muted-foreground">À venir</div>
         </div>
         <div className="bg-card border border-border rounded-lg p-4 text-center">
-          <div className="text-2xl font-bold text-foreground">{pastMissions.filter(m => m.registration_status === 'completed').length}</div>
+          <div className="text-2xl font-bold text-foreground">{pastMissions.filter(m => m.status === 'completed').length}</div>
           <div className="text-sm text-muted-foreground">Terminées</div>
         </div>
         <div className="bg-card border border-border rounded-lg p-4 text-center">
@@ -109,9 +109,8 @@ const MyMissions = () => {
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
                   <div className="flex items-center space-x-2 mb-2">
-                    {getStatusIcon(mission.registration_status || '')}
-                    <h3 className="font-semibold text-foreground">{mission.title}</h3>
-                    {/* Assurez-vous que la vue inclut la catégorie ou récupérez-la autrement */}
+                    {getStatusIcon(mission.registration_status || mission.status)}
+                    <h3 className="font-semibold text-foreground">{mission.mission_title || mission.title}</h3>
                     {mission.category && (
                       <Badge className={getCategoryColor(mission.category)}>
                         {mission.category}
@@ -122,39 +121,35 @@ const MyMissions = () => {
                   <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                     <span className="flex items-center">
                       <Calendar className="h-4 w-4 mr-1" />
-                      {/* Assurez-vous que la date est au bon format ou formatez-la */}
-                      {mission.date ? new Date(mission.date).toLocaleDateString() : 'N/A'}
+                      {mission.mission_date || mission.date ? new Date(mission.mission_date || mission.date!).toLocaleDateString() : 'N/A'}
                     </span>
                     <span className="flex items-center">
                       <Clock className="h-4 w-4 mr-1" />
-                       {/* Assurez-vous que l'heure est au bon format ou formatez-la */}
-                      {`${mission.start_time || 'N/A'} - ${mission.end_time || 'N/A'}`}
+                      {`${mission.mission_start_time || mission.start_time || 'N/A'} - ${mission.mission_end_time || mission.end_time || 'N/A'}`}
                     </span>
                     <span className="flex items-center">
                       <MapPin className="h-4 w-4 mr-1" />
-                       {/* Assurez-vous que l'adresse est au bon format */}
                       {mission.city || 'N/A'}
                     </span>
                   </div>
                 </div>
                 <div className="text-right">
-                  <Badge variant={mission.registration_status === 'completed' ? 'secondary' : 'outline'}>
-                    {getStatusText(mission.registration_status || '')}
+                  <Badge variant={(mission.registration_status || mission.status) === 'completed' ? 'secondary' : 'outline'}>
+                    {getStatusText(mission.registration_status || mission.status)}
                   </Badge>
-                  {/* Points et feedback/rating gérés ci-dessous */}
                 </div>
               </div>
               {/* Évaluation pour les missions terminées (vue past_missions) */}
-              {activeTab === 'past' && mission.registration_status === 'completed' && (mission.rating || mission.feedback) && (
+              {activeTab === 'past' && (mission.registration_status || mission.status) === 'completed' && ('rating' in mission || 'feedback' in mission) && (
                 <div className="flex items-start mt-2 space-x-2">
-                   {mission.rating && renderStars(mission.rating)}
-                  {mission.feedback && (
+                   {'rating' in mission && mission.rating && renderStars(mission.rating)}
+                  {'feedback' in mission && mission.feedback && (
                     <span className="ml-2 text-sm text-muted-foreground">{mission.feedback}</span>
                   )}
                 </div>
               )}
                {/* Boutons d'action pour missions à venir (annuler) */}
-               {activeTab === 'upcoming' && mission.registration_status !== 'cancelled' && (
+               {activeTab === 'upcoming' && (mission.registration_status || mission.status) !== 'cancelled' && (
                  <div className="mt-4 flex justify-end">
                    {/* Ajouter ici le bouton Annuler si souhaité. Il faudrait un hook ou une fonction pour ça. */}
                    {/* <Button variant="destructive" size="sm">Annuler inscription</Button> */}

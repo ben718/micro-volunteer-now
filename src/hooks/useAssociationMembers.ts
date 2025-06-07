@@ -42,27 +42,42 @@ export const useAssociationMembers = () => {
         setLoading(true);
         setError(null);
 
-        const { data, error: fetchError } = await supabase
+        // Récupérer d'abord les membres
+        const { data: membersData, error: membersError } = await supabase
           .from('association_members')
-          .select(`
-            *,
-            user:profiles(first_name, last_name, avatar_url)
-          `)
+          .select('*')
           .eq('association_id', association.id)
           .order('created_at', { ascending: true });
 
-        if (fetchError) throw fetchError;
+        if (membersError) throw membersError;
 
-        // Type assertion to fix the data structure
-        const typedMembers: AssociationMember[] = (data || []).map((member: any) => ({
-          ...member,
-          status: member.status as 'invited' | 'active' | 'inactive',
-          user: member.user ? {
-            first_name: member.user.first_name || '',
-            last_name: member.user.last_name || '',
-            avatar_url: member.user.avatar_url || null
-          } : null
-        }));
+        // Ensuite récupérer les profils pour les membres qui ont un user_id
+        const userIds = membersData?.filter(m => m.user_id).map(m => m.user_id) || [];
+        let profilesData = [];
+
+        if (userIds.length > 0) {
+          const { data: profiles, error: profilesError } = await supabase
+            .from('profiles')
+            .select('id, first_name, last_name, avatar_url')
+            .in('id', userIds);
+
+          if (profilesError) throw profilesError;
+          profilesData = profiles || [];
+        }
+
+        // Combiner les données
+        const typedMembers: AssociationMember[] = (membersData || []).map((member: any) => {
+          const profile = profilesData.find(p => p.id === member.user_id);
+          return {
+            ...member,
+            status: member.status as 'invited' | 'active' | 'inactive',
+            user: profile ? {
+              first_name: profile.first_name || '',
+              last_name: profile.last_name || '',
+              avatar_url: profile.avatar_url || null
+            } : null
+          };
+        });
 
         setMembers(typedMembers);
       } catch (err) {
@@ -94,10 +109,7 @@ export const useAssociationMembers = () => {
           role: role,
           status: 'invited',
         })
-        .select(`
-          *,
-          user:profiles(first_name, last_name, avatar_url)
-        `)
+        .select()
         .single();
 
       if (insertError) throw insertError;
@@ -105,11 +117,7 @@ export const useAssociationMembers = () => {
       const typedMember: AssociationMember = {
         ...data,
         status: data.status as 'invited' | 'active' | 'inactive',
-        user: data.user ? {
-          first_name: data.user.first_name || '',
-          last_name: data.user.last_name || '',
-          avatar_url: data.user.avatar_url || null
-        } : null
+        user: null
       };
 
       setMembers(prev => [...prev, typedMember]);
@@ -131,10 +139,7 @@ export const useAssociationMembers = () => {
         .update({ role: newRole })
         .eq('id', memberId)
         .eq('association_id', association.id)
-        .select(`
-          *,
-          user:profiles(first_name, last_name, avatar_url)
-        `)
+        .select()
         .single();
 
       if (updateError) throw updateError;
@@ -142,11 +147,7 @@ export const useAssociationMembers = () => {
       const typedMember: AssociationMember = {
         ...data,
         status: data.status as 'invited' | 'active' | 'inactive',
-        user: data.user ? {
-          first_name: data.user.first_name || '',
-          last_name: data.user.last_name || '',
-          avatar_url: data.user.avatar_url || null
-        } : null
+        user: members.find(m => m.id === memberId)?.user || null
       };
 
       setMembers(prev => prev.map(member => member.id === memberId ? typedMember : member));
@@ -172,10 +173,7 @@ export const useAssociationMembers = () => {
         })
         .eq('id', memberId)
         .eq('association_id', association.id)
-        .select(`
-          *,
-          user:profiles(first_name, last_name, avatar_url)
-        `)
+        .select()
         .single();
 
       if (updateError) throw updateError;
@@ -183,11 +181,7 @@ export const useAssociationMembers = () => {
       const typedMember: AssociationMember = {
         ...data,
         status: data.status as 'invited' | 'active' | 'inactive',
-        user: data.user ? {
-          first_name: data.user.first_name || '',
-          last_name: data.user.last_name || '',
-          avatar_url: data.user.avatar_url || null
-        } : null
+        user: members.find(m => m.id === memberId)?.user || null
       };
 
       setMembers(prev => prev.map(member => member.id === memberId ? typedMember : member));

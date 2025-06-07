@@ -1,4 +1,3 @@
-
 export type Json =
   | string
   | number
@@ -10,6 +9,38 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      categories: {
+        Row: {
+          id: string
+          name: string
+          icon: string
+          color: string
+          description: string | null
+          active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          icon: string
+          color: string
+          description?: string | null
+          active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          icon?: string
+          color?: string
+          description?: string | null
+          active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
       profiles: {
         Row: {
           id: string
@@ -85,38 +116,6 @@ export interface Database {
           created_at?: string
           updated_at?: string
           role?: string
-        }
-      }
-      categories: {
-        Row: {
-          id: string
-          name: string
-          icon: string
-          color: string
-          description: string | null
-          active: boolean
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          name: string
-          icon: string
-          color: string
-          description?: string | null
-          active?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          name?: string
-          icon?: string
-          color?: string
-          description?: string | null
-          active?: boolean
-          created_at?: string
-          updated_at?: string
         }
       }
       missions: {
@@ -614,6 +613,13 @@ export interface Database {
           association_name: string
           status: string
           registration_date: string
+          registration_status: string
+          category: string | null
+          city: string | null
+          start_time: string | null
+          end_time: string | null
+          date: string | null
+          title: string | null
         }
       }
       user_past_missions: {
@@ -632,6 +638,13 @@ export interface Database {
           feedback: string | null
           rating: number | null
           hours_logged: number | null
+          registration_status: string
+          category: string | null
+          city: string | null
+          start_time: string | null
+          end_time: string | null
+          date: string | null
+          title: string | null
         }
       }
     }
