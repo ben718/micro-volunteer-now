@@ -1,5 +1,4 @@
 
-
 import { useState, useEffect } from 'react'
 import { profileService } from '@/lib/supabase'
 import { supabase } from '@/lib/supabase'
@@ -43,7 +42,11 @@ export const useUserProfile = () => {
   const loadProfile = async () => {
     try {
       setLoading(true)
+      setError('')
+      
       const profile = await profileService.getCurrentProfile()
+      console.log('Profile loaded:', profile)
+      
       setUserProfile(profile)
       setAvailability(profile?.availability || {})
       
@@ -65,23 +68,23 @@ export const useUserProfile = () => {
           .eq('user_id', profile.id)
         
         if (!badgesError && userBadges) {
+          console.log('Badges loaded:', userBadges)
           setBadges(userBadges as UserBadge[])
+        } else {
+          console.error('Error loading badges:', badgesError)
         }
 
-        // For now, set associations helped to 0 to avoid TypeScript issues
-        // This can be implemented later with a simpler approach
-        let uniqueAssociationsCount = 0;
-        
         // Set user stats from profile data
         setUserStats({
           total_missions_completed: profile?.total_missions_completed || 0,
           total_hours_volunteered: profile?.total_hours_volunteered || 0,
           impact_score: profile?.impact_score || 0,
-          associations_helped: uniqueAssociationsCount,
+          associations_helped: 0, // Simplified pour éviter les erreurs
           languages: profile?.languages || []
         })
       }
     } catch (err: any) {
+      console.error('Error loading profile:', err)
       setError(err.message || 'Une erreur est survenue')
     } finally {
       setLoading(false)
@@ -90,13 +93,18 @@ export const useUserProfile = () => {
 
   const updateUserProfile = async (updates: any) => {
     try {
+      console.log('Updating profile with:', updates)
+      
       const updatedProfile = await profileService.updateProfile(updates)
+      console.log('Profile updated:', updatedProfile)
+      
       setUserProfile(updatedProfile)
       if (updates.availability) {
         setAvailability(updates.availability)
       }
       return true
     } catch (err: any) {
+      console.error('Error updating profile:', err)
       setError(err.message || 'Erreur lors de la mise à jour')
       return false
     }
@@ -147,4 +155,3 @@ export const useUserProfile = () => {
     togglePreferredCategory
   }
 }
-

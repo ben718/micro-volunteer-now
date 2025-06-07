@@ -1,17 +1,19 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronRight, Settings, Star, Award, Heart, Edit } from 'lucide-react';
+import { ChevronRight, Settings, Award, Heart, Edit } from 'lucide-react';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useUserMissions } from '@/hooks/useUserMissions';
 import { useCategories } from '@/hooks/useCategories';
-import { toast } from '@/components/ui/use-toast';
+import { ProfileEditForm } from '@/components/ProfileEditForm';
 
 const MobileProfile = () => {
-  const { userProfile, userStats, badges, loading, error, togglePreferredCategory, setMaxDistance } = useUserProfile();
+  const { userProfile, userStats, badges, loading, error, loadProfile } = useUserProfile();
   const { upcomingMissions, pastMissions } = useUserMissions();
   const { categories } = useCategories();
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [showAllBadges, setShowAllBadges] = useState(false);
+  const [showAllAssociations, setShowAllAssociations] = useState(false);
 
   // Calculer les associations uniques depuis les missions passées
   const uniqueAssociations = pastMissions.reduce((acc: any[], mission: any) => {
@@ -32,22 +34,9 @@ const MobileProfile = () => {
     icon: category.icon
   }));
 
-  const handleCategoryToggle = async (categoryName: string) => {
-    const success = await togglePreferredCategory(categoryName);
-    if (success) {
-      toast({ title: "Préférences mises à jour", description: "Vos catégories préférées ont été sauvegardées." });
-    } else {
-      toast({ title: "Erreur", description: "Impossible de mettre à jour vos préférences.", variant: "destructive" });
-    }
-  };
-
-  const handleDistanceChange = async (newDistance: number) => {
-    const success = await setMaxDistance(newDistance);
-    if (success) {
-      toast({ title: "Distance mise à jour", description: `Distance maximale définie à ${newDistance} km.` });
-    } else {
-      toast({ title: "Erreur", description: "Impossible de mettre à jour la distance.", variant: "destructive" });
-    }
+  const handleProfileSave = () => {
+    setIsEditingProfile(false);
+    loadProfile(); // Recharger le profil pour avoir les dernières données
   };
 
   if (loading) {
@@ -62,6 +51,20 @@ const MobileProfile = () => {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-red-500">Erreur: {error}</div>
+      </div>
+    );
+  }
+
+  if (isEditingProfile) {
+    return (
+      <div className="p-4">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <h2 className="text-xl font-semibold mb-6">Modifier mon profil</h2>
+          <ProfileEditForm
+            onSave={handleProfileSave}
+            onCancel={() => setIsEditingProfile(false)}
+          />
+        </div>
       </div>
     );
   }
@@ -94,10 +97,10 @@ const MobileProfile = () => {
 
         <Button 
           className="w-full btn-secondary"
-          onClick={() => setIsEditingProfile(!isEditingProfile)}
+          onClick={() => setIsEditingProfile(true)}
         >
           <Edit className="w-4 h-4 mr-2" />
-          {isEditingProfile ? 'Annuler' : 'Modifier mon profil'}
+          Modifier mon profil
         </Button>
       </div>
 
@@ -125,16 +128,23 @@ const MobileProfile = () => {
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
         <div className="section-header">
           <h2 className="section-title">Mes badges</h2>
-          <button className="section-action">Voir tout</button>
+          {badges.length > 4 && (
+            <button 
+              className="section-action"
+              onClick={() => setShowAllBadges(!showAllBadges)}
+            >
+              {showAllBadges ? 'Voir moins' : 'Voir tout'}
+            </button>
+          )}
         </div>
         
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           {badges.length === 0 ? (
             <div className="text-center text-gray-500 py-4 w-full">
               Aucun badge obtenu pour le moment
             </div>
           ) : (
-            badges.slice(0, 4).map((userBadge, index) => (
+            (showAllBadges ? badges : badges.slice(0, 4)).map((userBadge, index) => (
               <div
                 key={userBadge.badge_id}
                 className="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl bg-gradient-to-br from-yellow-100 to-orange-100"
@@ -155,19 +165,18 @@ const MobileProfile = () => {
           <div>
             <h3 className="text-sm font-medium text-gray-700 mb-2">Catégories préférées</h3>
             <div className="flex flex-wrap gap-2">
-              {preferences.map((pref, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleCategoryToggle(pref.name)}
-                  className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                    pref.selected 
-                      ? 'bg-blue-100 text-blue-800 border border-blue-200' 
-                      : 'bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-200'
-                  }`}
-                >
-                  {pref.icon} {pref.name}
-                </button>
-              ))}
+              {preferences.filter(pref => pref.selected).length > 0 ? (
+                preferences.filter(pref => pref.selected).map((pref, index) => (
+                  <span
+                    key={index}
+                    className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 border border-blue-200"
+                  >
+                    {pref.icon} {pref.name}
+                  </span>
+                ))
+              ) : (
+                <span className="text-gray-500 text-sm">Aucune catégorie sélectionnée</span>
+              )}
             </div>
           </div>
 
@@ -178,46 +187,13 @@ const MobileProfile = () => {
                 <div className="flex-1 bg-gray-200 rounded-full h-2">
                   <div 
                     className="bg-blue-500 h-2 rounded-full" 
-                    style={{ width: `${Math.min((userProfile?.max_distance || 15) * 6.67, 100)}%` }}
+                    style={{ width: `${Math.min((userProfile?.max_distance || 15) * 2, 100)}%` }}
                   ></div>
                 </div>
                 <span className="text-sm font-medium text-blue-600">
                   {userProfile?.max_distance || 15} km
                 </span>
               </div>
-              <div className="flex gap-2">
-                {[5, 10, 15, 25, 50].map((distance) => (
-                  <button
-                    key={distance}
-                    onClick={() => handleDistanceChange(distance)}
-                    className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                      (userProfile?.max_distance || 15) === distance
-                        ? 'bg-blue-500 text-white' 
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    {distance} km
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <h3 className="text-sm font-medium text-gray-700 mb-2">Durée préférée</h3>
-            <div className="flex gap-2">
-              {['15 min', '30 min', '1h', '2h+'].map((duration, index) => (
-                <button
-                  key={index}
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    index === 0 
-                      ? 'bg-blue-500 text-white' 
-                      : 'bg-gray-100 text-gray-600'
-                  }`}
-                >
-                  {duration}
-                </button>
-              ))}
             </div>
           </div>
         </div>
@@ -227,12 +203,19 @@ const MobileProfile = () => {
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
         <div className="section-header">
           <h2 className="section-title">Mes associations</h2>
-          <button className="section-action">Voir tout</button>
+          {uniqueAssociations.length > 3 && (
+            <button 
+              className="section-action"
+              onClick={() => setShowAllAssociations(!showAllAssociations)}
+            >
+              {showAllAssociations ? 'Voir moins' : 'Voir tout'}
+            </button>
+          )}
         </div>
         
         <div className="space-y-3">
           {uniqueAssociations.length > 0 ? (
-            uniqueAssociations.map((association, index) => (
+            (showAllAssociations ? uniqueAssociations : uniqueAssociations.slice(0, 3)).map((association, index) => (
               <div key={index} className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">

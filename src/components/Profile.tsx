@@ -1,139 +1,17 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { 
-  User, 
-  Settings, 
-  Bell, 
-  MapPin, 
-  Clock, 
-  Heart, 
-  Award, 
-  Star,
-  Edit,
-  Camera,
-  Shield,
-  Globe,
-  Smartphone
-} from 'lucide-react';
+import { User } from 'lucide-react';
 import ImpactStats from './ImpactStats';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { LanguageLevelsForm } from './LanguageLevelsForm';
 import { useCategories } from '@/hooks/useCategories';
-import { toast } from '@/components/ui/use-toast';
-
-interface Availability {
-  [day: string]: {
-    morning?: boolean;
-    afternoon?: boolean;
-    evening?: boolean;
-  };
-}
+import { ProfileEditForm } from './ProfileEditForm';
 
 const Profile = () => {
-  const [activeTab, setActiveTab] = useState<'profile' | 'impact' | 'badges' | 'settings'>('profile');
   const [isEditing, setIsEditing] = useState(false);
-  const { userProfile, userStats, badges, loading, error, updateUserProfile, availability, togglePreferredCategory } = useUserProfile();
+  const { userProfile, userStats, badges, loading, error, loadProfile, availability } = useUserProfile();
   const { categories } = useCategories();
-
-  const [formData, setFormData] = useState({
-    first_name: '',
-    last_name: '',
-    phone: '',
-    address: '',
-    city: '',
-    postal_code: '',
-    bio: '',
-  });
-  const [editAvailability, setEditAvailability] = useState<Availability | null>(null);
-
-  useEffect(() => {
-    if (userProfile) {
-      setFormData({
-        first_name: userProfile.first_name || '',
-        last_name: userProfile.last_name || '',
-        phone: userProfile.phone || '',
-        address: userProfile.address || '',
-        city: userProfile.city || '',
-        postal_code: userProfile.postal_code || '',
-        bio: userProfile.bio || '',
-      });
-      setEditAvailability(availability || null);
-    }
-  }, [userProfile, availability]);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { id, value } = e.target;
-    setFormData(prev => ({ ...prev, [id]: value }));
-  };
-
-  const handleAvailabilityChange = (day: string, timeSlot: 'morning' | 'afternoon' | 'evening', checked: boolean) => {
-    setEditAvailability(prev => {
-      const newAvailability = { ...prev };
-      if (!newAvailability[day]) {
-        newAvailability[day] = {};
-      }
-      newAvailability[day][timeSlot] = checked;
-      if (!newAvailability[day].morning && !newAvailability[day].afternoon && !newAvailability[day].evening) {
-          delete newAvailability[day];
-      }
-      return newAvailability;
-    });
-  };
-
-  const handleSaveProfile = async () => {
-    const updates = {
-      ...formData,
-      availability: editAvailability,
-    };
-
-    const success = await updateUserProfile(updates);
-
-    if (success) {
-      toast({ title: "Profil mis à jour", description: "Votre profil a été enregistré avec succès." });
-      setIsEditing(false);
-    } else {
-       toast({ title: "Erreur", description: error || "Une erreur est survenue lors de la mise à jour du profil.", variant: "destructive" });
-    }
-  };
-
-  const handleCategoryToggle = async (categoryName: string) => {
-    const success = await togglePreferredCategory(categoryName);
-    if (success) {
-      toast({ title: "Préférences mises à jour", description: "Vos catégories préférées ont été sauvegardées." });
-    } else {
-      toast({ title: "Erreur", description: "Impossible de mettre à jour vos préférences.", variant: "destructive" });
-    }
-  };
-
-  const daysOfWeek = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
-  const timeSlots = ['morning', 'afternoon', 'evening'];
-
-  const renderBadgesTab = () => (
-    <div className="space-y-4">
-      <h3 className="font-semibold text-foreground mb-3">Tous mes badges</h3>
-      <div className="flex flex-wrap gap-2">
-        {badges.length === 0 && <span className="text-muted-foreground text-sm">Aucun badge obtenu</span>}
-        {badges.map(userBadge => (
-          <span key={userBadge.badges.id} className="badge-earned flex items-center gap-1" title={userBadge.badges.description}>
-            <span className="text-lg">{userBadge.badges.icon_url}</span>
-            {userBadge.badges.name}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-
-  const renderSettingsTab = () => (
-    <div className="space-y-4">
-      <h3 className="font-semibold text-foreground mb-3">Paramètres</h3>
-      <p className="text-muted-foreground">(À compléter selon les besoins)</p>
-    </div>
-  );
 
   // Générer les préférences à partir des catégories de la BDD
   const preferences = categories.map(category => ({
@@ -141,6 +19,11 @@ const Profile = () => {
     selected: userProfile?.interests?.includes(category.name.toLowerCase()) || false,
     icon: category.icon
   }));
+
+  const handleProfileSave = () => {
+    setIsEditing(false);
+    loadProfile(); // Recharger le profil pour avoir les dernières données
+  };
 
   if (loading) {
     return <div>Chargement du profil...</div>;
@@ -165,94 +48,10 @@ const Profile = () => {
 
         <div className="bg-white rounded-lg shadow-md p-6">
           {isEditing ? (
-            <form onSubmit={(e) => { e.preventDefault(); handleSaveProfile(); }} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="first_name">Prénom</Label>
-                  <Input id="first_name" value={formData.first_name} onChange={handleInputChange} />
-                </div>
-                <div>
-                  <Label htmlFor="last_name">Nom</Label>
-                  <Input id="last_name" value={formData.last_name} onChange={handleInputChange} />
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="phone">Téléphone</Label>
-                <Input id="phone" value={formData.phone} onChange={handleInputChange} />
-              </div>
-              <div>
-                <Label htmlFor="address">Adresse</Label>
-                <Input id="address" value={formData.address} onChange={handleInputChange} />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="city">Ville</Label>
-                  <Input id="city" value={formData.city} onChange={handleInputChange} />
-                </div>
-                <div>
-                  <Label htmlFor="postal_code">Code Postal</Label>
-                  <Input id="postal_code" value={formData.postal_code} onChange={handleInputChange} />
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="bio">Bio</Label>
-                <Textarea id="bio" value={formData.bio} onChange={handleInputChange} rows={4} />
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-foreground mb-3">Mes disponibilités</h3>
-                <div className="space-y-3">
-                  {daysOfWeek.map(day => (
-                    <div key={day} className="flex items-center space-x-4">
-                      <div className="w-24 text-right font-medium capitalize">{day}</div>
-                      <div className="flex items-center space-x-4">
-                        {timeSlots.map(slot => (
-                          <div key={slot} className="flex items-center space-x-1">
-                            <Checkbox
-                              id={`${day}-${slot}`}
-                              checked={editAvailability?.[day]?.[slot as 'morning' | 'afternoon' | 'evening'] || false}
-                              onCheckedChange={(checked) => handleAvailabilityChange(day, slot as 'morning' | 'afternoon' | 'evening', checked as boolean)}
-                            />
-                            <Label htmlFor={`${day}-${slot}`} className="text-sm">
-                              {slot === 'morning' ? 'Matin' : slot === 'afternoon' ? 'Après-midi' : 'Soir'}
-                            </Label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-foreground mb-3">Catégories préférées</h3>
-                <div className="flex flex-wrap gap-2">
-                  {preferences.map((pref, index) => (
-                    <button
-                      key={index}
-                      type="button"
-                      onClick={() => handleCategoryToggle(pref.name)}
-                      className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                        pref.selected 
-                          ? 'bg-blue-100 text-blue-800 border border-blue-200' 
-                          : 'bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-200'
-                      }`}
-                    >
-                      {pref.icon} {pref.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setIsEditing(false)}>
-                  Annuler
-                </Button>
-                <Button type="submit">
-                  Enregistrer les modifications
-                </Button>
-              </div>
-            </form>
+            <ProfileEditForm
+              onSave={handleProfileSave}
+              onCancel={() => setIsEditing(false)}
+            />
           ) : (
             <div className="space-y-6">
               <div className="flex items-center gap-4">
@@ -263,9 +62,14 @@ const Profile = () => {
                   <div className="font-semibold text-lg">{userProfile?.first_name} {userProfile?.last_name}</div>
                   <div className="text-sm text-muted-foreground">{userProfile?.email}</div>
                   <div className="text-sm text-muted-foreground">Téléphone : {userProfile?.phone || 'Non renseigné'}</div>
-                  <div className="text-sm text-muted-foreground">Adresse : {userProfile?.address || 'Non renseignée'}, {userProfile?.city || ''} {userProfile?.postal_code || ''}</div>
+                  <div className="text-sm text-muted-foreground">
+                    Adresse : {userProfile?.address || 'Non renseignée'}
+                    {userProfile?.city && `, ${userProfile.city}`}
+                    {userProfile?.postal_code && ` ${userProfile.postal_code}`}
+                  </div>
                 </div>
               </div>
+
               <div>
                 <h3 className="font-semibold text-foreground mb-2">À propos</h3>
                 <p className="text-muted-foreground text-sm">{userProfile?.bio || 'Pas de description.'}</p>
@@ -290,13 +94,20 @@ const Profile = () => {
               </div>
 
               <div>
+                <h3 className="font-semibold text-foreground mb-2">Distance maximale</h3>
+                <span className="text-sm text-muted-foreground">
+                  {userProfile?.max_distance || 15} km
+                </span>
+              </div>
+
+              <div>
                 <h3 className="font-semibold text-foreground mb-2">Mes disponibilités</h3>
                 {availability && Object.keys(availability).length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm text-muted-foreground">
                     {Object.entries(availability).map(([day, timeSlots]) => (
                       <div key={day}>
                         <span className="font-medium capitalize">{day} : </span>
-                        {Object.entries(timeSlots)
+                        {Object.entries(timeSlots as any)
                           .filter(([_, available]) => available)
                           .map(([slot, _], index, arr) => (
                             <span key={slot}>
@@ -313,14 +124,30 @@ const Profile = () => {
                 )}
               </div>
 
+              <div>
+                <h3 className="font-semibold text-foreground mb-2">Mes badges</h3>
+                <div className="flex flex-wrap gap-2">
+                  {badges.length === 0 ? (
+                    <span className="text-muted-foreground text-sm">Aucun badge obtenu</span>
+                  ) : (
+                    badges.map(userBadge => (
+                      <span key={userBadge.badges.id} className="badge-earned flex items-center gap-1" title={userBadge.badges.description}>
+                        <span className="text-lg">{userBadge.badges.icon_url}</span>
+                        {userBadge.badges.name}
+                      </span>
+                    ))
+                  )}
+                </div>
+              </div>
+
               <LanguageLevelsForm />
             </div>
           )}
         </div>
 
-        {activeTab === 'impact' && <ImpactStats />}
-        {activeTab === 'badges' && renderBadgesTab()}
-        {activeTab === 'settings' && renderSettingsTab()}
+        <div className="mt-8">
+          <ImpactStats />
+        </div>
       </div>
     </div>
   );
