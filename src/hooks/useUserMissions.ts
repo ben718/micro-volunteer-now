@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 
-// Use specific types for the mission data we expect from the database views
-interface BaseMissionData {
+// Simplified mission data interfaces
+interface UpcomingMission {
   id: string;
   association_id: string;
   association_name: string;
@@ -39,29 +39,27 @@ interface BaseMissionData {
   created_at?: string;
   updated_at?: string;
   registration_status?: string;
-}
-
-interface UpcomingMissionData extends BaseMissionData {
   user_id?: string;
 }
 
-interface PastMissionData extends BaseMissionData {
-  user_id?: string;
+interface PastMission extends UpcomingMission {
   feedback?: string;
   rating?: number;
+  completion_date?: string;
+  hours_logged?: number;
 }
 
 interface UseUserMissionsResult {
-  upcomingMissions: UpcomingMissionData[];
-  pastMissions: PastMissionData[];
+  upcomingMissions: UpcomingMission[];
+  pastMissions: PastMission[];
   loading: boolean;
   error: string | null;
 }
 
 export function useUserMissions(): UseUserMissionsResult {
   const { user } = useAuth();
-  const [upcomingMissions, setUpcomingMissions] = useState<UpcomingMissionData[]>([]);
-  const [pastMissions, setPastMissions] = useState<PastMissionData[]>([]);
+  const [upcomingMissions, setUpcomingMissions] = useState<UpcomingMission[]>([]);
+  const [pastMissions, setPastMissions] = useState<PastMission[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -76,27 +74,25 @@ export function useUserMissions(): UseUserMissionsResult {
       setError(null);
 
       try {
-        // Fetch upcoming missions with explicit typing
+        // Fetch upcoming missions
         const { data: upcomingData, error: upcomingError } = await supabase
           .from('user_upcoming_missions')
           .select('*')
-          .eq('user_id', user.id)
-          .returns<UpcomingMissionData[]>();
+          .eq('user_id', user.id);
 
         if (upcomingError) throw upcomingError;
         
-        setUpcomingMissions(upcomingData || []);
+        setUpcomingMissions((upcomingData || []) as UpcomingMission[]);
 
-        // Fetch past missions with explicit typing
+        // Fetch past missions
         const { data: pastData, error: pastError } = await supabase
           .from('user_past_missions')
           .select('*')
-          .eq('user_id', user.id)
-          .returns<PastMissionData[]>();
+          .eq('user_id', user.id);
 
         if (pastError) throw pastError;
         
-        setPastMissions(pastData || []);
+        setPastMissions((pastData || []) as PastMission[]);
 
       } catch (err: any) {
         console.error("Error loading user missions:", err);
