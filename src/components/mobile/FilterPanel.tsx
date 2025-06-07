@@ -34,7 +34,6 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
 
   return (
     <div className="space-y-4">
-      {/* Filtres rapides */}
       <div className="flex flex-wrap items-center gap-3">
         <Button
           variant={filters.urgency ? 'default' : 'outline'}
@@ -70,52 +69,50 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
             variant="ghost"
             size="sm"
             onClick={onClearFilters}
-            className="text-xs text-gray-500"
+            className="text-xs text-muted-foreground"
           >
             Effacer tout
           </Button>
         )}
       </div>
 
-      {/* Filtres par badges */}
       <div className="flex flex-wrap gap-2">
         <Badge 
-          className={`px-3 py-1 cursor-pointer ${filters.category === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}
+          className={`px-3 py-1 cursor-pointer ${filters.category === 'all' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
           onClick={() => onFilterChange('category', 'all')}
         >
           Tous
         </Badge>
         <Badge 
           variant="outline" 
-          className={`px-3 py-1 cursor-pointer ${filters.duration === '15' ? 'bg-blue-600 text-white border-blue-600' : ''}`}
+          className={`px-3 py-1 cursor-pointer ${filters.duration === '15' ? 'bg-primary text-primary-foreground border-primary' : ''}`}
           onClick={() => onFilterChange('duration', filters.duration === '15' ? 'all' : '15')}
         >
           moins de 15 min
         </Badge>
         <Badge 
           variant="outline" 
-          className={`px-3 py-1 cursor-pointer ${filters.distance === '1' ? 'bg-blue-600 text-white border-blue-600' : ''}`}
+          className={`px-3 py-1 cursor-pointer ${filters.distance === '1' ? 'bg-primary text-primary-foreground border-primary' : ''}`}
           onClick={() => onFilterChange('distance', filters.distance === '1' ? 'all' : '1')}
         >
           moins de 1 km
         </Badge>
         <Badge 
           variant="outline" 
-          className={`px-3 py-1 cursor-pointer ${filters.availability === 'today' ? 'bg-blue-600 text-white border-blue-600' : ''}`}
+          className={`px-3 py-1 cursor-pointer ${filters.availability === 'today' ? 'bg-primary text-primary-foreground border-primary' : ''}`}
           onClick={() => onFilterChange('availability', filters.availability === 'today' ? 'all' : 'today')}
         >
           Aujourd'hui
         </Badge>
       </div>
 
-      {/* Panneau de filtres avancés */}
       {showAdvanced && (
-        <div className="mt-4 p-4 bg-gray-50 rounded-lg space-y-4">
+        <div className="mt-4 p-4 bg-muted rounded-lg space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Disponibilité</label>
+              <label className="block text-sm font-medium text-foreground mb-2">Disponibilité</label>
               <select 
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white"
+                className="w-full px-3 py-2 border border-input rounded-lg text-sm bg-background text-foreground"
                 value={filters.availability}
                 onChange={(e) => onFilterChange('availability', e.target.value)}
               >
@@ -127,9 +124,9 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Durée</label>
+              <label className="block text-sm font-medium text-foreground mb-2">Durée</label>
               <select 
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white"
+                className="w-full px-3 py-2 border border-input rounded-lg text-sm bg-background text-foreground"
                 value={filters.duration}
                 onChange={(e) => onFilterChange('duration', e.target.value)}
               >
@@ -142,9 +139,9 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Catégorie</label>
+            <label className="block text-sm font-medium text-foreground mb-2">Catégorie</label>
             <select 
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white"
+              className="w-full px-3 py-2 border border-input rounded-lg text-sm bg-background text-foreground"
               value={filters.category}
               onChange={(e) => onFilterChange('category', e.target.value)}
             >

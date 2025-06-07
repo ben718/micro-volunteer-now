@@ -243,6 +243,33 @@ export type Database = {
           },
         ]
       }
+      global_stats: {
+        Row: {
+          created_at: string
+          id: string
+          total_hours: number
+          total_missions: number
+          total_volunteers: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          total_hours?: number
+          total_missions?: number
+          total_volunteers?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          total_hours?: number
+          total_missions?: number
+          total_volunteers?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       impact_reports: {
         Row: {
           association_id: string
@@ -764,6 +791,45 @@ export type Database = {
         }
         Relationships: []
       }
+      testimonials: {
+        Row: {
+          age: number | null
+          avatar: string | null
+          content: string
+          created_at: string | null
+          id: string
+          level: string | null
+          missions_count: number | null
+          name: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          age?: number | null
+          avatar?: string | null
+          content: string
+          created_at?: string | null
+          id?: string
+          level?: string | null
+          missions_count?: number | null
+          name: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          age?: number | null
+          avatar?: string | null
+          content?: string
+          created_at?: string | null
+          id?: string
+          level?: string | null
+          missions_count?: number | null
+          name?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       user_badges: {
         Row: {
           awarded_at: string | null
@@ -1075,8 +1141,23 @@ export type Database = {
           status: string | null
           title: string | null
           updated_at: string | null
+          user_id: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "mission_registrations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mission_registrations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "volunteers_with_languages"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "missions_association_id_fkey"
             columns: ["association_id"]
@@ -1922,6 +2003,10 @@ export type Database = {
           total_missions_completed: number | null
           updated_at: string | null
         }[]
+      }
+      send_general_notification: {
+        Args: { p_title: string; p_message: string }
+        Returns: undefined
       }
       set_limit: {
         Args: { "": number }
