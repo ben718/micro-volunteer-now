@@ -1,7 +1,8 @@
-
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
+import { logger } from '@/lib/logger';
+import { AppError } from '@/lib/supabase';
 
 // Simple interfaces for mission data
 interface UpcomingMission {
@@ -109,31 +110,57 @@ export function useUserMissions(): UseUserMissionsResult {
       setError(null);
 
       try {
-        // Fetch upcoming missions - use explicit any to avoid all type inference
+        logger.debug('Fetching user missions', { userId: user.id });
+
+        // Fetch upcoming missions
         const upcomingResponse: any = await (supabase as any)
           .from('user_upcoming_missions')
           .select('*')
           .eq('user_id', user.id);
 
-        if (upcomingResponse.error) throw upcomingResponse.error;
+        if (upcomingResponse.error) {
+          throw new AppError(
+            'Erreur lors du chargement des missions à venir',
+            'FETCH_UPCOMING_MISSIONS_ERROR',
+            undefined,
+            upcomingResponse.error
+          );
+        }
         
         const upcomingData: UpcomingMission[] = upcomingResponse.data || [];
         setUpcomingMissions(upcomingData);
+        logger.debug(`Retrieved ${upcomingData.length} upcoming missions`);
 
-        // Fetch past missions - use explicit any to avoid all type inference
+        // Fetch past missions
         const pastResponse: any = await (supabase as any)
           .from('user_past_missions')
           .select('*')
           .eq('user_id', user.id);
 
-        if (pastResponse.error) throw pastResponse.error;
+        if (pastResponse.error) {
+          throw new AppError(
+            'Erreur lors du chargement des missions passées',
+            'FETCH_PAST_MISSIONS_ERROR',
+            undefined,
+            pastResponse.error
+          );
+        }
         
         const pastData: PastMission[] = pastResponse.data || [];
         setPastMissions(pastData);
+        logger.debug(`Retrieved ${pastData.length} past missions`);
 
       } catch (err: any) {
-        console.error("Error loading user missions:", err);
-        setError(err.message);
+        let errorMessage = 'Erreur lors du chargement des missions';
+        
+        if (err instanceof AppError) {
+          errorMessage = err.message;
+          logger.error('AppError in useUserMissions', err);
+        } else {
+          logger.error('Unexpected error in useUserMissions', err);
+        }
+        
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
