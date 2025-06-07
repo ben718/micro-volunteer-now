@@ -41,9 +41,7 @@ export function useUserMissions(): UseUserMissionsResult {
 
         if (upcomingError) throw upcomingError;
         
-        // Cast the data to the proper type
-        const typedUpcomingData: UpcomingMission[] = upcomingData || [];
-        setUpcomingMissions(typedUpcomingData);
+        setUpcomingMissions(upcomingData || []);
 
         // Récupérer les missions passées
         const { data: pastData, error: pastError } = await supabase
@@ -53,9 +51,7 @@ export function useUserMissions(): UseUserMissionsResult {
 
         if (pastError) throw pastError;
         
-        // Cast the data to the proper type
-        const typedPastData: PastMission[] = pastData || [];
-        setPastMissions(typedPastData);
+        setPastMissions(pastData || []);
 
       } catch (err: any) {
         console.error("Erreur lors du chargement des missions utilisateur:", err);

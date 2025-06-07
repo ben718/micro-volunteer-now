@@ -78,7 +78,7 @@ const MyMissions = () => {
           <div className="text-sm text-muted-foreground">À venir</div>
         </div>
         <div className="bg-card border border-border rounded-lg p-4 text-center">
-          <div className="text-2xl font-bold text-foreground">{pastMissions.filter(m => m.status === 'completed').length}</div>
+          <div className="text-2xl font-bold text-foreground">{pastMissions.filter(m => m.registration_status === 'completed').length}</div>
           <div className="text-sm text-muted-foreground">Terminées</div>
         </div>
         <div className="bg-card border border-border rounded-lg p-4 text-center">
@@ -109,8 +109,8 @@ const MyMissions = () => {
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
                   <div className="flex items-center space-x-2 mb-2">
-                    {getStatusIcon(mission.registration_status || mission.status)}
-                    <h3 className="font-semibold text-foreground">{mission.mission_title || mission.title}</h3>
+                    {getStatusIcon(mission.registration_status)}
+                    <h3 className="font-semibold text-foreground">{mission.title}</h3>
                     {mission.category && (
                       <Badge className={getCategoryColor(mission.category)}>
                         {mission.category}
@@ -121,11 +121,11 @@ const MyMissions = () => {
                   <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                     <span className="flex items-center">
                       <Calendar className="h-4 w-4 mr-1" />
-                      {mission.mission_date || mission.date ? new Date(mission.mission_date || mission.date!).toLocaleDateString() : 'N/A'}
+                      {mission.date ? new Date(mission.date).toLocaleDateString() : 'N/A'}
                     </span>
                     <span className="flex items-center">
                       <Clock className="h-4 w-4 mr-1" />
-                      {`${mission.mission_start_time || mission.start_time || 'N/A'} - ${mission.mission_end_time || mission.end_time || 'N/A'}`}
+                      {`${mission.start_time || 'N/A'} - ${mission.end_time || 'N/A'}`}
                     </span>
                     <span className="flex items-center">
                       <MapPin className="h-4 w-4 mr-1" />
@@ -134,13 +134,13 @@ const MyMissions = () => {
                   </div>
                 </div>
                 <div className="text-right">
-                  <Badge variant={(mission.registration_status || mission.status) === 'completed' ? 'secondary' : 'outline'}>
-                    {getStatusText(mission.registration_status || mission.status)}
+                  <Badge variant={mission.registration_status === 'completed' ? 'secondary' : 'outline'}>
+                    {getStatusText(mission.registration_status)}
                   </Badge>
                 </div>
               </div>
               {/* Évaluation pour les missions terminées (vue past_missions) */}
-              {activeTab === 'past' && (mission.registration_status || mission.status) === 'completed' && ('rating' in mission || 'feedback' in mission) && (
+              {activeTab === 'past' && mission.registration_status === 'completed' && ('rating' in mission || 'feedback' in mission) && (
                 <div className="flex items-start mt-2 space-x-2">
                    {'rating' in mission && mission.rating && renderStars(mission.rating)}
                   {'feedback' in mission && mission.feedback && (
@@ -149,7 +149,7 @@ const MyMissions = () => {
                 </div>
               )}
                {/* Boutons d'action pour missions à venir (annuler) */}
-               {activeTab === 'upcoming' && (mission.registration_status || mission.status) !== 'cancelled' && (
+               {activeTab === 'upcoming' && mission.registration_status !== 'cancelled' && (
                  <div className="mt-4 flex justify-end">
                    {/* Ajouter ici le bouton Annuler si souhaité. Il faudrait un hook ou une fonction pour ça. */}
                    {/* <Button variant="destructive" size="sm">Annuler inscription</Button> */}

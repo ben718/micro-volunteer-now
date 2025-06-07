@@ -1,4 +1,3 @@
-
 export type Json =
   | string
   | number
@@ -605,47 +604,82 @@ export interface Database {
         Row: {
           id: string
           user_id: string
-          mission_id: string
-          mission_title: string
-          mission_description: string
-          mission_date: string
-          mission_start_time: string
-          mission_end_time: string
+          association_id: string
           association_name: string
-          status: string
-          registration_date: string
-          registration_status: string
+          association_logo: string | null
+          title: string
+          description: string
+          short_description: string
           category: string | null
+          image_url: string | null
+          address: string
           city: string | null
+          postal_code: string
+          latitude: number | null
+          longitude: number | null
+          date: string | null
           start_time: string | null
           end_time: string | null
-          date: string | null
-          title: string | null
+          duration: number
+          spots_available: number
+          spots_taken: number
+          min_age: number
+          requirements: string[] | null
+          skills_needed: string[] | null
+          languages_needed: string[] | null
+          materials_provided: string[] | null
+          materials_to_bring: string[] | null
+          status: string
+          is_recurring: boolean
+          recurring_pattern: Json | null
+          impact_description: string | null
+          impact_metrics: Json | null
+          created_at: string
+          updated_at: string
+          registration_status: string
         }
       }
       user_past_missions: {
         Row: {
           id: string
           user_id: string
-          mission_id: string
-          mission_title: string
-          mission_description: string
-          mission_date: string
-          mission_start_time: string
-          mission_end_time: string
+          association_id: string
           association_name: string
+          association_logo: string | null
+          title: string
+          description: string
+          short_description: string
+          category: string | null
+          image_url: string | null
+          address: string
+          city: string | null
+          postal_code: string
+          latitude: number | null
+          longitude: number | null
+          date: string | null
+          start_time: string | null
+          end_time: string | null
+          duration: number
+          spots_available: number
+          spots_taken: number
+          min_age: number
+          requirements: string[] | null
+          skills_needed: string[] | null
+          languages_needed: string[] | null
+          materials_provided: string[] | null
+          materials_to_bring: string[] | null
           status: string
+          is_recurring: boolean
+          recurring_pattern: Json | null
+          impact_description: string | null
+          impact_metrics: Json | null
+          created_at: string
+          updated_at: string
+          registration_status: string
           completion_date: string | null
           feedback: string | null
           rating: number | null
           hours_logged: number | null
-          registration_status: string
-          category: string | null
-          city: string | null
-          start_time: string | null
-          end_time: string | null
-          date: string | null
-          title: string | null
         }
       }
     }
