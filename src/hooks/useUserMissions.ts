@@ -1,10 +1,11 @@
 
+
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 
-// Define simpler, more direct types based on what the views actually return
-type UpcomingMission = {
+// Define simple types that match the database view structure
+interface UpcomingMission {
   id: string;
   user_id: string;
   association_id: string;
@@ -40,14 +41,14 @@ type UpcomingMission = {
   created_at: string;
   updated_at: string;
   registration_status: string;
-};
+}
 
-type PastMission = UpcomingMission & {
+interface PastMission extends UpcomingMission {
   completion_date: string | null;
   feedback: string | null;
   rating: number | null;
   hours_logged: number | null;
-};
+}
 
 interface UseUserMissionsResult {
   upcomingMissions: UpcomingMission[];
@@ -82,7 +83,8 @@ export function useUserMissions(): UseUserMissionsResult {
 
         if (upcomingError) throw upcomingError;
         
-        setUpcomingMissions((upcomingData || []) as UpcomingMission[]);
+        // Simple assignment without type assertion to avoid infinite recursion
+        setUpcomingMissions(upcomingData || []);
 
         // Fetch past missions
         const { data: pastData, error: pastError } = await supabase
@@ -92,7 +94,8 @@ export function useUserMissions(): UseUserMissionsResult {
 
         if (pastError) throw pastError;
         
-        setPastMissions((pastData || []) as PastMission[]);
+        // Simple assignment without type assertion to avoid infinite recursion
+        setPastMissions(pastData || []);
 
       } catch (err: any) {
         console.error("Error loading user missions:", err);
@@ -112,3 +115,4 @@ export function useUserMissions(): UseUserMissionsResult {
     error,
   };
 }
+
