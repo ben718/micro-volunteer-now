@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -99,137 +100,8 @@ const Profile = () => {
     }
   };
 
-  const renderProfileView = () => (
-    <div className="space-y-6">
-      {/* Informations générales du profil */}
-      <div className="flex items-center gap-4">
-        <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center text-2xl font-bold">
-          <User className="w-8 h-8 text-gray-500" />
-        </div>
-        <div>
-          <div className="font-semibold text-lg">{userProfile?.first_name} {userProfile?.last_name}</div>
-          <div className="text-sm text-muted-foreground">{userProfile?.email}</div>
-          <div className="text-sm text-muted-foreground">Téléphone : {userProfile?.phone || 'Non renseigné'}</div>
-          <div className="text-sm text-muted-foreground">Adresse : {userProfile?.address || 'Non renseignée'}, {userProfile?.city || ''} {userProfile?.postal_code || ''}</div>
-        </div>
-      </div>
-      <div>
-        <h3 className="font-semibold text-foreground mb-2">À propos</h3>
-        <p className="text-muted-foreground text-sm">{userProfile?.bio || 'Pas de description.'}</p>
-      </div>
-
-      {/* Affichage de la Disponibilité (mode lecture) */}
-      <div>
-          <h3 className="font-semibold text-foreground mb-2">Mes disponibilités</h3>
-          {availability && Object.keys(availability).length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm text-muted-foreground">
-                  {Object.entries(availability).map(([day, timeSlots]) => (
-                      <div key={day}>
-                          <span className="font-medium capitalize">{day} : </span>
-                          {Object.entries(timeSlots)
-                              .filter(([_, available]) => available)
-                              .map(([slot, _], index, arr) => (
-                                  <span key={slot}>
-                                      {slot.replace('morning', 'matin').replace('afternoon', 'après-midi').replace('evening', 'soir')}{
-                                          index < arr.length - 1 ? ', ' : ''
-                                      }
-                                  </span>
-                              ))
-                              .reduce((prev, curr) => [prev, ', ', curr], [] as any) // Pour ajouter des virgules entre les créneaux
-                          }
-                      </div>
-                  ))}
-              </div>
-          ) : (
-              <p className="text-muted-foreground text-sm">Disponibilités non renseignées.</p>
-          )}
-      </div>
-
-      {/* Language Levels Form */}
-      <LanguageLevelsForm />
-
-      {/* Ajoutez d'autres sections du profil en mode lecture ici (Compétences, Intérêts, etc.) */
-
-    </div>
-  );
-
-  const renderProfileEditForm = () => {
-      const daysOfWeek = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
-      const timeSlots = ['morning', 'afternoon', 'evening'];
-
-      return (
-          <form onSubmit={(e) => { e.preventDefault(); handleSaveProfile(); }} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                      <Label htmlFor="first_name">Prénom</Label>
-                      <Input id="first_name" value={formData.first_name} onChange={handleInputChange} />
-                  </div>
-                  <div>
-                      <Label htmlFor="last_name">Nom</Label>
-                      <Input id="last_name" value={formData.last_name} onChange={handleInputChange} />
-                  </div>
-              </div>
-              <div>
-                  <Label htmlFor="phone">Téléphone</Label>
-                  <Input id="phone" value={formData.phone} onChange={handleInputChange} />
-              </div>
-              <div>
-                  <Label htmlFor="address">Adresse</Label>
-                  <Input id="address" value={formData.address} onChange={handleInputChange} />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="city">Ville</Label>
-                  <Input id="city" value={formData.city} onChange={handleInputChange} />
-                </div>
-                <div>
-                  <Label htmlFor="postal_code">Code Postal</Label>
-                  <Input id="postal_code" value={formData.postal_code} onChange={handleInputChange} />
-                </div>
-              </div>
-              <div>
-                  <Label htmlFor="bio">Bio</Label>
-                  <Textarea id="bio" value={formData.bio} onChange={handleInputChange} rows={4} />
-              </div>
-
-              {/* Section Disponibilité (mode édition) */}
-              <div>
-                  <h3 className="font-semibold text-foreground mb-3">Mes disponibilités</h3>
-                  <div className="space-y-3">
-                      {daysOfWeek.map(day => (
-                          <div key={day} className="flex items-center space-x-4">
-                              <div className="w-24 text-right font-medium capitalize">{day}</div>
-                              <div className="flex items-center space-x-4">
-                                  {timeSlots.map(slot => (
-                                      <div key={slot} className="flex items-center space-x-1">
-                                          <Checkbox
-                                              id={`${day}-${slot}`}
-                                              checked={editAvailability?.[day]?.[slot as 'morning' | 'afternoon' | 'evening'] || false}
-                                              onCheckedChange={(checked) => handleAvailabilityChange(day, slot as 'morning' | 'afternoon' | 'evening', checked as boolean)}
-                                          />
-                                          <Label htmlFor={`${day}-${slot}`} className="text-sm">
-                                              {slot === 'morning' ? 'Matin' : slot === 'afternoon' ? 'Après-midi' : 'Soir'}
-                                          </Label>
-                                      </div>
-                                  ))}
-                              </div>
-                          </div>
-                      ))}
-                  </div>
-              </div>
-              {/* Ajoutez d'autres champs du profil en mode édition ici (Compétences, Intérêts, etc.) */}
-
-              <div className="flex justify-end space-x-2">
-                  <Button variant="outline" onClick={() => setIsEditing(false)}>
-                      Annuler
-                  </Button>
-                  <Button type="submit">
-                      Enregistrer les modifications
-                  </Button>
-              </div>
-          </form>
-      );
-  };
+  const daysOfWeek = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
+  const timeSlots = ['morning', 'afternoon', 'evening'];
 
   const renderBadgesTab = () => (
     <div className="space-y-4">
@@ -310,32 +182,30 @@ const Profile = () => {
                 <Textarea id="bio" value={formData.bio} onChange={handleInputChange} rows={4} />
               </div>
 
-              {/* Section Disponibilité (mode édition) */}
               <div>
-                  <h3 className="font-semibold text-foreground mb-3">Mes disponibilités</h3>
-                  <div className="space-y-3">
-                      {daysOfWeek.map(day => (
-                          <div key={day} className="flex items-center space-x-4">
-                              <div className="w-24 text-right font-medium capitalize">{day}</div>
-                              <div className="flex items-center space-x-4">
-                                  {timeSlots.map(slot => (
-                                      <div key={slot} className="flex items-center space-x-1">
-                                          <Checkbox
-                                              id={`${day}-${slot}`}
-                                              checked={editAvailability?.[day]?.[slot as 'morning' | 'afternoon' | 'evening'] || false}
-                                              onCheckedChange={(checked) => handleAvailabilityChange(day, slot as 'morning' | 'afternoon' | 'evening', checked as boolean)}
-                                          />
-                                          <Label htmlFor={`${day}-${slot}`} className="text-sm">
-                                              {slot === 'morning' ? 'Matin' : slot === 'afternoon' ? 'Après-midi' : 'Soir'}
-                                          </Label>
-                                      </div>
-                                  ))}
-                              </div>
+                <h3 className="font-semibold text-foreground mb-3">Mes disponibilités</h3>
+                <div className="space-y-3">
+                  {daysOfWeek.map(day => (
+                    <div key={day} className="flex items-center space-x-4">
+                      <div className="w-24 text-right font-medium capitalize">{day}</div>
+                      <div className="flex items-center space-x-4">
+                        {timeSlots.map(slot => (
+                          <div key={slot} className="flex items-center space-x-1">
+                            <Checkbox
+                              id={`${day}-${slot}`}
+                              checked={editAvailability?.[day]?.[slot as 'morning' | 'afternoon' | 'evening'] || false}
+                              onCheckedChange={(checked) => handleAvailabilityChange(day, slot as 'morning' | 'afternoon' | 'evening', checked as boolean)}
+                            />
+                            <Label htmlFor={`${day}-${slot}`} className="text-sm">
+                              {slot === 'morning' ? 'Matin' : slot === 'afternoon' ? 'Après-midi' : 'Soir'}
+                            </Label>
                           </div>
-                      ))}
-                  </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-              {/* Ajoutez d'autres champs du profil en mode édition ici (Compétences, Intérêts, etc.) */}
 
               <div className="flex justify-end space-x-2">
                 <Button variant="outline" onClick={() => setIsEditing(false)}>
@@ -348,7 +218,6 @@ const Profile = () => {
             </form>
           ) : (
             <div className="space-y-6">
-              {/* Informations générales du profil */}
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center text-2xl font-bold">
                   <User className="w-8 h-8 text-gray-500" />
@@ -365,47 +234,38 @@ const Profile = () => {
                 <p className="text-muted-foreground text-sm">{userProfile?.bio || 'Pas de description.'}</p>
               </div>
 
-              {/* Affichage de la Disponibilité (mode lecture) */}
               <div>
-                  <h3 className="font-semibold text-foreground mb-2">Mes disponibilités</h3>
-                  {availability && Object.keys(availability).length > 0 ? (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm text-muted-foreground">
-                          {Object.entries(availability).map(([day, timeSlots]) => (
-                              <div key={day}>
-                                  <span className="font-medium capitalize">{day} : </span>
-                                  {Object.entries(timeSlots)
-                                      .filter(([_, available]) => available)
-                                      .map(([slot, _], index, arr) => (
-                                          <span key={slot}>
-                                              {slot.replace('morning', 'matin').replace('afternoon', 'après-midi').replace('evening', 'soir')}{
-                                                  index < arr.length - 1 ? ', ' : ''
-                                              }
-                                          </span>
-                                      ))
-                                      .reduce((prev, curr) => [prev, ', ', curr], [] as any) // Pour ajouter des virgules entre les créneaux
-                                  }
-                              </div>
+                <h3 className="font-semibold text-foreground mb-2">Mes disponibilités</h3>
+                {availability && Object.keys(availability).length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm text-muted-foreground">
+                    {Object.entries(availability).map(([day, timeSlots]) => (
+                      <div key={day}>
+                        <span className="font-medium capitalize">{day} : </span>
+                        {Object.entries(timeSlots)
+                          .filter(([_, available]) => available)
+                          .map(([slot, _], index, arr) => (
+                            <span key={slot}>
+                              {slot.replace('morning', 'matin').replace('afternoon', 'après-midi').replace('evening', 'soir')}{
+                                index < arr.length - 1 ? ', ' : ''
+                              }
+                            </span>
                           ))}
                       </div>
-                  ) : (
-                      <p className="text-muted-foreground text-sm">Disponibilités non renseignées.</p>
-                  )}
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground text-sm">Disponibilités non renseignées.</p>
+                )}
               </div>
 
-              {/* Language Levels Form */}
               <LanguageLevelsForm />
-
-              {/* Ajoutez d'autres sections du profil en mode lecture ici (Compétences, Intérêts, etc.) */
             </div>
           )}
         </div>
 
-        {/* Impact Stats and Badges displayed below the main profile info */}
-        {/* Move these sections outside the main profile card if they are separate tabs */}
         {activeTab === 'impact' && <ImpactStats />}
         {activeTab === 'badges' && renderBadgesTab()}
-        {activeTab === 'settings' && renderSettingsTab()} {/* Assuming settings are separate or integrated */}
-
+        {activeTab === 'settings' && renderSettingsTab()}
       </div>
     </div>
   );
