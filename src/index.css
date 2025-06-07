@@ -1,55 +1,62 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Design system pour Voisin Solidaire - plateforme de micro-bénévolat */
+/* Design system mobile moderne - Voisin Solidaire */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 248 250 252;
+    --foreground: 15 23 42;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 255 255 255;
+    --card-foreground: 15 23 42;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 255 255 255;
+    --popover-foreground: 15 23 42;
 
-    /* Couleur principale - Bleu professionnel */
-    --primary: 217 91% 60%;
-    --primary-foreground: 0 0% 98%;
+    /* Couleur principale - Bleu moderne */
+    --primary: 59 130 246;
+    --primary-foreground: 255 255 255;
 
-    /* Couleur secondaire - Bleu très clair */
-    --secondary: 210 40% 98%;
-    --secondary-foreground: 217 91% 60%;
+    /* Couleur secondaire - Gris très clair */
+    --secondary: 248 250 252;
+    --secondary-foreground: 71 85 105;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 241 245 249;
+    --muted-foreground: 100 116 139;
 
-    /* Accent - Bleu foncé */
-    --accent: 217 91% 45%;
-    --accent-foreground: 0 0% 98%;
+    /* Accent - Orange/Jaune pour badges */
+    --accent: 245 158 11;
+    --accent-foreground: 255 255 255;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 239 68 68;
+    --destructive-foreground: 255 255 255;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 217 91% 60%;
+    --border: 226 232 240;
+    --input: 226 232 240;
+    --ring: 59 130 246;
 
     --radius: 0.75rem;
 
-    /* Success - Bleu vert */
-    --success: 200 100% 40%;
-    --success-foreground: 0 0% 98%;
+    /* Success - Vert moderne */
+    --success: 34 197 94;
+    --success-foreground: 255 255 255;
     
-    /* Warning - Bleu clair */
-    --warning: 217 91% 70%;
-    --warning-foreground: 0 0% 98%;
+    /* Warning - Orange */
+    --warning: 245 158 11;
+    --warning-foreground: 255 255 255;
     
-    /* Impact - Bleu royal */
-    --impact: 217 91% 50%;
-    --impact-foreground: 0 0% 98%;
+    /* Impact - Violet */
+    --impact: 139 92 246;
+    --impact-foreground: 255 255 255;
+
+    /* Couleurs spécifiques pour les catégories */
+    --alimentaire: 34 197 94;
+    --social: 245 158 11;
+    --education: 59 130 246;
+    --environnement: 34 197 94;
   }
 }
 
@@ -60,49 +67,196 @@
 
   body {
     @apply bg-background text-foreground font-sans;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  }
+
+  html, body, #root {
+    height: 100%;
+    overflow-x: hidden;
   }
 }
 
 @layer components {
+  /* Mobile App Container */
+  .mobile-app {
+    @apply min-h-screen bg-background pb-20;
+  }
+
+  .mobile-content {
+    @apply px-4 py-6 space-y-6;
+  }
+
+  /* Cards modernes */
   .mission-card {
-    @apply bg-card border border-border rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer;
+    @apply bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden;
   }
-  
-  .mission-card:hover {
-    @apply scale-[1.02] border-primary/20;
+
+  .mission-card-content {
+    @apply p-4 space-y-3;
   }
-  
+
+  .mission-card-header {
+    @apply flex items-start justify-between;
+  }
+
+  .mission-title {
+    @apply font-semibold text-gray-900 text-base leading-tight;
+  }
+
+  .mission-meta {
+    @apply text-sm text-gray-500 space-y-1;
+  }
+
+  .mission-actions {
+    @apply flex gap-2 mt-4;
+  }
+
+  /* Badges et durées */
+  .duration-badge {
+    @apply px-3 py-1 rounded-full text-xs font-medium;
+  }
+
+  .duration-15 {
+    @apply bg-amber-100 text-amber-800;
+  }
+
+  .duration-30 {
+    @apply bg-green-100 text-green-800;
+  }
+
+  .duration-45 {
+    @apply bg-blue-100 text-blue-800;
+  }
+
+  .category-badge {
+    @apply px-2 py-1 rounded-lg text-xs font-medium uppercase tracking-wide;
+  }
+
+  .category-alimentaire {
+    @apply bg-green-100 text-green-800;
+  }
+
+  .category-social {
+    @apply bg-orange-100 text-orange-800;
+  }
+
+  .category-education {
+    @apply bg-blue-100 text-blue-800;
+  }
+
+  .category-environnement {
+    @apply bg-emerald-100 text-emerald-800;
+  }
+
+  /* Boutons */
   .btn-primary {
-    @apply bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-3 rounded-lg font-medium transition-all duration-200 hover:scale-105;
+    @apply bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-xl font-medium text-sm transition-colors;
   }
-  
+
   .btn-secondary {
-    @apply bg-secondary text-secondary-foreground hover:bg-secondary/80 px-6 py-3 rounded-lg font-medium transition-all duration-200;
+    @apply bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-3 rounded-xl font-medium text-sm transition-colors;
   }
-  
+
+  .btn-participate {
+    @apply bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-xl font-medium text-sm transition-colors flex-1;
+  }
+
+  /* Navigation bottom */
+  .bottom-nav {
+    @apply fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 z-50;
+  }
+
+  .bottom-nav-item {
+    @apply flex flex-col items-center justify-center py-2 text-xs font-medium transition-colors;
+  }
+
+  .bottom-nav-item.active {
+    @apply text-blue-500;
+  }
+
+  .bottom-nav-item:not(.active) {
+    @apply text-gray-400;
+  }
+
+  /* Section headers */
+  .section-header {
+    @apply flex items-center justify-between mb-4;
+  }
+
+  .section-title {
+    @apply text-lg font-semibold text-gray-900;
+  }
+
+  .section-action {
+    @apply text-blue-500 text-sm font-medium;
+  }
+
+  /* Impact stats */
   .impact-stat {
-    @apply bg-gradient-to-br from-primary/5 to-impact/5 border border-primary/10 rounded-lg p-4 text-center;
+    @apply text-center;
   }
-  
-  .badge-earned {
-    @apply bg-gradient-to-r from-primary/90 to-accent/90 text-white px-3 py-1 rounded-full text-sm font-medium shadow-sm;
+
+  .impact-number {
+    @apply text-2xl font-bold;
   }
-  
-  .progress-bar {
-    @apply w-full bg-muted rounded-full h-2 overflow-hidden;
+
+  .impact-label {
+    @apply text-sm text-gray-500;
   }
-  
-  .progress-fill {
-    @apply h-full bg-gradient-to-r from-primary/80 to-accent/80 transition-all duration-500;
+
+  /* Filtres */
+  .filter-chip {
+    @apply px-4 py-2 rounded-full text-sm font-medium transition-colors border;
+  }
+
+  .filter-chip.active {
+    @apply bg-blue-500 text-white border-blue-500;
+  }
+
+  .filter-chip:not(.active) {
+    @apply bg-white text-gray-600 border-gray-200 hover:bg-gray-50;
+  }
+
+  /* Profile styles */
+  .profile-header {
+    @apply bg-white rounded-2xl shadow-sm border border-gray-100 p-6;
+  }
+
+  .profile-avatar {
+    @apply w-16 h-16 rounded-full bg-blue-500 flex items-center justify-center text-white text-xl font-bold;
+  }
+
+  .profile-info {
+    @apply ml-4;
+  }
+
+  .profile-name {
+    @apply font-semibold text-lg text-gray-900;
+  }
+
+  .profile-meta {
+    @apply text-sm text-gray-500;
+  }
+
+  /* Status indicators */
+  .status-dot {
+    @apply w-2 h-2 rounded-full;
+  }
+
+  .status-today {
+    @apply bg-amber-400;
+  }
+
+  .status-upcoming {
+    @apply bg-blue-400;
+  }
+
+  .status-completed {
+    @apply bg-green-400;
   }
 }
 
-/* Micro-animations pour l'engagement */
-@keyframes pulse-gentle {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-}
-
+/* Animations fluides */
 @keyframes slide-up {
   from { 
     opacity: 0;
@@ -114,19 +268,22 @@
   }
 }
 
-@keyframes confetti {
-  0% { transform: scale(0) rotate(0deg); opacity: 1; }
-  100% { transform: scale(1) rotate(180deg); opacity: 0; }
-}
-
-.animate-pulse-gentle {
-  animation: pulse-gentle 2s infinite;
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .animate-slide-up {
-  animation: slide-up 0.5s ease-out;
+  animation: slide-up 0.3s ease-out;
 }
 
-.animate-confetti {
-  animation: confetti 0.8s ease-out;
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out;
+}
+
+/* Safe area pour mobile */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .bottom-nav {
+    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+  }
 }
