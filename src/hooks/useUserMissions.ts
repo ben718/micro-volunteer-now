@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 
-// Completely separate interfaces to avoid type circularity
+// Simple interfaces for mission data
 interface UpcomingMission {
   id: string;
   association_id: string;
@@ -109,25 +109,29 @@ export function useUserMissions(): UseUserMissionsResult {
       setError(null);
 
       try {
-        // Fetch upcoming missions
-        const { data: upcomingData, error: upcomingError } = await supabase
+        // Fetch upcoming missions with basic typing
+        const upcomingQuery = supabase
           .from('user_upcoming_missions')
           .select('*')
           .eq('user_id', user.id);
 
+        const { data: upcomingData, error: upcomingError } = await upcomingQuery;
+
         if (upcomingError) throw upcomingError;
         
-        setUpcomingMissions((upcomingData || []) as UpcomingMission[]);
+        setUpcomingMissions(upcomingData as UpcomingMission[] || []);
 
-        // Fetch past missions
-        const { data: pastData, error: pastError } = await supabase
+        // Fetch past missions with basic typing
+        const pastQuery = supabase
           .from('user_past_missions')
           .select('*')
           .eq('user_id', user.id);
 
+        const { data: pastData, error: pastError } = await pastQuery;
+
         if (pastError) throw pastError;
         
-        setPastMissions((pastData || []) as PastMission[]);
+        setPastMissions(pastData as PastMission[] || []);
 
       } catch (err: any) {
         console.error("Error loading user missions:", err);
