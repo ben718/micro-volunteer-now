@@ -67,22 +67,29 @@ export const useUserProfile = () => {
           setBadges(userBadges as UserBadge[])
         }
 
-        // Calculate associations helped from past missions - use explicit type
-        const { data: rawMissions } = await supabase
-          .from('user_past_missions')
-          .select('association_id')
-          .eq('user_id', profile.id)
+        // Calculate associations helped from past missions - simplified approach
+        const { data: missionsData, error: missionsError } = await supabase
+          .rpc('get_user_associations_count', { user_id: profile.id })
         
-        // Count unique associations with explicit typing
         let uniqueAssociationsCount = 0;
-        if (rawMissions) {
-          const associationIds: string[] = [];
-          rawMissions.forEach((item: any) => {
-            if (item.association_id && !associationIds.includes(item.association_id)) {
-              associationIds.push(item.association_id);
-            }
-          });
-          uniqueAssociationsCount = associationIds.length;
+        if (!missionsError && missionsData) {
+          uniqueAssociationsCount = missionsData;
+        } else {
+          // Fallback: use a direct query without complex type inference
+          const result = await supabase
+            .from('user_past_missions')
+            .select('association_id')
+            .eq('user_id', profile.id)
+          
+          if (result.data) {
+            const associationIds: string[] = [];
+            result.data.forEach((item: { association_id: string }) => {
+              if (item.association_id && !associationIds.includes(item.association_id)) {
+                associationIds.push(item.association_id);
+              }
+            });
+            uniqueAssociationsCount = associationIds.length;
+          }
         }
         
         // Set user stats from profile data
