@@ -3,62 +3,20 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 
-// Define simplified types that match exactly what the database views return
-interface UpcomingMission {
-  id: string;
-  association_id: string;
-  association_name: string;
-  association_logo: string | null;
-  title: string;
-  description: string;
-  short_description: string;
-  category: string | null;
-  image_url: string | null;
-  address: string;
-  city: string | null;
-  postal_code: string;
-  latitude: number | null;
-  longitude: number | null;
-  date: string | null;
-  start_time: string | null;
-  end_time: string | null;
-  duration: number;
-  spots_available: number;
-  spots_taken: number;
-  min_age: number;
-  requirements: string[] | null;
-  skills_needed: string[] | null;
-  languages_needed: string[] | null;
-  materials_provided: string[] | null;
-  materials_to_bring: string[] | null;
-  status: string;
-  is_recurring: boolean;
-  recurring_pattern: any;
-  impact_description: string | null;
-  impact_metrics: any;
-  created_at: string;
-  updated_at: string;
-  registration_status: string;
-}
-
-interface PastMission extends UpcomingMission {
-  completion_date: string | null;
-  feedback: string | null;
-  rating: number | null;
-  hours_logged: number | null;
-}
+// Use generic types that will work with whatever the database returns
+type DatabaseRow = Record<string, any>;
 
 interface UseUserMissionsResult {
-  upcomingMissions: UpcomingMission[];
-  pastMissions: PastMission[];
+  upcomingMissions: DatabaseRow[];
+  pastMissions: DatabaseRow[];
   loading: boolean;
   error: string | null;
 }
 
 export function useUserMissions(): UseUserMissionsResult {
   const { user } = useAuth();
-  const [upcomingMissions, setUpcomingMissions] = useState<UpcomingMission[]>([]);
-  const [pastMissions, setPastMissions] = useState<PastMission[]>([]);
+  const [upcomingMissions, setUpcomingMissions] = useState<DatabaseRow[]>([]);
+  const [pastMissions, setPastMissions] = useState<DatabaseRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
