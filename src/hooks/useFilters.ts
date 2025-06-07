@@ -7,6 +7,7 @@ export interface Filters {
   duration: string;
   availability: string;
   urgency: boolean;
+  searchQuery: string;
 }
 
 export const useFilters = (missions: any[] = []) => {
@@ -16,6 +17,7 @@ export const useFilters = (missions: any[] = []) => {
     duration: 'all',
     availability: 'all',
     urgency: false,
+    searchQuery: '',
   });
 
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -35,6 +37,7 @@ export const useFilters = (missions: any[] = []) => {
       duration: 'all',
       availability: 'all',
       urgency: false,
+      searchQuery: '',
     });
   };
 
@@ -53,6 +56,7 @@ export const useFilters = (missions: any[] = []) => {
     if (filters.duration !== 'all') count++;
     if (filters.availability !== 'all') count++;
     if (filters.urgency) count++;
+    if (filters.searchQuery.trim() !== '') count++;
     return count;
   };
 
@@ -60,6 +64,22 @@ export const useFilters = (missions: any[] = []) => {
     if (!Array.isArray(missions)) return [];
     
     return missions.filter(mission => {
+      // Filtre par recherche textuelle
+      if (filters.searchQuery && filters.searchQuery.trim() !== '') {
+        const query = filters.searchQuery.toLowerCase();
+        const searchableText = [
+          mission.title,
+          mission.description,
+          mission.short_description,
+          mission.association_name,
+          mission.category
+        ].join(' ').toLowerCase();
+        
+        if (!searchableText.includes(query)) {
+          return false;
+        }
+      }
+      
       // Filtre par catégorie
       if (filters.category !== 'all' && mission.category !== filters.category) {
         return false;
