@@ -109,29 +109,27 @@ export function useUserMissions(): UseUserMissionsResult {
       setError(null);
 
       try {
-        // Fetch upcoming missions with basic typing
-        const upcomingQuery = supabase
+        // Fetch upcoming missions - use any to avoid type inference issues
+        const upcomingResponse = await supabase
           .from('user_upcoming_missions')
           .select('*')
           .eq('user_id', user.id);
 
-        const { data: upcomingData, error: upcomingError } = await upcomingQuery;
-
-        if (upcomingError) throw upcomingError;
+        if (upcomingResponse.error) throw upcomingResponse.error;
         
-        setUpcomingMissions(upcomingData as UpcomingMission[] || []);
+        const upcomingData = (upcomingResponse.data || []) as UpcomingMission[];
+        setUpcomingMissions(upcomingData);
 
-        // Fetch past missions with basic typing
-        const pastQuery = supabase
+        // Fetch past missions - use any to avoid type inference issues
+        const pastResponse = await supabase
           .from('user_past_missions')
           .select('*')
           .eq('user_id', user.id);
 
-        const { data: pastData, error: pastError } = await pastQuery;
-
-        if (pastError) throw pastError;
+        if (pastResponse.error) throw pastResponse.error;
         
-        setPastMissions(pastData as PastMission[] || []);
+        const pastData = (pastResponse.data || []) as PastMission[];
+        setPastMissions(pastData);
 
       } catch (err: any) {
         console.error("Error loading user missions:", err);
