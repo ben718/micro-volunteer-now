@@ -1,56 +1,86 @@
-import { useState, useCallback, useEffect } from 'react';
-import { Mission } from '@/types/mission';
-import { missionService } from '@/lib/supabase';
-import { useAuth } from '@/contexts/AuthContext';
+
+import { useState, useEffect } from 'react'
+import { missionService } from '@/lib/supabase'
+import { Mission } from '@/types/mission'
 
 export const useMissions = () => {
-  const [missions, setMissions] = useState<Mission[]>([]);
-  const [userMissions, setUserMissions] = useState<Mission[]>([]);
-  const [loading, setLoading] = useState(true);
-  const { user } = useAuth();
+  const [missions, setMissions] = useState<Mission[]>([])
+  const [userMissions, setUserMissions] = useState<Mission[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string>('')
+
+  const loadMissions = async () => {
+    try {
+      setLoading(true)
+      const data = await missionService.getAvailableMissions()
+      setMissions(data as Mission[])
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const loadUserMissions = async () => {
+    try {
+      const upcoming = await missionService.getUserUpcomingMissions()
+      const past = await missionService.getUserPastMissions()
+      setUserMissions([...upcoming, ...past] as Mission[])
+    } catch (err: any) {
+      console.error('Erreur lors du chargement des missions utilisateur:', err)
+    }
+  }
+
+  const participateInMission = async (missionId: string) => {
+    try {
+      await missionService.registerForMission(missionId)
+      await loadMissions()
+      await loadUserMissions()
+      return true
+    } catch (err: any) {
+      setError(err.message)
+      return false
+    }
+  }
+
+  const cancelMissionParticipation = async (missionId: string, reason?: string) => {
+    try {
+      await missionService.cancelRegistration(missionId, reason)
+      await loadMissions()
+      await loadUserMissions()
+      return true
+    } catch (err: any) {
+      setError(err.message)
+      return false
+    }
+  }
+
+  const searchMissions = async (searchParams: any) => {
+    try {
+      setLoading(true)
+      const data = await missionService.searchNearbyMissions(searchParams)
+      setMissions(data as Mission[])
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    async function fetchAllMissions() {
-      setLoading(true);
-      try {
-        const allMissions = await missionService.getAvailableMissions();
-        setMissions(allMissions || []);
-        if (user) {
-          const myMissions = await missionService.getUserMissions(user.id);
-          setUserMissions(myMissions || []);
-        }
-      } catch (e) {
-        setMissions([]);
-        setUserMissions([]);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchAllMissions();
-  }, [user]);
-
-  const participateInMission = useCallback(async (missionId: string) => {
-    await missionService.registerForMission(missionId);
-    // Recharger les missions de l'utilisateur
-    if (user) {
-      const myMissions = await missionService.getUserMissions(user.id);
-      setUserMissions(myMissions || []);
-    }
-  }, [user]);
-
-  const cancelMission = useCallback(async (missionId: string) => {
-    await missionService.cancelRegistration(missionId);
-    if (user) {
-      const myMissions = await missionService.getUserMissions(user.id);
-      setUserMissions(myMissions || []);
-    }
-  }, [user]);
+    loadMissions()
+    loadUserMissions()
+  }, [])
 
   return {
     missions,
     userMissions,
+    loading,
+    error,
+    loadMissions,
+    loadUserMissions,
     participateInMission,
-    cancelMission,
-    loading
-  };
-};
+    cancelMissionParticipation,
+    searchMissions
+  }
+}

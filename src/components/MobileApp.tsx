@@ -1,648 +1,619 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
-  Home, 
   Search, 
+  Home, 
+  Compass, 
   Calendar, 
   User, 
-  Bell,
-  MapPin,
-  Clock,
-  Menu,
-  X,
+  MapPin, 
+  Clock, 
+  Users, 
+  Star,
   Plus,
-  SlidersHorizontal,
-  Users
+  Filter,
+  Bell,
+  Menu,
+  Settings,
+  Award,
+  Heart,
+  TrendingUp
 } from 'lucide-react';
-
-// Hooks
+import { Mission } from '@/types/mission';
 import { useMissions } from '@/hooks/useMissions';
 import { useFilters } from '@/hooks/useFilters';
 import { useUserProfile } from '@/hooks/useUserProfile';
-import { useCategories } from '@/hooks/useCategories';
-
-// Components
-import MissionCard from '@/components/mobile/MissionCard';
-import FilterPanel from '@/components/mobile/FilterPanel';
-import UserStatsCard from '@/components/mobile/UserStatsCard';
+import MobileMissionCard from './mobile/MissionCard';
+import FilterPanel from './mobile/FilterPanel';
+import UserStatsCard from './mobile/UserStatsCard';
 
 const MobileApp = () => {
-  const [currentView, setCurrentView] = useState<'home' | 'explorer' | 'missions' | 'profile'>('home');
+  const [activeTab, setActiveTab] = useState('home');
+  const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  
-  // Hooks
-  const { missions, userMissions, participateInMission, cancelMission, loading } = useMissions();
-  const { filters, filteredMissions, updateFilter, clearFilters, activeFiltersCount } = useFilters(missions);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
   const { 
+    missions, 
+    userMissions, 
+    loading, 
+    error, 
+    participateInMission, 
+    cancelMissionParticipation 
+  } = useMissions();
+
+  const { 
+    userProfile, 
     userStats, 
     badges, 
-    preferredCategories, 
-    maxDistance, 
-    preferredDuration,
-    userAssociations,
-    updateStats,
-    toggleCategory,
-    setMaxDistance,
-    setDuration
+    updateProfile 
   } = useUserProfile();
-  const { categories } = useCategories();
 
-  // Données factices pour les notifications
-  const notifications = [
-    { id: 1, is_read: false, message: "Nouvelle mission disponible" },
-    { id: 2, is_read: true, message: "Mission confirmée" }
-  ];
+  const {
+    filters,
+    filteredMissions,
+    onFilterChange,
+    onClearFilters,
+    activeFiltersCount,
+    showAdvanced,
+    onToggleAdvanced
+  } = useFilters(missions);
 
-  const handleParticipate = (missionId: string) => {
-    participateInMission(missionId);
-    updateStats({ 
-      missions: userStats.missions + 1,
-      associations: userStats.associations
-    });
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    onFilterChange('searchQuery', searchQuery);
+  }, [searchQuery]);
+
+  const handleParticipate = async (missionId: string) => {
+    const success = await participateInMission(missionId);
+    if (success) {
+      console.log('Inscription réussie !');
+    }
   };
 
-  // Mobile Header Component
-  const MobileHeader = ({ title }: { title: string }) => (
-    <div className="lg:hidden bg-card px-4 py-3 flex items-center justify-between border-b sticky top-0 z-40 shadow-sm">
-      <div className="flex items-center">
-        <button
-          onClick={() => setSidebarOpen(true)}
-          className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted"
-        >
-          <Menu className="h-5 w-5" />
-        </button>
-        <h1 className="ml-2 text-lg font-bold text-foreground truncate">{title}</h1>
-      </div>
-      <div className="flex items-center space-x-2">
-        <button 
-          className="relative p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted"
-          onClick={() => {/* Navigation vers notifications */}}
-        >
-          <Bell className="h-5 w-5" />
-          {notifications.some(notif => !notif.is_read) && (
-            <div className="absolute -top-1 -right-1 w-2 h-2 bg-destructive rounded-full"></div>
-          )}
-        </button>
-        <button 
-          className="w-7 h-7 bg-primary rounded-full flex items-center justify-center text-primary-foreground text-xs font-bold"
-          onClick={() => setCurrentView('profile')}
-        >
-          JD
-        </button>
-      </div>
-    </div>
-  );
+  const handleCancel = async (missionId: string) => {
+    const success = await cancelMissionParticipation(missionId);
+    if (success) {
+      console.log('Annulation réussie !');
+    }
+  };
 
-  // Mobile Sidebar Overlay
-  const MobileSidebar = () => (
-    <div className={`lg:hidden fixed inset-0 z-50 ${sidebarOpen ? 'block' : 'hidden'}`}>
-      <div 
-        className="fixed inset-0 bg-black bg-opacity-25" 
-        onClick={() => setSidebarOpen(false)}
-      />
-      <div className="fixed inset-y-0 left-0 flex flex-col w-64 bg-card shadow-xl">
-        <div className="flex items-center justify-between h-16 px-4 border-b">
-          <div className="flex items-center">
-            <div className="bg-gradient-to-r from-primary to-primary/80 p-2 rounded-xl">
-              <Home className="h-6 w-6 text-primary-foreground" />
-            </div>
-            <span className="ml-2 text-lg font-bold text-foreground">Voisin Solidaire</span>
-          </div>
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted"
-          >
-            <X className="h-6 w-6" />
-          </button>
-        </div>
-        <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
-          {[
-            { key: 'home', label: 'Accueil', icon: Home },
-            { key: 'explorer', label: 'Explorer', icon: Search },
-            { key: 'missions', label: 'Mes Missions', icon: Calendar },
-            { key: 'profile', label: 'Profil', icon: User },
-          ].map((item) => (
-            <button
-              key={item.key}
-              onClick={() => {
-                setCurrentView(item.key as any);
-                setSidebarOpen(false);
-              }}
-              className={`group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg w-full transition-colors ${
-                currentView === item.key
-                  ? 'bg-muted text-foreground'
-                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-              }`}
-            >
-              <item.icon className={`mr-3 h-5 w-5 ${
-                currentView === item.key ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'
-              }`} />
-              {item.label}
-            </button>
-          ))}
-        </nav>
-      </div>
-    </div>
-  );
-
-  // Desktop Sidebar Component
-  const DesktopSidebar = () => (
-    <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 bg-card border-r border-border">
-      <div className="flex flex-col flex-grow pt-5 pb-4 overflow-y-auto">
-        <div className="flex items-center flex-shrink-0 px-4">
-          <div className="bg-gradient-to-r from-primary to-primary/80 p-2 rounded-xl">
-            <Home className="h-6 w-6 text-primary-foreground" />
-          </div>
-          <span className="ml-2 text-lg font-bold text-foreground">Voisin Solidaire</span>
-        </div>
-        
-        <nav className="mt-8 flex-1 px-2 space-y-1">
-          {[
-            { key: 'home', label: 'Accueil', icon: Home },
-            { key: 'explorer', label: 'Explorer', icon: Search },
-            { key: 'missions', label: 'Mes Missions', icon: Calendar },
-            { key: 'profile', label: 'Profil', icon: User },
-          ].map((item) => (
-            <button
-              key={item.key}
-              onClick={() => setCurrentView(item.key as any)}
-              className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md w-full transition-colors ${
-                currentView === item.key
-                  ? 'bg-muted text-foreground'
-                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-              }`}
-            >
-              <item.icon className={`mr-3 h-5 w-5 ${
-                currentView === item.key ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'
-              }`} />
-              {item.label}
-              {item.key === 'missions' && userMissions.length > 0 && (
-                <Badge className="ml-auto bg-destructive text-destructive-foreground text-xs">{userMissions.length}</Badge>
-              )}
-            </button>
-          ))}
-        </nav>
-
-        <div className="flex-shrink-0 flex border-t border-border p-4">
-          <div className="flex items-center">
-            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground text-sm font-bold">
-              JD
-            </div>
-            <div className="ml-3">
-              <p className="text-sm font-medium text-foreground">Jean Dupont</p>
-              <p className="text-xs text-muted-foreground">Débutant</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  // Desktop Header Component
-  const DesktopHeader = ({ title }: { title: string }) => (
-    <div className="hidden lg:block bg-card px-6 py-4 border-b border-border">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-foreground">{title}</h1>
-        <div className="flex items-center space-x-4">
-          <div className="relative">
-            <Bell className="h-6 w-6 text-muted-foreground cursor-pointer hover:text-foreground" />
-            <div className="absolute -top-1 -right-1 w-3 h-3 bg-destructive rounded-full"></div>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground text-sm font-bold">
-              JD
-            </div>
-            <div className="text-sm">
-              <div className="font-medium text-foreground">Jean Dupont</div>
-              <div className="text-muted-foreground">Niveau: Débutant</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  // Bottom Navigation - Mobile Only
-  const MobileNavigation = () => (
-    <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border px-4 py-2 safe-area-pb">
-      <div className="flex justify-around">
-        {[
-          { key: 'home', label: 'Accueil', icon: Home },
-          { key: 'explorer', label: 'Explorer', icon: Search },
-          { key: 'missions', label: 'Missions', icon: Calendar },
-          { key: 'profile', label: 'Profil', icon: User }
-        ].map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setCurrentView(tab.key as any)}
-            className={`flex flex-col items-center py-2 px-1 min-w-0 flex-1 ${
-              currentView === tab.key
-                ? 'text-primary'
-                : 'text-muted-foreground'
-            }`}
-          >
-            <tab.icon className="h-5 w-5 mb-1" />
-            <span className="text-xs truncate">{tab.label}</span>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-
-  const renderHomeView = () => (
-    <div className="flex-1 bg-background overflow-y-auto pb-20 lg:pb-0">
-      <MobileHeader title="Voisin Solidaire" />
-      <DesktopHeader title="Tableau de bord" />
-
-      <div className="p-4 lg:p-6 space-y-4 lg:space-y-6">
-        <div className="bg-card rounded-xl p-4 shadow-sm">
-          <h2 className="text-lg lg:text-2xl font-bold text-foreground mb-1">Bonjour, Jean 👋</h2>
-          <p className="text-muted-foreground text-sm lg:text-base">Prêt à aider près de chez vous aujourd'hui ?</p>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
-          <div className="lg:col-span-1">
-            <UserStatsCard />
-          </div>
-
-          <div className="hidden lg:block lg:col-span-2">
-            <div className="bg-card rounded-xl p-6 shadow-sm">
-              <h3 className="font-semibold text-foreground mb-4">Actions rapides</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <Button 
-                  onClick={() => setCurrentView('explorer')}
-                  className="h-20 flex flex-col items-center justify-center space-y-2"
-                >
-                  <Search className="h-6 w-6" />
-                  <span>Explorer les missions</span>
-                </Button>
-                <Button 
-                  variant="outline"
-                  onClick={() => setCurrentView('missions')}
-                  className="h-20 flex flex-col items-center justify-center space-y-2"
-                >
-                  <Calendar className="h-6 w-6" />
-                  <span>Mes missions</span>
-                </Button>
-              </div>
+  // Rendu mobile
+  if (isMobile) {
+    return (
+      <div className="min-h-screen bg-background">
+        {/* Header Mobile */}
+        <div className="bg-card border-b border-border p-4 sticky top-0 z-50">
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl font-bold text-primary">Voisin Solidaire</h1>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="icon">
+                <Bell className="h-5 w-5" />
+              </Button>
+              <Button variant="ghost" size="icon">
+                <Menu className="h-5 w-5" />
+              </Button>
             </div>
           </div>
         </div>
 
-        <div className="bg-card rounded-xl p-6 shadow-sm">
-          <h3 className="font-semibold text-foreground mb-3">Catégories</h3>
-          <div className="grid grid-cols-4 lg:grid-cols-8 gap-3 lg:gap-4">
-            {categories.map((category) => (
-              <button
-                key={category.id}
-                onClick={() => {
-                  setCurrentView('explorer');
-                  updateFilter('category', category.name.toLowerCase());
-                }}
-                className="text-center group"
-              >
-                <div className={`w-10 h-10 lg:w-16 lg:h-16 rounded-full ${category.color} flex items-center justify-center mb-1 lg:mb-2 transition-transform group-hover:scale-105`}>
-                  <span className="text-lg lg:text-2xl">{category.icon}</span>
+        {/* Contenu principal */}
+        <div className="pb-20">
+          {activeTab === 'home' && (
+            <div className="p-4 space-y-6">
+              {/* Stats utilisateur */}
+              <UserStatsCard />
+
+              {/* Missions du jour */}
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-semibold text-foreground">Missions aujourd'hui</h2>
+                  <Badge variant="secondary">{filteredMissions.length}</Badge>
                 </div>
-                <span className="text-xs lg:text-sm text-muted-foreground">{category.name}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderExplorerView = () => (
-    <div className="flex-1 bg-background overflow-y-auto pb-20 lg:pb-0">
-      <MobileHeader title="Explorer" />
-      <DesktopHeader title="Explorer les missions" />
-
-      <div className="p-4 lg:p-6 space-y-4 lg:space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-          <div className="lg:col-span-3">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Rechercher une mission..."
-                className="pl-10 bg-card border-border h-12"
-                value={filters.search}
-                onChange={(e) => updateFilter('search', e.target.value)}
-              />
-            </div>
-          </div>
-          <div className="lg:col-span-1">
-            <Button
-              variant="outline"
-              onClick={() => setShowFilters(!showFilters)}
-              className="w-full h-12 flex items-center justify-center space-x-2"
-            >
-              <SlidersHorizontal className="h-4 w-4" />
-              <span>Filtres {activeFiltersCount > 0 && `(${activeFiltersCount})`}</span>
-            </Button>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <div className="hidden lg:block lg:col-span-1">
-            <div className="bg-card rounded-xl p-4 sticky top-4">
-              <FilterPanel
-                filters={filters}
-                onFilterChange={updateFilter}
-                onClearFilters={clearFilters}
-                activeFiltersCount={activeFiltersCount}
-                showAdvanced={true}
-                onToggleAdvanced={() => {}}
-              />
-            </div>
-          </div>
-
-          <div className="lg:col-span-3 space-y-4 lg:space-y-6">
-            <div 
-              className="bg-muted rounded-xl h-48 lg:h-64 flex items-center justify-center cursor-pointer hover:bg-muted/80 transition-colors"
-            >
-              <div className="text-center text-muted-foreground">
-                <MapPin className="h-12 w-12 mx-auto mb-2 text-primary" />
-                <p className="font-medium text-lg">Carte des missions à proximité</p>
-                <p className="text-sm">{missions.length} missions disponibles</p>
-              </div>
-            </div>
-
-            <div className="lg:hidden">
-              <FilterPanel
-                filters={filters}
-                onFilterChange={updateFilter}
-                onClearFilters={clearFilters}
-                activeFiltersCount={activeFiltersCount}
-                showAdvanced={showFilters}
-                onToggleAdvanced={() => setShowFilters(!showFilters)}
-              />
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-foreground text-lg">
-                  Missions disponibles ({filteredMissions.length})
-                </h3>
-                {filters.urgency && (
-                  <Badge variant="destructive" className="animate-pulse">
-                    {filteredMissions.filter(m => m.isUrgent).length} urgentes
-                  </Badge>
-                )}
-              </div>
-              
-              {filteredMissions.length > 0 ? (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  {filteredMissions.map((mission) => (
-                    <MissionCard
+                <div className="space-y-3">
+                  {filteredMissions.slice(0, 3).map((mission) => (
+                    <MobileMissionCard
                       key={mission.id}
                       mission={mission}
                       onParticipate={() => handleParticipate(mission.id)}
-                      variant="default"
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-foreground mb-2">
-                    Aucune mission trouvée
-                  </h3>
-                  <p className="text-muted-foreground mb-4">
-                    Essayez de modifier vos critères de recherche
-                  </p>
-                  <Button onClick={clearFilters}>
-                    Effacer tous les filtres
-                  </Button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderMissionsView = () => {
-    const todayMissions = userMissions.filter(m => m.status === 'today');
-    const upcomingMissions = userMissions.filter(m => m.status === 'upcoming');
-
-    return (
-      <div className="flex-1 bg-background overflow-y-auto pb-20 lg:pb-0">
-        <MobileHeader title="Mes Missions" />
-        <DesktopHeader title="Mes Missions" />
-
-        <div className="p-4 lg:p-6 space-y-4 lg:space-y-6">
-          <div className="grid grid-cols-3 lg:grid-cols-6 gap-4">
-            <div className="bg-card rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-primary">{upcomingMissions.length}</div>
-              <div className="text-xs lg:text-sm text-muted-foreground">À venir</div>
-            </div>
-            <div className="bg-card rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-green-600">{todayMissions.length}</div>
-              <div className="text-xs lg:text-sm text-muted-foreground">Aujourd'hui</div>
-            </div>
-            <div className="bg-card rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold text-orange-600">{userStats.missions}</div>
-              <div className="text-xs lg:text-sm text-muted-foreground">Total</div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {todayMissions.length > 0 && (
-              <div>
-                <h3 className="font-medium text-foreground mb-4 text-lg">Aujourd'hui</h3>
-                <div className="space-y-3">
-                  {todayMissions.map((mission) => (
-                    <MissionCard
-                      key={mission.id}
-                      mission={mission}
-                      onCancel={() => cancelMission(mission.id)}
                       variant="today"
                     />
                   ))}
                 </div>
               </div>
-            )}
 
-            {upcomingMissions.length > 0 && (
-              <div>
-                <h3 className="font-medium text-foreground mb-4 text-lg">Cette semaine</h3>
-                <div className="space-y-3">
-                  {upcomingMissions.map((mission) => (
-                    <MissionCard
+              {/* Actions rapides */}
+              <div className="grid grid-cols-2 gap-3">
+                <Card className="p-4 text-center cursor-pointer hover:bg-accent/50">
+                  <Search className="h-8 w-8 mx-auto mb-2 text-primary" />
+                  <span className="text-sm font-medium">Explorer</span>
+                </Card>
+                <Card className="p-4 text-center cursor-pointer hover:bg-accent/50">
+                  <Calendar className="h-8 w-8 mx-auto mb-2 text-primary" />
+                  <span className="text-sm font-medium">Mes missions</span>
+                </Card>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'explore' && (
+            <div className="p-4 space-y-4">
+              {/* Barre de recherche */}
+              <div className="flex gap-2">
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Rechercher des missions..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setShowFilters(!showFilters)}
+                >
+                  <Filter className="h-4 w-4" />
+                  {activeFiltersCount > 0 && (
+                    <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 text-xs">
+                      {activeFiltersCount}
+                    </Badge>
+                  )}
+                </Button>
+              </div>
+
+              {/* Panneau de filtres */}
+              {showFilters && (
+                <FilterPanel
+                  filters={filters}
+                  onFilterChange={onFilterChange}
+                  onClearFilters={onClearFilters}
+                  activeFiltersCount={activeFiltersCount}
+                  showAdvanced={showAdvanced}
+                  onToggleAdvanced={onToggleAdvanced}
+                />
+              )}
+
+              {/* Liste des missions */}
+              <div className="space-y-3">
+                {loading ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                  </div>
+                ) : filteredMissions.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    Aucune mission trouvée
+                  </div>
+                ) : (
+                  filteredMissions.map((mission) => (
+                    <MobileMissionCard
                       key={mission.id}
                       mission={mission}
-                      onCancel={() => cancelMission(mission.id)}
+                      onParticipate={() => handleParticipate(mission.id)}
+                    />
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'missions' && (
+            <div className="p-4 space-y-4">
+              <h2 className="text-lg font-semibold text-foreground">Mes missions</h2>
+              
+              <Tabs defaultValue="upcoming" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="upcoming">À venir</TabsTrigger>
+                  <TabsTrigger value="completed">Terminées</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="upcoming" className="space-y-3 mt-4">
+                  {userMissions.filter(m => m.status === 'published').map((mission) => (
+                    <MobileMissionCard
+                      key={mission.id}
+                      mission={mission}
+                      onCancel={() => handleCancel(mission.id)}
                       variant="upcoming"
                     />
                   ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {userMissions.length === 0 && (
-            <div className="text-center py-12">
-              <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-foreground mb-2">
-                Aucune mission programmée
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                Explorez les missions disponibles pour vous engager
-              </p>
-              <Button onClick={() => setCurrentView('explorer')}>
-                Explorer les missions
-              </Button>
+                </TabsContent>
+                
+                <TabsContent value="completed" className="space-y-3 mt-4">
+                  {userMissions.filter(m => m.status === 'completed').map((mission) => (
+                    <MobileMissionCard
+                      key={mission.id}
+                      mission={mission}
+                      showActions={false}
+                    />
+                  ))}
+                </TabsContent>
+              </Tabs>
             </div>
           )}
-        </div>
-      </div>
-    );
-  };
 
-  const renderProfileView = () => (
-    <div className="flex-1 bg-background overflow-y-auto pb-20 lg:pb-0">
-      <MobileHeader title="Profil" />
-      <DesktopHeader title="Mon Profil" />
-
-      <div className="p-4 lg:p-6 space-y-4 lg:space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-1">
-            <div className="bg-card rounded-xl p-6">
+          {activeTab === 'profile' && (
+            <div className="p-4 space-y-6">
+              {/* En-tête profil */}
               <div className="text-center">
-                <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center text-primary-foreground text-2xl font-bold mx-auto mb-4">
-                  JD
+                <Avatar className="h-24 w-24 mx-auto mb-4">
+                  <AvatarImage src={userProfile?.avatar_url} />
+                  <AvatarFallback>
+                    {userProfile?.first_name?.[0]}{userProfile?.last_name?.[0]}
+                  </AvatarFallback>
+                </Avatar>
+                <h2 className="text-xl font-semibold text-foreground">
+                  {userProfile?.first_name} {userProfile?.last_name}
+                </h2>
+                <p className="text-muted-foreground">{userProfile?.email}</p>
+                <div className="flex items-center justify-center gap-1 mt-2">
+                  <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                  <span className="text-sm font-medium">{(userStats.impact_score / 100).toFixed(1)}</span>
                 </div>
-                <h3 className="text-xl font-semibold text-foreground mb-1">Jean Dupont</h3>
-                <p className="text-sm text-muted-foreground mb-2">Membre depuis juin 2025</p>
-                <div className="flex items-center justify-center text-sm text-muted-foreground mb-4">
-                  <MapPin className="h-4 w-4 mr-1" />
-                  Paris 19ème
+              </div>
+
+              {/* Stats détaillées */}
+              <UserStatsCard title="Mon impact" />
+
+              {/* Badges */}
+              <div>
+                <h3 className="font-semibold text-foreground mb-3">Mes badges</h3>
+                <div className="grid grid-cols-3 gap-3">
+                  {badges.map((badge) => (
+                    <div
+                      key={badge.id}
+                      className={`p-3 rounded-lg text-center border ${
+                        badge.earned 
+                          ? 'bg-primary/10 border-primary text-primary' 
+                          : 'bg-muted border-muted-foreground/20 text-muted-foreground'
+                      }`}
+                    >
+                      <Award className="h-6 w-6 mx-auto mb-1" />
+                      <span className="text-xs font-medium">{badge.name}</span>
+                    </div>
+                  ))}
                 </div>
-                <Button variant="outline" className="w-full">
-                  Modifier mon profil
+              </div>
+
+              {/* Actions du profil */}
+              <div className="space-y-2">
+                <Button variant="outline" className="w-full justify-start">
+                  <Settings className="h-4 w-4 mr-2" />
+                  Paramètres
+                </Button>
+                <Button variant="outline" className="w-full justify-start">
+                  <Heart className="h-4 w-4 mr-2" />
+                  Mes associations favorites
+                </Button>
+                <Button variant="outline" className="w-full justify-start">
+                  <TrendingUp className="h-4 w-4 mr-2" />
+                  Mon impact détaillé
                 </Button>
               </div>
             </div>
-          </div>
-
-          <div className="lg:col-span-2 space-y-6">
-            <UserStatsCard title="Mon impact" />
-
-            <div className="bg-card rounded-xl p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-foreground">Mes badges</h3>
-                <button className="text-primary text-sm hover:text-primary/80">Voir tout</button>
-              </div>
-              <div className="grid grid-cols-4 lg:grid-cols-6 gap-4">
-                {badges.map((badge, index) => (
-                  <div key={index} className="text-center">
-                    <div className={`w-12 h-12 lg:w-16 lg:h-16 rounded-full ${badge.color} flex items-center justify-center mb-2 ${!badge.earned && 'opacity-50'}`}>
-                      <span className="text-lg lg:text-xl">{badge.icon}</span>
-                    </div>
-                    <span className="text-xs lg:text-sm text-muted-foreground">{badge.name}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+          )}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-card rounded-xl p-6">
-            <h3 className="font-semibold text-foreground mb-4">Mes préférences</h3>
-            
-            <div className="mb-6">
-              <h4 className="text-sm font-medium text-foreground mb-3">Catégories préférées</h4>
-              <div className="flex flex-wrap gap-2">
-                {preferredCategories.map((category, index) => (
-                  <Badge 
-                    key={index}
-                    className={`cursor-pointer ${category.active ? category.color : 'border-dashed border-border text-muted-foreground bg-transparent'}`}
-                    onClick={() => toggleCategory(category.name)}
-                  >
-                    {category.name}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <h4 className="text-sm font-medium text-foreground mb-3">Durée préférée</h4>
-              <div className="flex flex-wrap gap-2">
-                {['15 min', '30 min', '1h', '2h+'].map((duration) => (
-                  <Badge 
-                    key={duration}
-                    className={`cursor-pointer ${preferredDuration === duration ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
-                    onClick={() => setDuration(duration)}
-                  >
-                    {duration}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-card rounded-xl p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-foreground">Mes associations</h3>
-              <button className="text-primary text-sm hover:text-primary/80">Voir tout</button>
-            </div>
-            <div className="space-y-4">
-              {userAssociations.map((association, index) => (
-                <div key={index} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted transition-colors">
-                  <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
-                    <span className="text-lg">{association.avatar}</span>
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-medium text-foreground">{association.name}</h4>
-                    <p className="text-sm text-muted-foreground">{association.missions} missions effectuées</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+        {/* Navigation inférieure */}
+        <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border">
+          <div className="grid grid-cols-4 gap-1 p-2">
+            <Button
+              variant={activeTab === 'home' ? 'default' : 'ghost'}
+              className="flex flex-col h-auto py-2"
+              onClick={() => setActiveTab('home')}
+            >
+              <Home className="h-5 w-5 mb-1" />
+              <span className="text-xs">Accueil</span>
+            </Button>
+            <Button
+              variant={activeTab === 'explore' ? 'default' : 'ghost'}
+              className="flex flex-col h-auto py-2"
+              onClick={() => setActiveTab('explore')}
+            >
+              <Compass className="h-5 w-5 mb-1" />
+              <span className="text-xs">Explorer</span>
+            </Button>
+            <Button
+              variant={activeTab === 'missions' ? 'default' : 'ghost'}
+              className="flex flex-col h-auto py-2"
+              onClick={() => setActiveTab('missions')}
+            >
+              <Calendar className="h-5 w-5 mb-1" />
+              <span className="text-xs">Missions</span>
+            </Button>
+            <Button
+              variant={activeTab === 'profile' ? 'default' : 'ghost'}
+              className="flex flex-col h-auto py-2"
+              onClick={() => setActiveTab('profile')}
+            >
+              <User className="h-5 w-5 mb-1" />
+              <span className="text-xs">Profil</span>
+            </Button>
           </div>
         </div>
-      </div>
-    </div>
-  );
-
-  const renderCurrentView = () => {
-    switch (currentView) {
-      case 'home':
-        return renderHomeView();
-      case 'explorer':
-        return renderExplorerView();
-      case 'missions':
-        return renderMissionsView();
-      case 'profile':
-        return renderProfileView();
-      default:
-        return renderHomeView();
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
   }
 
+  // Rendu desktop/tablette
   return (
-    <div className="h-screen flex bg-background overflow-hidden">
-      <DesktopSidebar />
-      <MobileSidebar />
+    <div className="min-h-screen bg-background flex">
+      {/* Sidebar */}
+      <div className="w-64 bg-card border-r border-border p-6">
+        <h1 className="text-xl font-bold text-primary mb-8">Voisin Solidaire</h1>
+        
+        <nav className="space-y-2">
+          <Button
+            variant={activeTab === 'home' ? 'default' : 'ghost'}
+            className="w-full justify-start"
+            onClick={() => setActiveTab('home')}
+          >
+            <Home className="h-4 w-4 mr-2" />
+            Accueil
+          </Button>
+          <Button
+            variant={activeTab === 'explore' ? 'default' : 'ghost'}
+            className="w-full justify-start"
+            onClick={() => setActiveTab('explore')}
+          >
+            <Compass className="h-4 w-4 mr-2" />
+            Explorer
+          </Button>
+          <Button
+            variant={activeTab === 'missions' ? 'default' : 'ghost'}
+            className="w-full justify-start"
+            onClick={() => setActiveTab('missions')}
+          >
+            <Calendar className="h-4 w-4 mr-2" />
+            Mes missions
+          </Button>
+          <Button
+            variant={activeTab === 'profile' ? 'default' : 'ghost'}
+            className="w-full justify-start"
+            onClick={() => setActiveTab('profile')}
+          >
+            <User className="h-4 w-4 mr-2" />
+            Profil
+          </Button>
+        </nav>
+      </div>
 
-      <div className="flex-1 flex flex-col lg:ml-64">
-        {renderCurrentView()}
-        <MobileNavigation />
+      {/* Contenu principal */}
+      <div className="flex-1 overflow-auto">
+        {/* Header */}
+        <div className="bg-card border-b border-border p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-foreground">
+                {activeTab === 'home' && 'Tableau de bord'}
+                {activeTab === 'explore' && 'Explorer les missions'}
+                {activeTab === 'missions' && 'Mes missions'}
+                {activeTab === 'profile' && 'Mon profil'}
+              </h2>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="icon">
+                <Bell className="h-5 w-5" />
+              </Button>
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={userProfile?.avatar_url} />
+                <AvatarFallback>
+                  {userProfile?.first_name?.[0]}{userProfile?.last_name?.[0]}
+                </AvatarFallback>
+              </Avatar>
+            </div>
+          </div>
+        </div>
+
+        {/* Contenu de l'onglet */}
+        <div className="p-6">
+          {activeTab === 'home' && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+              <div className="xl:col-span-2 space-y-6">
+                <UserStatsCard />
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Missions recommandées</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {filteredMissions.slice(0, 3).map((mission) => (
+                      <MobileMissionCard
+                        key={mission.id}
+                        mission={mission}
+                        onParticipate={() => handleParticipate(mission.id)}
+                      />
+                    ))}
+                  </CardContent>
+                </Card>
+              </div>
+              
+              <div className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Prochaines missions</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {userMissions.slice(0, 3).map((mission) => (
+                      <div key={mission.id} className="p-3 border rounded-lg mb-3 last:mb-0">
+                        <h4 className="font-medium">{mission.title}</h4>
+                        <p className="text-sm text-muted-foreground">{mission.city}</p>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'explore' && (
+            <div className="space-y-6">
+              {/* Barre de recherche et filtres */}
+              <div className="flex gap-4">
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Rechercher des missions..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowFilters(!showFilters)}
+                >
+                  <Filter className="h-4 w-4 mr-2" />
+                  Filtres
+                  {activeFiltersCount > 0 && (
+                    <Badge className="ml-2">{activeFiltersCount}</Badge>
+                  )}
+                </Button>
+              </div>
+
+              {showFilters && (
+                <Card>
+                  <CardContent className="pt-6">
+                    <FilterPanel
+                      filters={filters}
+                      onFilterChange={onFilterChange}
+                      onClearFilters={onClearFilters}
+                      activeFiltersCount={activeFiltersCount}
+                      showAdvanced={showAdvanced}
+                      onToggleAdvanced={onToggleAdvanced}
+                    />
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Grille des missions */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                {loading ? (
+                  <div className="col-span-full text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                  </div>
+                ) : filteredMissions.length === 0 ? (
+                  <div className="col-span-full text-center py-8 text-muted-foreground">
+                    Aucune mission trouvée
+                  </div>
+                ) : (
+                  filteredMissions.map((mission) => (
+                    <MobileMissionCard
+                      key={mission.id}
+                      mission={mission}
+                      onParticipate={() => handleParticipate(mission.id)}
+                    />
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'missions' && (
+            <div className="space-y-6">
+              <Tabs defaultValue="upcoming" className="w-full">
+                <TabsList>
+                  <TabsTrigger value="upcoming">Missions à venir</TabsTrigger>
+                  <TabsTrigger value="completed">Missions terminées</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="upcoming" className="space-y-4 mt-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {userMissions.filter(m => m.status === 'published').map((mission) => (
+                      <MobileMissionCard
+                        key={mission.id}
+                        mission={mission}
+                        onCancel={() => handleCancel(mission.id)}
+                        variant="upcoming"
+                      />
+                    ))}
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="completed" className="space-y-4 mt-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {userMissions.filter(m => m.status === 'completed').map((mission) => (
+                      <MobileMissionCard
+                        key={mission.id}
+                        mission={mission}
+                        showActions={false}
+                      />
+                    ))}
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </div>
+          )}
+
+          {activeTab === 'profile' && (
+            <div className="max-w-4xl mx-auto space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Informations profil */}
+                <Card className="lg:col-span-1">
+                  <CardContent className="pt-6 text-center">
+                    <Avatar className="h-24 w-24 mx-auto mb-4">
+                      <AvatarImage src={userProfile?.avatar_url} />
+                      <AvatarFallback>
+                        {userProfile?.first_name?.[0]}{userProfile?.last_name?.[0]}
+                      </AvatarFallback>
+                    </Avatar>
+                    <h3 className="text-xl font-semibold">
+                      {userProfile?.first_name} {userProfile?.last_name}
+                    </h3>
+                    <p className="text-muted-foreground">{userProfile?.email}</p>
+                    <div className="flex items-center justify-center gap-1 mt-2">
+                      <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                      <span className="font-medium">{(userStats.impact_score / 100).toFixed(1)}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Stats et badges */}
+                <div className="lg:col-span-2 space-y-6">
+                  <UserStatsCard />
+                  
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Mes badges</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        {badges.map((badge) => (
+                          <div
+                            key={badge.id}
+                            className={`p-4 rounded-lg text-center border ${
+                              badge.earned 
+                                ? 'bg-primary/10 border-primary text-primary' 
+                                : 'bg-muted border-muted-foreground/20 text-muted-foreground'
+                            }`}
+                          >
+                            <Award className="h-8 w-8 mx-auto mb-2" />
+                            <h4 className="font-medium">{badge.name}</h4>
+                            <p className="text-xs">{badge.description}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

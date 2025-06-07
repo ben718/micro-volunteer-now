@@ -1,54 +1,62 @@
-import { createClient } from '@supabase/supabase-js'
-import { Database } from '../types/database'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Les variables d\'environnement Supabase sont manquantes')
-}
-
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey)
+import { supabase } from '@/integrations/supabase/client'
 
 // Fonctions d'aide pour les missions
 export const missionService = {
   // Récupérer les missions disponibles
   getAvailableMissions: async () => {
     const { data, error } = await supabase
-      .from('available_missions')
+      .from('missions')
       .select('*')
-      .order('date', { ascending: true })
+      .eq('status', 'published')
+      .order('created_at', { ascending: true })
     
     if (error) throw error
-    return data
+    return data || []
   },
 
-  // Récupérer les missions à venir pour l'utilisateur connecté (utilise la vue RLS)
+  // Récupérer les missions à venir pour l'utilisateur connecté
   getUserUpcomingMissions: async () => {
-    const { data, error } = await supabase
-      .from('user_upcoming_missions')
-      .select('*')
-      .order('date', { ascending: true });
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Non authentifié')
 
-    if (error) throw error;
-    return data;
+    const { data, error } = await supabase
+      .from('mission_registrations')
+      .select(`
+        *,
+        mission:missions(*)
+      `)
+      .eq('user_id', user.id)
+      .eq('status', 'confirmed')
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+    return data?.map(reg => reg.mission) || []
   },
 
-  // Récupérer les missions passées pour l'utilisateur connecté (utilise la vue RLS)
+  // Récupérer les missions passées pour l'utilisateur connecté
   getUserPastMissions: async () => {
-    const { data, error } = await supabase
-      .from('user_past_missions')
-      .select('*')
-      .order('date', { ascending: false }); // Trier par date descendante pour les missions passées
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Non authentifié')
 
-    if (error) throw error;
-    return data;
+    const { data, error } = await supabase
+      .from('mission_registrations')
+      .select(`
+        *,
+        mission:missions(*)
+      `)
+      .eq('user_id', user.id)
+      .eq('status', 'completed')
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+    return data?.map(reg => reg.mission) || []
   },
 
   // Rechercher des missions à proximité
   searchNearbyMissions: async (params: {
-    latitude: number
-    longitude: number
+    latitude?: number
+    longitude?: number
     distance?: number
     category?: string
     dateStart?: string
@@ -56,28 +64,38 @@ export const missionService = {
     durationMax?: number
     language?: string
   }) => {
-    const { data, error } = await supabase
-      .rpc('search_nearby_missions', {
-        p_latitude: params.latitude,
-        p_longitude: params.longitude,
-        p_distance: params.distance,
-        p_category: params.category,
-        p_date_start: params.dateStart,
-        p_date_end: params.dateEnd,
-        p_duration_max: params.durationMax,
-        p_language: params.language
-      })
+    let query = supabase
+      .from('missions')
+      .select('*')
+      .eq('status', 'published')
+
+    if (params.category && params.category !== 'all') {
+      query = query.eq('category', params.category)
+    }
+
+    if (params.durationMax) {
+      query = query.lte('duration', params.durationMax)
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: true })
     
     if (error) throw error
-    return data
+    return data || []
   },
 
   // S'inscrire à une mission
   registerForMission: async (missionId: string) => {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Non authentifié')
+
     const { data, error } = await supabase
-      .rpc('register_for_mission', {
-        p_mission_id: missionId
+      .from('mission_registrations')
+      .insert({
+        mission_id: missionId,
+        user_id: user.id,
+        status: 'confirmed'
       })
+      .select()
     
     if (error) throw error
     return data
@@ -85,11 +103,18 @@ export const missionService = {
 
   // Annuler une inscription
   cancelRegistration: async (missionId: string, reason?: string) => {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Non authentifié')
+
     const { data, error } = await supabase
-      .rpc('cancel_mission_registration', {
-        p_mission_id: missionId,
-        p_reason: reason
+      .from('mission_registrations')
+      .update({ 
+        status: 'cancelled',
+        cancelled_reason: reason 
       })
+      .eq('mission_id', missionId)
+      .eq('user_id', user.id)
+      .select()
     
     if (error) throw error
     return data
@@ -114,7 +139,7 @@ export const profileService = {
   },
 
   // Mettre à jour le profil
-  updateProfile: async (updates: Database['public']['Tables']['profiles']['Update']) => {
+  updateProfile: async (updates: any) => {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new Error('Non authentifié')
 
@@ -127,44 +152,13 @@ export const profileService = {
     
     if (error) throw error
     return data
-  },
-
-  // Ajouter une langue au profil
-  addLanguage: async (language: string, level: string, isPrimary: boolean = false) => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) throw new Error('Non authentifié')
-
-    const { data, error } = await supabase
-      .rpc('add_language_to_profile', {
-        p_language: language,
-        p_level: level,
-        p_is_primary: isPrimary
-      })
-    
-    if (error) throw error
-    return data
   }
 }
 
 // Fonctions d'aide pour l'authentification
 export const authService = {
   // Inscription
-  signUp: async (email: string, password: string, metadata: {
-    firstName: string
-    lastName: string
-    role: 'benevole' | 'association'
-    languages?: string[]
-    associationName?: string
-    siret?: string
-    description?: string
-    address?: string
-    city?: string
-    postalCode?: string
-    phone?: string
-    contactName?: string
-    contactRole?: string
-    contactEmail?: string
-  }) => {
+  signUp: async (email: string, password: string, metadata: any) => {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -203,59 +197,8 @@ export const categoryService = {
       .order('name');
     
     if (error) throw error;
-    return data;
-  },
-
-  async getCategoryById(id: string) {
-    const { data, error } = await supabase
-      .from('categories')
-      .select('*')
-      .eq('id', id)
-      .single();
-    
-    if (error) throw error;
-    return data;
-  },
-
-  async createCategory(category: {
-    name: string;
-    icon: string;
-    color: string;
-    description?: string;
-  }) {
-    const { data, error } = await supabase
-      .from('categories')
-      .insert([category])
-      .select()
-      .single();
-    
-    if (error) throw error;
-    return data;
-  },
-
-  async updateCategory(id: string, category: {
-    name?: string;
-    icon?: string;
-    color?: string;
-    description?: string;
-  }) {
-    const { data, error } = await supabase
-      .from('categories')
-      .update(category)
-      .eq('id', id)
-      .select()
-      .single();
-    
-    if (error) throw error;
-    return data;
-  },
-
-  async deleteCategory(id: string) {
-    const { error } = await supabase
-      .from('categories')
-      .delete()
-      .eq('id', id);
-    
-    if (error) throw error;
+    return data || [];
   }
-}; 
+}
+
+export { supabase }

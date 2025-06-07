@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Clock, MapPin, Users } from 'lucide-react';
 import { Mission } from '@/types/mission';
-import { useCategories } from '@/hooks/useCategories';
 
 interface MissionCardProps {
   mission: Mission;
@@ -21,10 +20,8 @@ const MobileMissionCard: React.FC<MissionCardProps> = ({
   showActions = true,
   variant = 'default'
 }) => {
-  const { getCategoryColor } = useCategories();
-
   const getBorderColor = () => {
-    if (mission.isUrgent) return 'border-l-4 border-destructive';
+    if (mission.is_urgent) return 'border-l-4 border-destructive';
     if (variant === 'today') return 'border-l-4 border-warning';
     if (variant === 'upcoming') return 'border-l-4 border-primary';
     return 'border-l-4 border-primary';
@@ -36,9 +33,9 @@ const MobileMissionCard: React.FC<MissionCardProps> = ({
         <div className="flex items-start justify-between mb-2">
           <div>
             <h3 className="font-semibold text-foreground">{mission.title}</h3>
-            <p className="text-sm text-muted-foreground">{mission.association_name}</p>
+            <p className="text-sm text-muted-foreground">{mission.association_name || 'Association'}</p>
           </div>
-          <Badge className={getCategoryColor(mission.category)}>
+          <Badge variant="secondary">
             {mission.category}
           </Badge>
         </div>

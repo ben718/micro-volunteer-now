@@ -1,94 +1,124 @@
 
-import { useState, useMemo } from 'react';
-import { Mission } from '@/types/mission';
+import { useState, useMemo } from 'react'
+import { Mission } from '@/types/mission'
 
 export interface Filters {
-  search: string;
-  category: string;
-  duration: string;
-  distance: string;
-  urgency: boolean;
-  availability: string;
+  category: string
+  distance: string
+  duration: string
+  availability: string
+  urgency: boolean
+  location?: { lat: number; lng: number }
+  searchQuery: string
 }
 
 export const useFilters = (missions: Mission[]) => {
   const [filters, setFilters] = useState<Filters>({
-    search: '',
     category: 'all',
-    duration: 'all',
     distance: 'all',
+    duration: 'all',
+    availability: 'all',
     urgency: false,
-    availability: 'all'
-  });
+    searchQuery: ''
+  })
+
+  const [showAdvanced, setShowAdvanced] = useState(false)
 
   const filteredMissions = useMemo(() => {
     return missions.filter(mission => {
-      // Search filter
-      if (filters.search && !mission.title.toLowerCase().includes(filters.search.toLowerCase()) &&
-          !mission.association.toLowerCase().includes(filters.search.toLowerCase()) &&
-          !mission.description.toLowerCase().includes(filters.search.toLowerCase())) {
-        return false;
-      }
-
-      // Category filter
+      // Filtre par catégorie
       if (filters.category !== 'all' && mission.category !== filters.category) {
-        return false;
+        return false
       }
 
-      // Duration filter
+      // Filtre par durée
       if (filters.duration !== 'all') {
-        const duration = parseInt(mission.duration);
-        switch (filters.duration) {
-          case '15':
-            if (duration > 15) return false;
-            break;
-          case '30':
-            if (duration > 30) return false;
-            break;
-          case '60':
-            if (duration <= 60) return false;
-            break;
+        const maxDuration = parseInt(filters.duration)
+        if (mission.duration > maxDuration) {
+          return false
         }
       }
 
-      // Urgency filter
-      if (filters.urgency && !mission.isUrgent) {
-        return false;
+      // Filtre par urgence
+      if (filters.urgency && !mission.is_urgent) {
+        return false
       }
 
-      // Availability filter
-      if (filters.availability === 'now' && !mission.startTime.includes('min')) {
-        return false;
+      // Filtre par disponibilité
+      if (filters.availability !== 'all') {
+        const now = new Date()
+        const missionDate = new Date(mission.start_time)
+        
+        switch (filters.availability) {
+          case 'now':
+            const inNextHour = new Date(now.getTime() + 60 * 60 * 1000)
+            if (missionDate < now || missionDate > inNextHour) {
+              return false
+            }
+            break
+          case 'today':
+            if (missionDate.toDateString() !== now.toDateString()) {
+              return false
+            }
+            break
+          case 'week':
+            const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
+            if (missionDate > nextWeek) {
+              return false
+            }
+            break
+        }
       }
 
-      return true;
-    });
-  }, [missions, filters]);
+      // Filtre par recherche
+      if (filters.searchQuery) {
+        const query = filters.searchQuery.toLowerCase()
+        if (!mission.title.toLowerCase().includes(query) && 
+            !mission.description.toLowerCase().includes(query) &&
+            !mission.city.toLowerCase().includes(query)) {
+          return false
+        }
+      }
 
-  const updateFilter = (key: keyof Filters, value: any) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
-  };
+      return true
+    })
+  }, [missions, filters])
 
-  const clearFilters = () => {
+  const onFilterChange = (key: keyof Filters, value: any) => {
+    setFilters(prev => ({ ...prev, [key]: value }))
+  }
+
+  const onClearFilters = () => {
     setFilters({
-      search: '',
       category: 'all',
+      distance: 'all', 
       duration: 'all',
-      distance: 'all',
+      availability: 'all',
       urgency: false,
-      availability: 'all'
-    });
-  };
+      searchQuery: ''
+    })
+  }
 
-  const activeFiltersCount = Object.values(filters).filter(value => 
-    value !== 'all' && value !== false && value !== ''
-  ).length;
+  const activeFiltersCount = useMemo(() => {
+    let count = 0
+    if (filters.category !== 'all') count++
+    if (filters.distance !== 'all') count++
+    if (filters.duration !== 'all') count++
+    if (filters.availability !== 'all') count++
+    if (filters.urgency) count++
+    if (filters.searchQuery) count++
+    return count
+  }, [filters])
+
+  const onToggleAdvanced = () => setShowAdvanced(!showAdvanced)
 
   return {
     filters,
     filteredMissions,
-    updateFilter,
-    clearFilters,
-    activeFiltersCount
-  };
-};
+    onFilterChange,
+    onClearFilters,
+    activeFiltersCount,
+    showAdvanced,
+    onToggleAdvanced
+  }
+}
