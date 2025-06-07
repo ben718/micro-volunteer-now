@@ -11,16 +11,18 @@ interface UserStats {
   languages: string[];
 }
 
-interface Badge {
+interface BadgeData {
+  id: string;
+  name: string;
+  icon_url: string;
+  description: string;
+  category: string;
+}
+
+interface UserBadge {
   badge_id: string;
   awarded_at: string;
-  badges: {
-    id: string;
-    name: string;
-    icon_url: string;
-    description: string;
-    category: string;
-  };
+  badges: BadgeData;
 }
 
 export const useUserProfile = () => {
@@ -32,7 +34,7 @@ export const useUserProfile = () => {
     associations_helped: 0,
     languages: []
   })
-  const [badges, setBadges] = useState<Badge[]>([])
+  const [badges, setBadges] = useState<UserBadge[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [availability, setAvailability] = useState<any>(null)
@@ -62,7 +64,7 @@ export const useUserProfile = () => {
           .eq('user_id', profile.id)
         
         if (!badgesError && userBadges) {
-          setBadges(userBadges)
+          setBadges(userBadges as UserBadge[])
         }
 
         // Calculate associations helped from past missions
@@ -72,7 +74,7 @@ export const useUserProfile = () => {
           .eq('user_id', profile.id)
         
         const uniqueAssociations = pastMissions && !missionsError 
-          ? [...new Set(pastMissions.map(m => m.association_id))] 
+          ? Array.from(new Set(pastMissions.map((m: any) => m.association_id)))
           : []
         
         // Set user stats from profile data

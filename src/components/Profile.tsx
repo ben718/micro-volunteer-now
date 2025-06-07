@@ -108,10 +108,10 @@ const Profile = () => {
       <h3 className="font-semibold text-foreground mb-3">Tous mes badges</h3>
       <div className="flex flex-wrap gap-2">
         {badges.length === 0 && <span className="text-muted-foreground text-sm">Aucun badge obtenu</span>}
-        {badges.map(badge => (
-          <span key={badge.id} className="badge-earned flex items-center gap-1" title={badge.name}>
-            <img src={badge.icon_url} alt={badge.name} className="w-5 h-5 inline-block mr-1" />
-            {badge.name}
+        {badges.map(userBadge => (
+          <span key={userBadge.badges.id} className="badge-earned flex items-center gap-1" title={userBadge.badges.name}>
+            <img src={userBadge.badges.icon_url} alt={userBadge.badges.name} className="w-5 h-5 inline-block mr-1" />
+            {userBadge.badges.name}
           </span>
         ))}
       </div>
