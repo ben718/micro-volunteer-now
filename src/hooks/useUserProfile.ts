@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react'
 import { profileService } from '@/lib/supabase'
 import { supabase } from '@/lib/supabase'
@@ -23,6 +22,10 @@ interface UserBadge {
   badge_id: string;
   awarded_at: string;
   badges: BadgeData;
+}
+
+interface MissionRecord {
+  association_id: string | null;
 }
 
 export const useUserProfile = () => {
@@ -67,28 +70,30 @@ export const useUserProfile = () => {
           setBadges(userBadges as UserBadge[])
         }
 
-        // Calculate associations helped from past missions - simple fallback approach
+        // Calculate associations helped from past missions with explicit typing
         let uniqueAssociationsCount = 0;
         
         try {
-          // Use simple query with explicit typing
-          const { data: pastMissions } = await supabase
+          const { data: rawMissions } = await supabase
             .from('user_past_missions')
             .select('association_id')
             .eq('user_id', profile.id)
           
-          if (pastMissions && Array.isArray(pastMissions)) {
-            // Use Set to count unique associations
-            const uniqueAssociations = new Set(
-              pastMissions
-                .map(mission => mission.association_id)
-                .filter(id => id != null)
-            );
-            uniqueAssociationsCount = uniqueAssociations.size;
+          if (rawMissions) {
+            // Explicitly type the missions data and handle it step by step
+            const missions = rawMissions as MissionRecord[];
+            const associationIds: string[] = [];
+            
+            for (const mission of missions) {
+              if (mission.association_id && !associationIds.includes(mission.association_id)) {
+                associationIds.push(mission.association_id);
+              }
+            }
+            
+            uniqueAssociationsCount = associationIds.length;
           }
         } catch (err) {
           console.log('Error fetching past missions:', err);
-          // If the table doesn't exist, default to 0
           uniqueAssociationsCount = 0;
         }
         
