@@ -67,29 +67,29 @@ export const useUserProfile = () => {
           setBadges(userBadges as UserBadge[])
         }
 
-        // Calculate associations helped from past missions - simplified approach
-        const { data: missionsData, error: missionsError } = await supabase
-          .rpc('get_user_associations_count', { user_id: profile.id })
-        
+        // Calculate associations helped from past missions - simple fallback approach
         let uniqueAssociationsCount = 0;
-        if (!missionsError && missionsData) {
-          uniqueAssociationsCount = missionsData;
-        } else {
-          // Fallback: use a direct query without complex type inference
-          const result = await supabase
+        
+        try {
+          // Use simple query with explicit typing
+          const { data: pastMissions } = await supabase
             .from('user_past_missions')
             .select('association_id')
             .eq('user_id', profile.id)
           
-          if (result.data) {
-            const associationIds: string[] = [];
-            result.data.forEach((item: { association_id: string }) => {
-              if (item.association_id && !associationIds.includes(item.association_id)) {
-                associationIds.push(item.association_id);
-              }
-            });
-            uniqueAssociationsCount = associationIds.length;
+          if (pastMissions && Array.isArray(pastMissions)) {
+            // Use Set to count unique associations
+            const uniqueAssociations = new Set(
+              pastMissions
+                .map(mission => mission.association_id)
+                .filter(id => id != null)
+            );
+            uniqueAssociationsCount = uniqueAssociations.size;
           }
+        } catch (err) {
+          console.log('Error fetching past missions:', err);
+          // If the table doesn't exist, default to 0
+          uniqueAssociationsCount = 0;
         }
         
         // Set user stats from profile data
