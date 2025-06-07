@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react'
 import { profileService } from '@/lib/supabase'
 import { supabase } from '@/lib/supabase'
@@ -70,22 +71,22 @@ export const useUserProfile = () => {
           setBadges(userBadges as UserBadge[])
         }
 
-        // Calculate associations helped from past missions
-        const { data: pastMissions, error: missionsError } = await supabase
+        // Calculate associations helped from past missions - simplified query
+        const { data: missionsData } = await supabase
           .from('user_past_missions')
           .select('association_id')
           .eq('user_id', profile.id)
         
-        // Simplify the type handling to avoid deep instantiation
+        // Count unique associations manually to avoid type issues
         let uniqueAssociationsCount = 0;
-        if (pastMissions && !missionsError) {
-          const associationIds: string[] = [];
-          pastMissions.forEach((mission: PastMission) => {
-            if (mission.association_id && !associationIds.includes(mission.association_id)) {
-              associationIds.push(mission.association_id);
+        if (missionsData) {
+          const seenAssociations = new Set<string>();
+          for (const mission of missionsData) {
+            if (mission.association_id) {
+              seenAssociations.add(mission.association_id);
             }
-          });
-          uniqueAssociationsCount = associationIds.length;
+          }
+          uniqueAssociationsCount = seenAssociations.size;
         }
         
         // Set user stats from profile data
