@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useMissions } from '@/hooks/useMissions';
 import { Button } from '@/components/ui/button';
@@ -20,8 +21,8 @@ const Dashboard = ({ view, onViewChange }: DashboardProps) => {
   const { userProfile, loading: profileLoading, error: profileError } = useUserProfile();
   const { recommendedMissions, loading: recommendedLoading, error: recommendedError } = useRecommendedMissions();
 
-  // Filtrer les missions urgentes (peut-être à terme basé sur un flag en BDD ou une date proche)
-  const urgentMissions = missions.filter(m => m.isUrgent);
+  // Filtrer les missions urgentes (utiliser is_urgent au lieu de isUrgent)
+  const urgentMissions = missions.filter(m => m.is_urgent);
 
   const renderDashboard = () => (
     <div className="space-y-8">

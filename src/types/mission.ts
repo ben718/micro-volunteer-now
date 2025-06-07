@@ -36,6 +36,7 @@ export interface Mission {
   association_logo?: string
   distance?: number
   is_urgent?: boolean
+  location?: string
 }
 
 export interface UserMission extends Mission {

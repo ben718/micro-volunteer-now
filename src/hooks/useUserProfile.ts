@@ -13,28 +13,24 @@ export const useUserProfile = () => {
   })
   const [badges, setBadges] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string>('')
+  const [error, setError] = useState('')
+  const [availability, setAvailability] = useState<any>(null)
 
   const loadProfile = async () => {
     try {
       setLoading(true)
       const profile = await profileService.getCurrentProfile()
       setUserProfile(profile)
+      setAvailability(profile?.availability || {})
       
-      // Simuler des stats pour le moment
+      // Set user stats from profile data
       setUserStats({
-        total_missions_completed: 12,
-        total_hours_volunteered: 48,
-        impact_score: 850,
-        associations_helped: 5,
-        languages: ['français', 'anglais']
+        total_missions_completed: profile?.total_missions_completed || 0,
+        total_hours_volunteered: profile?.total_hours_volunteered || 0,
+        impact_score: profile?.impact_score || 0,
+        associations_helped: 0,
+        languages: profile?.languages || []
       })
-      
-      setBadges([
-        { id: 1, name: 'Premier pas', description: 'Première mission complétée', earned: true },
-        { id: 2, name: 'Régulier', description: '10 missions complétées', earned: true },
-        { id: 3, name: 'Dévoué', description: '50h de bénévolat', earned: false }
-      ])
     } catch (err: any) {
       setError(err.message)
     } finally {
@@ -42,15 +38,26 @@ export const useUserProfile = () => {
     }
   }
 
-  const updateProfile = async (updates: any) => {
+  const updateUserProfile = async (updates: any) => {
     try {
       const updatedProfile = await profileService.updateProfile(updates)
       setUserProfile(updatedProfile)
+      if (updates.availability) {
+        setAvailability(updates.availability)
+      }
       return true
     } catch (err: any) {
       setError(err.message)
       return false
     }
+  }
+
+  const setMaxDistance = async (distance: number) => {
+    return await updateUserProfile({ max_distance: distance })
+  }
+
+  const setPreferredCategories = async (categories: string[]) => {
+    return await updateUserProfile({ interests: categories })
   }
 
   useEffect(() => {
@@ -64,6 +71,10 @@ export const useUserProfile = () => {
     loading,
     error,
     loadProfile,
-    updateProfile
+    updateProfile: updateUserProfile,
+    updateUserProfile,
+    availability,
+    setMaxDistance,
+    setPreferredCategories
   }
 }

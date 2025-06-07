@@ -121,11 +121,9 @@ const MissionForm = () => {
 
     let success = false;
     if (isEditing && missionId) {
-      const updatesToSend = { ...missionDataToSend };
-      success = await updateMission(missionId, updatesToSend);
+      success = await updateMission(missionId, missionDataToSend);
     } else {
-       const { duration, ...createData } = missionDataToSend;
-       success = await createMission(missionDataToSend as any);
+       success = await createMission(missionDataToSend);
     }
 
     if (success) {
@@ -310,4 +308,4 @@ const MissionForm = () => {
   );
 };
 
-export default MissionForm; 
+export default MissionForm;
