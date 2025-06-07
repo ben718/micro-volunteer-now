@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Mission } from '@/types/mission';
@@ -48,6 +49,14 @@ export const useHomePage = () => {
 
         if (missionsError) throw missionsError;
 
+        // Transform missions to match Mission interface
+        const typedMissions: Mission[] = (missions || []).map(mission => ({
+          ...mission,
+          status: mission.status as 'draft' | 'published' | 'completed' | 'cancelled',
+          is_urgent: false, // Default value since it's not in the database
+          association_name: 'Association' // Default value since it's not in the database
+        }));
+
         // Récupérer les témoignages
         const { data: testimonials, error: testimonialsError } = await supabase
           .from('testimonials')
@@ -65,14 +74,20 @@ export const useHomePage = () => {
 
         if (statsError) throw statsError;
 
+        const transformedStats = stats ? {
+          totalMissions: stats.total_missions,
+          totalVolunteers: stats.total_volunteers,
+          totalHours: stats.total_hours
+        } : {
+          totalMissions: 0,
+          totalVolunteers: 0,
+          totalHours: 0
+        };
+
         setData({
-          featuredMissions: missions || [],
+          featuredMissions: typedMissions,
           testimonials: testimonials || [],
-          stats: stats || {
-            totalMissions: 0,
-            totalVolunteers: 0,
-            totalHours: 0
-          }
+          stats: transformedStats
         });
       } catch (e: any) {
         setError(e.message);
@@ -89,4 +104,4 @@ export const useHomePage = () => {
     loading,
     error
   };
-}; 
+};

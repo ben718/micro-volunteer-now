@@ -13,16 +13,19 @@ export const useMissions = () => {
     try {
       setLoading(true)
       const data = await missionService.getAvailableMissions()
+      
       // Transform data to match Mission interface
-      const transformedData = data.map(mission => ({
+      const transformedData: Mission[] = data.map(mission => ({
         ...mission,
-        is_urgent: mission.is_urgent || false,
+        is_urgent: false, // Default value since it's not in the database
         association_name: mission.association_name || 'Association',
         date: mission.date || new Date().toISOString().split('T')[0],
         start_time: mission.start_time || '09:00',
-        end_time: mission.end_time || '17:00'
+        end_time: mission.end_time || '17:00',
+        status: mission.status as 'draft' | 'published' | 'completed' | 'cancelled'
       }))
-      setMissions(transformedData as Mission[])
+      
+      setMissions(transformedData)
     } catch (err: any) {
       setError(err.message)
     } finally {
@@ -34,15 +37,18 @@ export const useMissions = () => {
     try {
       const upcoming = await missionService.getUserUpcomingMissions()
       const past = await missionService.getUserPastMissions()
-      const allUserMissions = [...upcoming, ...past].map(mission => ({
+      
+      const allUserMissions: Mission[] = [...upcoming, ...past].map(mission => ({
         ...mission,
-        is_urgent: mission.is_urgent || false,
+        is_urgent: false, // Default value since it's not in the database
         association_name: mission.association_name || 'Association',
         date: mission.date || new Date().toISOString().split('T')[0],
         start_time: mission.start_time || '09:00',
-        end_time: mission.end_time || '17:00'
+        end_time: mission.end_time || '17:00',
+        status: mission.status as 'draft' | 'published' | 'completed' | 'cancelled'
       }))
-      setUserMissions(allUserMissions as Mission[])
+      
+      setUserMissions(allUserMissions)
     } catch (err: any) {
       console.error('Erreur lors du chargement des missions utilisateur:', err)
     }
@@ -76,15 +82,18 @@ export const useMissions = () => {
     try {
       setLoading(true)
       const data = await missionService.searchNearbyMissions(searchParams)
-      const transformedData = data.map(mission => ({
+      
+      const transformedData: Mission[] = data.map(mission => ({
         ...mission,
-        is_urgent: mission.is_urgent || false,
+        is_urgent: false, // Default value since it's not in the database
         association_name: mission.association_name || 'Association',
         date: mission.date || new Date().toISOString().split('T')[0],
         start_time: mission.start_time || '09:00',
-        end_time: mission.end_time || '17:00'
+        end_time: mission.end_time || '17:00',
+        status: mission.status as 'draft' | 'published' | 'completed' | 'cancelled'
       }))
-      setMissions(transformedData as Mission[])
+      
+      setMissions(transformedData)
     } catch (err: any) {
       setError(err.message)
     } finally {

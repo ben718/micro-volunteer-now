@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -39,7 +40,12 @@ export const useLanguageLevels = () => {
 
         if (fetchError) throw fetchError;
 
-        setLanguageLevels(data || []);
+        const typedLanguageLevels: LanguageLevel[] = (data || []).map(level => ({
+          ...level,
+          level: level.level as 'débutant' | 'intermédiaire' | 'avancé' | 'natif'
+        }));
+
+        setLanguageLevels(typedLanguageLevels);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Une erreur est survenue lors du chargement des niveaux de langue.');
         setLanguageLevels([]);
@@ -74,7 +80,12 @@ export const useLanguageLevels = () => {
 
       if (fetchError) throw fetchError;
 
-      setLanguageLevels(data || []);
+      const typedLanguageLevels: LanguageLevel[] = (data || []).map(langLevel => ({
+        ...langLevel,
+        level: langLevel.level as 'débutant' | 'intermédiaire' | 'avancé' | 'natif'
+      }));
+
+      setLanguageLevels(typedLanguageLevels);
       setError(null);
       return true;
     } catch (err) {
@@ -113,4 +124,4 @@ export const useLanguageLevels = () => {
     addLanguageLevel,
     removeLanguageLevel,
   };
-}; 
+};

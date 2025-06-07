@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 
@@ -25,7 +26,16 @@ export const useCategories = () => {
 
         if (error) throw error;
 
-        setCategories(data || []);
+        const typedCategories: Category[] = (data || []).map(cat => ({
+          id: cat.id,
+          name: cat.name,
+          icon: cat.icon,
+          color: cat.color,
+          description: cat.description || undefined,
+          active: cat.active
+        }));
+
+        setCategories(typedCategories);
       } catch (e: any) {
         setError(e.message);
       } finally {
@@ -53,4 +63,4 @@ export const useCategories = () => {
     getCategoryColor,
     getCategoryIcon
   };
-}; 
+};

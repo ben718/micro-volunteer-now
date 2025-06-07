@@ -87,6 +87,38 @@ export interface Database {
           role?: string
         }
       }
+      categories: {
+        Row: {
+          id: string
+          name: string
+          icon: string
+          color: string
+          description: string | null
+          active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          icon: string
+          color: string
+          description?: string | null
+          active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          icon?: string
+          color?: string
+          description?: string | null
+          active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
       missions: {
         Row: {
           id: string
@@ -309,6 +341,76 @@ export interface Database {
           updated_at?: string
         }
       }
+      association_members: {
+        Row: {
+          id: string
+          association_id: string
+          user_id: string | null
+          email: string
+          role: string
+          status: string
+          invitation_token: string | null
+          invitation_sent_at: string | null
+          invitation_accepted_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          association_id: string
+          user_id?: string | null
+          email: string
+          role: string
+          status?: string
+          invitation_token?: string | null
+          invitation_sent_at?: string | null
+          invitation_accepted_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          association_id?: string
+          user_id?: string | null
+          email?: string
+          role?: string
+          status?: string
+          invitation_token?: string | null
+          invitation_sent_at?: string | null
+          invitation_accepted_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      language_levels: {
+        Row: {
+          id: string
+          user_id: string
+          language: string
+          level: string
+          is_primary: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          language: string
+          level: string
+          is_primary?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          language?: string
+          level?: string
+          is_primary?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
       messages: {
         Row: {
           id: string
@@ -399,6 +501,67 @@ export interface Database {
           created_at?: string
         }
       }
+      testimonials: {
+        Row: {
+          id: string
+          name: string
+          age: number | null
+          avatar: string | null
+          level: string | null
+          missions_count: number
+          content: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          age?: number | null
+          avatar?: string | null
+          level?: string | null
+          missions_count?: number
+          content: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          age?: number | null
+          avatar?: string | null
+          level?: string | null
+          missions_count?: number
+          content?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      global_stats: {
+        Row: {
+          id: string
+          total_missions: number
+          total_volunteers: number
+          total_hours: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          total_missions?: number
+          total_volunteers?: number
+          total_hours?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          total_missions?: number
+          total_volunteers?: number
+          total_hours?: number
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       available_missions: {
@@ -487,4 +650,4 @@ export interface Database {
       }
     }
   }
-} 
+}
