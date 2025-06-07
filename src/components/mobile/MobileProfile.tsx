@@ -1,15 +1,17 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronRight, Settings, Star, Award, Heart } from 'lucide-react';
+import { ChevronRight, Settings, Star, Award, Heart, Edit } from 'lucide-react';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useUserMissions } from '@/hooks/useUserMissions';
 import { useCategories } from '@/hooks/useCategories';
+import { toast } from '@/components/ui/use-toast';
 
 const MobileProfile = () => {
-  const { userProfile, userStats, badges, loading, error } = useUserProfile();
+  const { userProfile, userStats, badges, loading, error, togglePreferredCategory, setMaxDistance } = useUserProfile();
   const { upcomingMissions, pastMissions } = useUserMissions();
   const { categories } = useCategories();
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
 
   // Calculer les associations uniques depuis les missions passées
   const uniqueAssociations = pastMissions.reduce((acc: any[], mission: any) => {
@@ -30,13 +32,23 @@ const MobileProfile = () => {
     icon: category.icon
   }));
 
-  // Badges par défaut si aucun badge n'est disponible
-  const displayBadges = badges.length > 0 ? badges : [
-    { badges: { name: 'Premier pas', icon_url: '⭐' }, earned: pastMissions.length > 0 },
-    { badges: { name: 'Alimentaire', icon_url: '🍽️' }, earned: pastMissions.some(m => m.category === 'alimentaire') },
-    { badges: { name: 'Réactif', icon_url: '⚡' }, earned: pastMissions.length >= 3 },
-    { badges: { name: 'À débloquer', icon_url: '🔒' }, earned: false }
-  ];
+  const handleCategoryToggle = async (categoryName: string) => {
+    const success = await togglePreferredCategory(categoryName);
+    if (success) {
+      toast({ title: "Préférences mises à jour", description: "Vos catégories préférées ont été sauvegardées." });
+    } else {
+      toast({ title: "Erreur", description: "Impossible de mettre à jour vos préférences.", variant: "destructive" });
+    }
+  };
+
+  const handleDistanceChange = async (newDistance: number) => {
+    const success = await setMaxDistance(newDistance);
+    if (success) {
+      toast({ title: "Distance mise à jour", description: `Distance maximale définie à ${newDistance} km.` });
+    } else {
+      toast({ title: "Erreur", description: "Impossible de mettre à jour la distance.", variant: "destructive" });
+    }
+  };
 
   if (loading) {
     return (
@@ -80,8 +92,12 @@ const MobileProfile = () => {
           </Button>
         </div>
 
-        <Button className="w-full btn-secondary">
-          Modifier mon profil
+        <Button 
+          className="w-full btn-secondary"
+          onClick={() => setIsEditingProfile(!isEditingProfile)}
+        >
+          <Edit className="w-4 h-4 mr-2" />
+          {isEditingProfile ? 'Annuler' : 'Modifier mon profil'}
         </Button>
       </div>
 
@@ -99,7 +115,7 @@ const MobileProfile = () => {
             <div className="impact-label">Temps donné</div>
           </div>
           <div className="impact-stat">
-            <div className="impact-number text-orange-500">{userStats.associations_helped}</div>
+            <div className="impact-number text-orange-500">{uniqueAssociations.length}</div>
             <div className="impact-label">Associations</div>
           </div>
         </div>
@@ -113,18 +129,21 @@ const MobileProfile = () => {
         </div>
         
         <div className="flex gap-3">
-          {displayBadges.slice(0, 4).map((userBadge, index) => (
-            <div
-              key={index}
-              className={`w-16 h-16 rounded-2xl flex items-center justify-center text-2xl ${
-                userBadge.earned !== false
-                  ? 'bg-gradient-to-br from-yellow-100 to-orange-100' 
-                  : 'bg-gray-100'
-              }`}
-            >
-              {userBadge.badges?.icon_url || '🏆'}
+          {badges.length === 0 ? (
+            <div className="text-center text-gray-500 py-4 w-full">
+              Aucun badge obtenu pour le moment
             </div>
-          ))}
+          ) : (
+            badges.slice(0, 4).map((userBadge, index) => (
+              <div
+                key={userBadge.badge_id}
+                className="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl bg-gradient-to-br from-yellow-100 to-orange-100"
+                title={userBadge.badges.name}
+              >
+                {userBadge.badges.icon_url}
+              </div>
+            ))
+          )}
         </div>
       </div>
 
@@ -137,35 +156,50 @@ const MobileProfile = () => {
             <h3 className="text-sm font-medium text-gray-700 mb-2">Catégories préférées</h3>
             <div className="flex flex-wrap gap-2">
               {preferences.map((pref, index) => (
-                <span
+                <button
                   key={index}
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  onClick={() => handleCategoryToggle(pref.name)}
+                  className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
                     pref.selected 
-                      ? 'bg-blue-100 text-blue-800' 
-                      : 'bg-gray-100 text-gray-600'
+                      ? 'bg-blue-100 text-blue-800 border border-blue-200' 
+                      : 'bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-200'
                   }`}
                 >
                   {pref.icon} {pref.name}
-                </span>
+                </button>
               ))}
-              <button className="px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-600">
-                + Ajouter
-              </button>
             </div>
           </div>
 
           <div>
             <h3 className="text-sm font-medium text-gray-700 mb-2">Distance maximale</h3>
-            <div className="flex items-center space-x-2">
-              <div className="flex-1 bg-gray-200 rounded-full h-2">
-                <div 
-                  className="bg-blue-500 h-2 rounded-full" 
-                  style={{ width: `${Math.min((userProfile?.max_distance || 15) * 6.67, 100)}%` }}
-                ></div>
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2">
+                <div className="flex-1 bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-blue-500 h-2 rounded-full" 
+                    style={{ width: `${Math.min((userProfile?.max_distance || 15) * 6.67, 100)}%` }}
+                  ></div>
+                </div>
+                <span className="text-sm font-medium text-blue-600">
+                  {userProfile?.max_distance || 15} km
+                </span>
               </div>
-              <span className="text-sm font-medium text-blue-600">
-                {userProfile?.max_distance || 15} km
-              </span>
+              <div className="flex gap-2">
+                {[5, 10, 15, 25, 50].map((distance) => (
+                  <button
+                    key={distance}
+                    onClick={() => handleDistanceChange(distance)}
+                    className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                      (userProfile?.max_distance || 15) === distance
+                        ? 'bg-blue-500 text-white' 
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    {distance} km
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 

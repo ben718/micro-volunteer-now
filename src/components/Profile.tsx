@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,6 +23,7 @@ import {
 import ImpactStats from './ImpactStats';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { LanguageLevelsForm } from './LanguageLevelsForm';
+import { useCategories } from '@/hooks/useCategories';
 import { toast } from '@/components/ui/use-toast';
 
 interface Availability {
@@ -37,7 +37,8 @@ interface Availability {
 const Profile = () => {
   const [activeTab, setActiveTab] = useState<'profile' | 'impact' | 'badges' | 'settings'>('profile');
   const [isEditing, setIsEditing] = useState(false);
-  const { userProfile, userStats, badges, loading, error, updateUserProfile, availability } = useUserProfile();
+  const { userProfile, userStats, badges, loading, error, updateUserProfile, availability, togglePreferredCategory } = useUserProfile();
+  const { categories } = useCategories();
 
   const [formData, setFormData] = useState({
     first_name: '',
@@ -100,6 +101,15 @@ const Profile = () => {
     }
   };
 
+  const handleCategoryToggle = async (categoryName: string) => {
+    const success = await togglePreferredCategory(categoryName);
+    if (success) {
+      toast({ title: "Préférences mises à jour", description: "Vos catégories préférées ont été sauvegardées." });
+    } else {
+      toast({ title: "Erreur", description: "Impossible de mettre à jour vos préférences.", variant: "destructive" });
+    }
+  };
+
   const daysOfWeek = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
   const timeSlots = ['morning', 'afternoon', 'evening'];
 
@@ -109,8 +119,8 @@ const Profile = () => {
       <div className="flex flex-wrap gap-2">
         {badges.length === 0 && <span className="text-muted-foreground text-sm">Aucun badge obtenu</span>}
         {badges.map(userBadge => (
-          <span key={userBadge.badges.id} className="badge-earned flex items-center gap-1" title={userBadge.badges.name}>
-            <img src={userBadge.badges.icon_url} alt={userBadge.badges.name} className="w-5 h-5 inline-block mr-1" />
+          <span key={userBadge.badges.id} className="badge-earned flex items-center gap-1" title={userBadge.badges.description}>
+            <span className="text-lg">{userBadge.badges.icon_url}</span>
             {userBadge.badges.name}
           </span>
         ))}
@@ -124,6 +134,13 @@ const Profile = () => {
       <p className="text-muted-foreground">(À compléter selon les besoins)</p>
     </div>
   );
+
+  // Générer les préférences à partir des catégories de la BDD
+  const preferences = categories.map(category => ({
+    name: category.name,
+    selected: userProfile?.interests?.includes(category.name.toLowerCase()) || false,
+    icon: category.icon
+  }));
 
   if (loading) {
     return <div>Chargement du profil...</div>;
@@ -207,6 +224,26 @@ const Profile = () => {
                 </div>
               </div>
 
+              <div>
+                <h3 className="font-semibold text-foreground mb-3">Catégories préférées</h3>
+                <div className="flex flex-wrap gap-2">
+                  {preferences.map((pref, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => handleCategoryToggle(pref.name)}
+                      className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                        pref.selected 
+                          ? 'bg-blue-100 text-blue-800 border border-blue-200' 
+                          : 'bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-200'
+                      }`}
+                    >
+                      {pref.icon} {pref.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div className="flex justify-end space-x-2">
                 <Button variant="outline" onClick={() => setIsEditing(false)}>
                   Annuler
@@ -232,6 +269,24 @@ const Profile = () => {
               <div>
                 <h3 className="font-semibold text-foreground mb-2">À propos</h3>
                 <p className="text-muted-foreground text-sm">{userProfile?.bio || 'Pas de description.'}</p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-foreground mb-2">Catégories préférées</h3>
+                <div className="flex flex-wrap gap-2">
+                  {preferences.filter(pref => pref.selected).length > 0 ? (
+                    preferences.filter(pref => pref.selected).map((pref, index) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800"
+                      >
+                        {pref.icon} {pref.name}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-muted-foreground text-sm">Aucune catégorie préférée définie.</span>
+                  )}
+                </div>
               </div>
 
               <div>

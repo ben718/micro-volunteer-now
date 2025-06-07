@@ -110,6 +110,24 @@ export const useUserProfile = () => {
     return await updateUserProfile({ interests: categories })
   }
 
+  const togglePreferredCategory = async (categoryName: string) => {
+    const currentInterests = userProfile?.interests || []
+    const categoryLower = categoryName.toLowerCase()
+    
+    let newInterests: string[]
+    if (currentInterests.includes(categoryLower)) {
+      newInterests = currentInterests.filter((interest: string) => interest !== categoryLower)
+    } else {
+      newInterests = [...currentInterests, categoryLower]
+    }
+    
+    const success = await updateUserProfile({ interests: newInterests })
+    if (success) {
+      await loadProfile() // Recharger le profil pour mettre à jour l'affichage
+    }
+    return success
+  }
+
   useEffect(() => {
     loadProfile()
   }, [])
@@ -125,7 +143,8 @@ export const useUserProfile = () => {
     updateUserProfile,
     availability,
     setMaxDistance,
-    setPreferredCategories
+    setPreferredCategories,
+    togglePreferredCategory
   }
 }
 
