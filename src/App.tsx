@@ -14,6 +14,7 @@ import MobileApp from "./components/MobileApp";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { globalErrorHandler } from "./lib/errorHandler";
+import { productionErrorHandler } from "./lib/productionErrorHandler";
 import { logger } from "./lib/logger";
 
 const queryClient = new QueryClient({
@@ -69,8 +70,10 @@ const AppRoutes = () => {
 
 const App = () => {
   useEffect(() => {
-    // Initialiser le gestionnaire d'erreurs global
+    // Initialiser les gestionnaires d'erreurs
     globalErrorHandler.init();
+    productionErrorHandler.init();
+    
     logger.info('Application initialized', {
       version: '1.0.0',
       environment: import.meta.env.DEV ? 'development' : 'production',
