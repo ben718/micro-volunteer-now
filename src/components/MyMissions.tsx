@@ -145,12 +145,12 @@ const MyMissions = () => {
               </div>
               
               {/* Rating for completed missions (past missions view) */}
-              {activeTab === 'past' && mission.registration_status === 'completed' && ('rating' in mission || 'feedback' in mission) && (
+              {activeTab === 'past' && mission.registration_status === 'completed' && 'rating' in mission && (
                 <div className="flex items-start mt-2 space-x-2">
-                  {'rating' in mission && mission.rating && renderStars(mission.rating)}
+                  {mission.rating && renderStars(Number(mission.rating))}
                   {'feedback' in mission && mission.feedback && (
                     <span className="ml-2 text-sm text-muted-foreground">
-                      {typeof mission.feedback === 'string' ? mission.feedback : ''}
+                      {String(mission.feedback)}
                     </span>
                   )}
                 </div>
