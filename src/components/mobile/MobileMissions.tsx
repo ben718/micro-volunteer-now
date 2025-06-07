@@ -2,66 +2,20 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronDown, Calendar, Clock, MapPin } from 'lucide-react';
+import { useUserMissions } from '@/hooks/useUserMissions';
+import { useMissions } from '@/hooks/useMissions';
 
 const MobileMissions = () => {
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
+  const { upcomingMissions, pastMissions, loading } = useUserMissions();
+  const { cancelMissionParticipation } = useMissions();
 
-  // Missions à venir simulées
-  const upcomingMissions = [
-    {
-      id: 1,
-      title: "Distribution alimentaire",
-      time: "12:30 - 12:45",
-      date: "Aujourd'hui",
-      location: "Centre d'accueil Paris 19",
-      duration: 15,
-      status: "confirmed"
-    },
-    {
-      id: 2,
-      title: "Nettoyage du parc",
-      time: "10:00 - 11:00",
-      date: "Samedi 12 juin",
-      location: "Parc des Buttes-Chaumont",
-      duration: 60,
-      status: "confirmed"
-    },
-    {
-      id: 3,
-      title: "Aide aux devoirs",
-      time: "16:30 - 17:00",
-      date: "Mardi 15 juin",
-      location: "Centre social du 19ème",
-      duration: 30,
-      status: "confirmed"
-    },
-    {
-      id: 4,
-      title: "Accompagnement courses",
-      time: "14:00 - 14:45",
-      date: "Mercredi 23 juin",
-      location: "Résidence seniors Les Lilas",
-      duration: 45,
-      status: "confirmed"
+  const handleCancel = async (missionId: string) => {
+    const success = await cancelMissionParticipation(missionId, 'Annulation depuis l\'interface mobile');
+    if (success) {
+      console.log('Mission annulée avec succès');
     }
-  ];
-
-  const pastMissions = [
-    {
-      id: 5,
-      title: "Lecture aux seniors",
-      date: "5 juin 2024",
-      duration: 30,
-      status: "completed"
-    },
-    {
-      id: 6,
-      title: "Distribution alimentaire",
-      date: "2 juin 2024",
-      duration: 15,
-      status: "completed"
-    }
-  ];
+  };
 
   const getDurationBadgeClass = (duration: number) => {
     if (duration <= 15) return 'duration-15';
@@ -74,14 +28,16 @@ const MobileMissions = () => {
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
           <div className="flex items-center space-x-2 mb-1">
-            <div className={`status-dot ${mission.date === 'Aujourd\'hui' ? 'status-today' : 'status-upcoming'}`}></div>
-            <span className="text-sm font-medium text-gray-600">{mission.date}</span>
+            <div className="status-dot status-upcoming"></div>
+            <span className="text-sm font-medium text-gray-600">
+              {mission.date ? new Date(mission.date).toLocaleDateString() : 'Date à définir'}
+            </span>
           </div>
           <h3 className="font-semibold text-gray-900 mb-1">{mission.title}</h3>
           <div className="flex items-center text-sm text-gray-500 space-x-4">
             <div className="flex items-center">
               <Clock className="w-4 h-4 mr-1" />
-              <span>{mission.time}</span>
+              <span>{mission.start_time} - {mission.end_time}</span>
             </div>
           </div>
         </div>
@@ -92,14 +48,18 @@ const MobileMissions = () => {
       
       <div className="flex items-center text-sm text-gray-500 mb-4">
         <MapPin className="w-4 h-4 mr-1" />
-        <span>{mission.location}</span>
+        <span>{mission.association_name || 'Association'}</span>
       </div>
       
       <div className="flex gap-2">
         <Button variant="outline" className="flex-1">
           Détails
         </Button>
-        <Button variant="destructive" className="flex-1">
+        <Button 
+          variant="destructive" 
+          className="flex-1"
+          onClick={() => handleCancel(mission.id)}
+        >
           Annuler
         </Button>
       </div>
@@ -111,7 +71,9 @@ const MobileMissions = () => {
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <h3 className="font-semibold text-gray-900 mb-1">{mission.title}</h3>
-          <p className="text-sm text-gray-500">{mission.date}</p>
+          <p className="text-sm text-gray-500">
+            {mission.date ? new Date(mission.date).toLocaleDateString() : 'Date inconnue'}
+          </p>
         </div>
         <div className={`duration-badge ${getDurationBadgeClass(mission.duration)}`}>
           {mission.duration} min
@@ -119,6 +81,14 @@ const MobileMissions = () => {
       </div>
     </div>
   );
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-gray-500">Chargement des missions...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -141,7 +111,9 @@ const MobileMissions = () => {
           <div className="text-sm text-gray-500">Passées</div>
         </div>
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 text-center">
-          <div className="text-2xl font-bold text-gray-900">1h</div>
+          <div className="text-2xl font-bold text-gray-900">
+            {pastMissions.reduce((total, mission) => total + (mission.hours_logged || mission.duration || 0), 0)}h
+          </div>
           <div className="text-sm text-gray-500">Total</div>
         </div>
       </div>
@@ -173,9 +145,21 @@ const MobileMissions = () => {
       {/* Mission list */}
       <div className="space-y-3">
         {activeTab === 'upcoming' ? (
-          upcomingMissions.map(renderUpcomingMission)
+          upcomingMissions.length > 0 ? (
+            upcomingMissions.map(renderUpcomingMission)
+          ) : (
+            <div className="text-center text-gray-500 py-8">
+              Aucune mission à venir
+            </div>
+          )
         ) : (
-          pastMissions.map(renderPastMission)
+          pastMissions.length > 0 ? (
+            pastMissions.map(renderPastMission)
+          ) : (
+            <div className="text-center text-gray-500 py-8">
+              Aucune mission passée
+            </div>
+          )
         )}
       </div>
     </div>

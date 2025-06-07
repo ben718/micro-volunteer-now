@@ -6,63 +6,26 @@ import { Search, Filter, MapPin } from 'lucide-react';
 import MobileMissionCard from './MissionCard';
 import FilterPanel from './FilterPanel';
 import { useFilters } from '@/hooks/useFilters';
+import { useMissions } from '@/hooks/useMissions';
 
 const MobileExplorer = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const { filters, updateFilter, clearFilters, activeFiltersCount } = useFilters();
+  const { missions, loading, participateInMission } = useMissions();
 
-  // Missions disponibles simulées
-  const availableMissions = [
-    {
-      id: 1,
-      title: "Distribution alimentaire",
-      short_description: "Aider à distribuer des repas aux personnes sans-abri",
-      duration: 15,
-      city: "Paris 19ème",
-      distance: "500m",
-      category: "alimentaire",
-      spots_taken: 2,
-      spots_available: 4,
-      is_urgent: false
-    },
-    {
-      id: 2,
-      title: "Lecture aux seniors",
-      short_description: "Lire le journal à des personnes âgées",
-      duration: 30,
-      city: "Paris 19ème",
-      distance: "1.2 km",
-      category: "social",
-      spots_taken: 1,
-      spots_available: 2,
-      is_urgent: false
-    },
-    {
-      id: 3,
-      title: "Aide aux courses",
-      short_description: "Accompagner une personne âgée pour ses courses",
-      duration: 45,
-      city: "Paris 19ème",
-      distance: "800m",
-      category: "social",
-      spots_taken: 0,
-      spots_available: 1,
-      is_urgent: false
-    },
-    {
-      id: 4,
-      title: "Tri de dons",
-      short_description: "Aider au tri de vêtements donnés",
-      duration: 20,
-      city: "Paris 19ème",
-      distance: "1.5 km",
-      category: "social",
-      spots_taken: 1,
-      spots_available: 3,
-      is_urgent: false
+  // Filtrer les missions selon la recherche
+  const filteredMissions = missions.filter(mission => 
+    mission.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    mission.short_description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleParticipate = async (missionId: string) => {
+    const success = await participateInMission(missionId);
+    if (success) {
+      console.log('Inscription réussie');
     }
-  ];
+  };
 
   return (
     <div className="space-y-4">
@@ -107,18 +70,26 @@ const MobileExplorer = () => {
       <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-gray-900">
-            Missions disponibles ({availableMissions.length})
+            Missions disponibles ({filteredMissions.length})
           </h2>
         </div>
 
         <div className="space-y-3">
-          {availableMissions.map((mission) => (
-            <MobileMissionCard
-              key={mission.id}
-              mission={mission}
-              onParticipate={() => console.log('Participer à:', mission.title)}
-            />
-          ))}
+          {loading ? (
+            <div className="text-center text-gray-500">Chargement des missions...</div>
+          ) : filteredMissions.length > 0 ? (
+            filteredMissions.map((mission) => (
+              <MobileMissionCard
+                key={mission.id}
+                mission={mission}
+                onParticipate={() => handleParticipate(mission.id)}
+              />
+            ))
+          ) : (
+            <div className="text-center text-gray-500">
+              {searchQuery ? 'Aucune mission trouvée' : 'Aucune mission disponible'}
+            </div>
+          )}
         </div>
       </div>
     </div>
