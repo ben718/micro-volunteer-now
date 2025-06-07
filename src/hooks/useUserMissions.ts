@@ -40,7 +40,10 @@ export function useUserMissions(): UseUserMissionsResult {
           .eq('user_id', user.id);
 
         if (upcomingError) throw upcomingError;
-        setUpcomingMissions(upcomingData || []);
+        
+        // Cast the data to the proper type
+        const typedUpcomingData: UpcomingMission[] = upcomingData || [];
+        setUpcomingMissions(typedUpcomingData);
 
         // Récupérer les missions passées
         const { data: pastData, error: pastError } = await supabase
@@ -49,7 +52,10 @@ export function useUserMissions(): UseUserMissionsResult {
           .eq('user_id', user.id);
 
         if (pastError) throw pastError;
-        setPastMissions(pastData || []);
+        
+        // Cast the data to the proper type
+        const typedPastData: PastMission[] = pastData || [];
+        setPastMissions(typedPastData);
 
       } catch (err: any) {
         console.error("Erreur lors du chargement des missions utilisateur:", err);
