@@ -12,20 +12,14 @@ import {
   Compass, 
   Calendar, 
   User, 
-  MapPin, 
-  Clock, 
-  Users, 
-  Star,
-  Plus,
-  Filter,
   Bell,
   Menu,
-  Settings,
+  Filter,
   Award,
   Heart,
-  TrendingUp
+  TrendingUp,
+  Settings
 } from 'lucide-react';
-import { Mission } from '@/types/mission';
 import { useMissions } from '@/hooks/useMissions';
 import { useFilters } from '@/hooks/useFilters';
 import { useUserProfile } from '@/hooks/useUserProfile';
@@ -43,7 +37,6 @@ const MobileApp = () => {
     missions, 
     userMissions, 
     loading, 
-    error, 
     participateInMission, 
     cancelMissionParticipation 
   } = useMissions();
@@ -51,8 +44,7 @@ const MobileApp = () => {
   const { 
     userProfile, 
     userStats, 
-    badges, 
-    updateProfile 
+    badges
   } = useUserProfile();
 
   const {
@@ -76,7 +68,7 @@ const MobileApp = () => {
 
   useEffect(() => {
     onFilterChange('searchQuery', searchQuery);
-  }, [searchQuery]);
+  }, [searchQuery, onFilterChange]);
 
   const handleParticipate = async (missionId: string) => {
     const success = await participateInMission(missionId);
@@ -138,11 +130,11 @@ const MobileApp = () => {
 
               {/* Actions rapides */}
               <div className="grid grid-cols-2 gap-3">
-                <Card className="p-4 text-center cursor-pointer hover:bg-accent/50">
+                <Card className="p-4 text-center cursor-pointer hover:bg-accent/50" onClick={() => setActiveTab('explore')}>
                   <Search className="h-8 w-8 mx-auto mb-2 text-primary" />
                   <span className="text-sm font-medium">Explorer</span>
                 </Card>
-                <Card className="p-4 text-center cursor-pointer hover:bg-accent/50">
+                <Card className="p-4 text-center cursor-pointer hover:bg-accent/50" onClick={() => setActiveTab('missions')}>
                   <Calendar className="h-8 w-8 mx-auto mb-2 text-primary" />
                   <span className="text-sm font-medium">Mes missions</span>
                 </Card>
@@ -260,10 +252,6 @@ const MobileApp = () => {
                   {userProfile?.first_name} {userProfile?.last_name}
                 </h2>
                 <p className="text-muted-foreground">{userProfile?.email}</p>
-                <div className="flex items-center justify-center gap-1 mt-2">
-                  <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                  <span className="text-sm font-medium">{(userStats.impact_score / 100).toFixed(1)}</span>
-                </div>
               </div>
 
               {/* Stats détaillées */}
@@ -575,10 +563,6 @@ const MobileApp = () => {
                       {userProfile?.first_name} {userProfile?.last_name}
                     </h3>
                     <p className="text-muted-foreground">{userProfile?.email}</p>
-                    <div className="flex items-center justify-center gap-1 mt-2">
-                      <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                      <span className="font-medium">{(userStats.impact_score / 100).toFixed(1)}</span>
-                    </div>
                   </CardContent>
                 </Card>
 

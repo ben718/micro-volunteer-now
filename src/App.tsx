@@ -10,8 +10,6 @@ import HomePage from "./components/HomePage";
 import SignInForm from "./components/auth/SignInForm";
 import SignUpForm from "./components/auth/SignUpForm";
 import MobileApp from "./components/MobileApp";
-import Dashboard from "./components/Dashboard";
-import AssociationDashboard from "./components/AssociationDashboard";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -37,22 +35,6 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <MobileApp />
-          </ProtectedRoute>
-        } 
-      />
-      <Route 
-        path="/dashboard" 
-        element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        } 
-      />
-      <Route 
-        path="/association" 
-        element={
-          <ProtectedRoute>
-            <AssociationDashboard />
           </ProtectedRoute>
         } 
       />

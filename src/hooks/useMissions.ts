@@ -13,7 +13,16 @@ export const useMissions = () => {
     try {
       setLoading(true)
       const data = await missionService.getAvailableMissions()
-      setMissions(data as Mission[])
+      // Transform data to match Mission interface
+      const transformedData = data.map(mission => ({
+        ...mission,
+        is_urgent: mission.is_urgent || false,
+        association_name: mission.association_name || 'Association',
+        date: mission.date || new Date().toISOString().split('T')[0],
+        start_time: mission.start_time || '09:00',
+        end_time: mission.end_time || '17:00'
+      }))
+      setMissions(transformedData as Mission[])
     } catch (err: any) {
       setError(err.message)
     } finally {
@@ -25,7 +34,15 @@ export const useMissions = () => {
     try {
       const upcoming = await missionService.getUserUpcomingMissions()
       const past = await missionService.getUserPastMissions()
-      setUserMissions([...upcoming, ...past] as Mission[])
+      const allUserMissions = [...upcoming, ...past].map(mission => ({
+        ...mission,
+        is_urgent: mission.is_urgent || false,
+        association_name: mission.association_name || 'Association',
+        date: mission.date || new Date().toISOString().split('T')[0],
+        start_time: mission.start_time || '09:00',
+        end_time: mission.end_time || '17:00'
+      }))
+      setUserMissions(allUserMissions as Mission[])
     } catch (err: any) {
       console.error('Erreur lors du chargement des missions utilisateur:', err)
     }
@@ -59,7 +76,15 @@ export const useMissions = () => {
     try {
       setLoading(true)
       const data = await missionService.searchNearbyMissions(searchParams)
-      setMissions(data as Mission[])
+      const transformedData = data.map(mission => ({
+        ...mission,
+        is_urgent: mission.is_urgent || false,
+        association_name: mission.association_name || 'Association',
+        date: mission.date || new Date().toISOString().split('T')[0],
+        start_time: mission.start_time || '09:00',
+        end_time: mission.end_time || '17:00'
+      }))
+      setMissions(transformedData as Mission[])
     } catch (err: any) {
       setError(err.message)
     } finally {
