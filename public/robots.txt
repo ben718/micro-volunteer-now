@@ -1,5 +1,0 @@
-
-User-agent: *
-Allow: /
-
-Sitemap: https://micro-volunteer-now.lovable.app/sitemap.xml
