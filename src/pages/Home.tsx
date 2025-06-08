@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { Category, Mission } from '../types';
@@ -16,7 +16,7 @@ const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: numbe
     Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
     Math.sin(dLon/2) * Math.sin(dLon/2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  return Math.round(R * c * 10) / 10; // Arrondi à 1 décimale
+  return Math.round(R * c * 10) / 10; // Arrondi Ã  1 dÃ©cimale
 };
 
 const Home: React.FC = () => {
@@ -83,7 +83,7 @@ const Home: React.FC = () => {
         }
 
       } catch (error: any) {
-        toast.error("Erreur lors du chargement des données: " + error.message);
+        toast.error("Erreur lors du chargement des donnÃ©es: " + error.message);
       } finally {
         setLoading(false);
       }
@@ -110,16 +110,16 @@ const Home: React.FC = () => {
               Devenez un Voisin Solidaire
             </h1>
             <p className="text-xl mb-8">
-              Rejoignez une communauté de bénévoles et faites la différence dans votre quartier
+              Rejoignez une communautÃ© de bÃ©nÃ©voles et faites la diffÃ©rence dans votre quartier
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a href="/explore" className="inline-flex items-center justify-center px-6 py-3 text-lg font-medium rounded-md bg-vs-gray-100 text-vs-gray-900 hover:bg-vs-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-vs-gray-500">
-                Découvrir les missions
-              </a>
+              <Link to="/explore" className="inline-flex items-center justify-center px-6 py-3 text-lg font-medium rounded-md bg-vs-gray-100 text-vs-gray-900 hover:bg-vs-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-vs-gray-500">
+                DÃ©couvrir les missions
+              </Link>
               {!user && (
-                <a href="/signup" className="inline-flex items-center justify-center px-6 py-3 text-lg font-medium rounded-md bg-vs-blue-primary text-white hover:bg-vs-blue-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-vs-blue-primary">
-                  Je m\'inscris
-                </a>
+                <Link to="/signup" className="inline-flex items-center justify-center px-6 py-3 text-lg font-medium rounded-md bg-vs-blue-primary text-white hover:bg-vs-blue-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-vs-blue-primary">
+                  Je m'inscris
+                </Link>
               )}
             </div>
           </div>
@@ -129,19 +129,19 @@ const Home: React.FC = () => {
       {/* Categories Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h2 className="text-2xl font-semibold text-vs-gray-800 mb-6">
-          Explorez par catégorie
+          Explorez par catÃ©gorie
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {categories.map((category) => (
-            <a
+            <Link
               key={category.id}
-              href={`/explore?category=${category.name}`}
+              to={`/explore?category=${category.name}`}
               className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow cursor-pointer"
             >
               <div className="text-3xl mb-3 text-vs-blue-primary">{category.icon}</div>
               <h3 className="font-medium text-vs-gray-900">{category.name}</h3>
               <p className="text-sm text-vs-gray-500 mt-1">{category.description}</p>
-            </a>
+            </Link>
           ))}
         </div>
       </div>
@@ -151,7 +151,7 @@ const Home: React.FC = () => {
         <div className="bg-white py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 className="text-2xl font-semibold text-vs-gray-800 mb-6">
-              Missions instantanées
+              Missions instantanÃ©es
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {instantMissions.map((mission) => (
@@ -204,7 +204,7 @@ const Home: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white p-6 rounded-xl shadow-sm border border-vs-gray-200">
               <h3 className="text-lg font-medium text-vs-gray-800 mb-2">
-                Missions réalisées
+                Missions rÃ©alisÃ©es
               </h3>
               <p className="text-3xl font-bold text-vs-blue-primary">
                 {impactStats.missions}
@@ -212,7 +212,7 @@ const Home: React.FC = () => {
             </div>
             <div className="bg-white p-6 rounded-xl shadow-sm border border-vs-gray-200">
               <h3 className="text-lg font-medium text-vs-gray-800 mb-2">
-                Heures de bénévolat
+                Heures de bÃ©nÃ©volat
               </h3>
               <p className="text-3xl font-bold text-vs-blue-primary">
                 {impactStats.hours}
@@ -220,7 +220,7 @@ const Home: React.FC = () => {
             </div>
             <div className="bg-white p-6 rounded-xl shadow-sm border border-vs-gray-200">
               <h3 className="text-lg font-medium text-vs-gray-800 mb-2">
-                Associations aidées
+                Associations aidÃ©es
               </h3>
               <p className="text-3xl font-bold text-vs-blue-primary">
                 {impactStats.associations}

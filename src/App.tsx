@@ -11,6 +11,7 @@ import MissionDetail from './pages/MissionDetail';
 import { MissionManagement } from './pages/MissionManagement';
 import ProfilePage from './pages/Profile';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import LandingPage from './pages/LandingPage';
 
 const App: React.FC = () => {
   return (
@@ -21,7 +22,8 @@ const App: React.FC = () => {
             <Navbar />
             <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
               <Routes>
-                <Route path="/" element={<Home />} />
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/app" element={<Home />} />
                 <Route path="/login" element={<LoginSignup />} />
                 <Route path="/signup" element={<LoginSignup />} />
                 <Route path="/explore" element={<Explore />} />
