@@ -1,0 +1,144 @@
+import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
+import NotificationCenter from './NotificationCenter';
+
+const Navbar: React.FC = () => {
+  const { user, signOut } = useAuth();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
+
+  const isActive = (path: string) => {
+    return location.pathname === path;
+  };
+
+  const navLinks = [
+    { path: '/explore', label: 'Explorer' },
+    { path: '/missions', label: 'Mes Missions' },
+    { path: '/profile', label: 'Profil' }
+  ];
+
+  return (
+    <nav className="bg-white shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16">          <div className="flex">
+            <a href="/" className="flex-shrink-0 flex items-center">
+              <img
+                className="h-8 w-auto"
+                src="/logo.png"
+                alt="Micro-Volunteer Now"
+              />
+            </a>
+          </div>
+
+          {/* Desktop Navigation */}          <div className="hidden sm:flex sm:items-center sm:space-x-8">
+            {user ? (
+              <>
+                {navLinks.map((link) => (
+                  <a
+                    key={link.path}
+                    href={link.path}
+                    className={`inline-flex items-center px-1 pt-1 text-sm font-medium ${
+                      isActive(link.path)
+                        ? 'text-vs-blue-primary border-b-2 border-vs-blue-primary'
+                        : 'text-vs-gray-500 hover:text-vs-gray-700 hover:border-vs-gray-300'
+                    }`}
+                  >
+                    {link.label}
+                  </a>
+                ))}
+                <NotificationCenter />
+                <button
+                  onClick={signOut}
+                  className="ml-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-vs-blue-primary hover:bg-vs-blue-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-vs-blue-primary"
+                >
+                  Déconnexion
+                </button>
+              </>            ) : (
+              <>
+                <a
+                  href="/login"
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-vs-blue-primary bg-white hover:bg-vs-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-vs-blue-primary"
+                >
+                  Connexion
+                </a>
+                <a
+                  href="/signup"
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-vs-blue-primary hover:bg-vs-blue-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-vs-blue-primary"
+                >
+                  Inscription
+                </a>
+              </>
+            )}
+          </div>
+
+          {/* Mobile menu button */}
+          <div className="flex items-center sm:hidden">
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="inline-flex items-center justify-center p-2 rounded-md text-vs-gray-400 hover:text-vs-gray-500 hover:bg-vs-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-vs-blue-primary"
+            >
+              <span className="sr-only">Ouvrir le menu</span>
+              {isMenuOpen ? (
+                <XMarkIcon className="block h-6 w-6" />
+              ) : (
+                <Bars3Icon className="block h-6 w-6" />
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile menu */}
+      <div className={`${isMenuOpen ? 'block' : 'hidden'} sm:hidden`}>
+        <div className="pt-2 pb-3 space-y-1">
+          {user ? (
+            <>              {navLinks.map((link) => (
+                <a
+                  key={link.path}
+                  href={link.path}
+                  className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
+                    isActive(link.path)
+                      ? 'border-vs-blue-primary text-vs-blue-primary bg-vs-blue-50'
+                      : 'border-transparent text-vs-gray-500 hover:bg-vs-gray-50 hover:border-vs-gray-300 hover:text-vs-gray-700'
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {link.label}
+                </a>
+              ))}
+              <button
+                onClick={() => {
+                  signOut();
+                  setIsMenuOpen(false);
+                }}
+                className="block w-full text-left pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-vs-gray-500 hover:bg-vs-gray-50 hover:border-vs-gray-300 hover:text-vs-gray-700"
+              >
+                Déconnexion
+              </button>
+            </>
+          ) : (
+            <>              <a
+                href="/login"
+                className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-vs-gray-500 hover:bg-vs-gray-50 hover:border-vs-gray-300 hover:text-vs-gray-700"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Connexion
+              </a>
+              <a
+                href="/signup"
+                className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-vs-gray-500 hover:bg-vs-gray-50 hover:border-vs-gray-300 hover:text-vs-gray-700"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Inscription
+              </a>
+            </>
+          )}
+        </div>
+      </div>
+    </nav>
+  );
+};
+
+export default Navbar; 
