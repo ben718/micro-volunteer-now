@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion / Inscription - Voisin Solidaire</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom colors from design system */
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'vs-blue-primary': '#3B82F6',
+                        'vs-blue-light': '#93C5FD',
+                        'vs-blue-dark': '#1E40AF',
+                        'vs-green-secondary': '#10B981',
+                        'vs-green-light': '#A7F3D0',
+                        'vs-green-dark': '#047857',
+                        'vs-orange-accent': '#F59E0B',
+                        'vs-orange-light': '#FCD34D',
+                        'vs-orange-dark': '#D97706',
+                        'vs-gray-100': '#F3F4F6',
+                        'vs-gray-200': '#E5E7EB',
+                        'vs-gray-300': '#D1D5DB',
+                        'vs-gray-400': '#9CA3AF',
+                        'vs-gray-500': '#6B7280',
+                        'vs-gray-600': '#4B5563',
+                        'vs-gray-700': '#374151',
+                        'vs-gray-800': '#1F2937',
+                        'vs-gray-900': '#111827',
+                        'vs-error': '#EF4444',
+                    }
+                }
+            }
+        }
+    </style>
+</head>
+<body class="bg-vs-gray-100 flex flex-col items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-md bg-white rounded-xl shadow-md p-8">
+        <div class="text-center mb-8">
+            <h1 class="text-2xl font-bold text-vs-gray-900 mb-2">Voisin Solidaire</h1>
+            <p class="text-vs-gray-600">Connectez-vous ou créez un compte pour aider près de chez vous.</p>
+        </div>
+
+        <!-- Tabs for Login / Signup -->
+        <div class="mb-6">
+            <div class="flex border-b border-vs-gray-200">
+                <button id="login-tab" class="flex-1 py-3 px-4 text-center font-medium text-vs-blue-primary border-b-2 border-vs-blue-primary focus:outline-none">Connexion</button>
+                <button id="signup-tab" class="flex-1 py-3 px-4 text-center font-medium text-vs-gray-500 hover:text-vs-blue-primary focus:outline-none">Inscription</button>
+            </div>
+        </div>
+
+        <!-- Login Form -->
+        <form id="login-form" class="space-y-6">
+            <div>
+                <label for="login-email" class="block text-sm font-medium text-vs-gray-700 mb-1">Email</label>
+                <input type="email" id="login-email" name="email" placeholder="votre.email@exemple.com" required
+                       class="w-full px-4 py-3 border border-vs-gray-300 rounded-lg focus:ring-vs-blue-primary focus:border-vs-blue-primary transition duration-200">
+            </div>
+            <div>
+                <label for="login-password" class="block text-sm font-medium text-vs-gray-700 mb-1">Mot de passe</label>
+                <input type="password" id="login-password" name="password" placeholder="Votre mot de passe" required
+                       class="w-full px-4 py-3 border border-vs-gray-300 rounded-lg focus:ring-vs-blue-primary focus:border-vs-blue-primary transition duration-200">
+                <a href="#" class="block text-right text-sm text-vs-blue-primary hover:underline mt-1">Mot de passe oublié ?</a>
+            </div>
+            <button type="submit"
+                    class="w-full bg-vs-blue-primary text-white font-medium py-3 px-4 rounded-lg hover:bg-vs-blue-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-vs-blue-primary transition duration-200">
+                Se connecter
+            </button>
+        </form>
+
+        <!-- Signup Form (Hidden by default) -->
+        <form id="signup-form" class="space-y-6 hidden">
+            <div>
+                <label for="signup-name" class="block text-sm font-medium text-vs-gray-700 mb-1">Nom complet</label>
+                <input type="text" id="signup-name" name="name" placeholder="Prénom Nom" required
+                       class="w-full px-4 py-3 border border-vs-gray-300 rounded-lg focus:ring-vs-blue-primary focus:border-vs-blue-primary transition duration-200">
+            </div>
+            <div>
+                <label for="signup-email" class="block text-sm font-medium text-vs-gray-700 mb-1">Email</label>
+                <input type="email" id="signup-email" name="email" placeholder="votre.email@exemple.com" required
+                       class="w-full px-4 py-3 border border-vs-gray-300 rounded-lg focus:ring-vs-blue-primary focus:border-vs-blue-primary transition duration-200">
+            </div>
+            <div>
+                <label for="signup-password" class="block text-sm font-medium text-vs-gray-700 mb-1">Mot de passe</label>
+                <input type="password" id="signup-password" name="password" placeholder="Choisissez un mot de passe sécurisé" required
+                       class="w-full px-4 py-3 border border-vs-gray-300 rounded-lg focus:ring-vs-blue-primary focus:border-vs-blue-primary transition duration-200">
+            </div>
+             <div>
+                <label for="signup-confirm-password" class="block text-sm font-medium text-vs-gray-700 mb-1">Confirmer le mot de passe</label>
+                <input type="password" id="signup-confirm-password" name="confirm_password" placeholder="Confirmez votre mot de passe" required
+                       class="w-full px-4 py-3 border border-vs-gray-300 rounded-lg focus:ring-vs-blue-primary focus:border-vs-blue-primary transition duration-200">
+            </div>
+            <button type="submit"
+                    class="w-full bg-vs-green-secondary text-white font-medium py-3 px-4 rounded-lg hover:bg-vs-green-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-vs-green-secondary transition duration-200">
+                Créer mon compte
+            </button>
+        </form>
+
+        <!-- Divider -->
+        <div class="my-6 flex items-center justify-center">
+            <span class="border-t border-vs-gray-200 flex-grow"></span>
+            <span class="mx-4 text-sm text-vs-gray-500">OU</span>
+            <span class="border-t border-vs-gray-200 flex-grow"></span>
+        </div>
+
+        <!-- Social Login Buttons -->
+        <div class="space-y-4">
+            <button class="w-full flex items-center justify-center py-3 px-4 border border-vs-gray-300 rounded-lg hover:bg-vs-gray-100 transition duration-200">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google logo" class="h-5 w-5 mr-3">
+                <span class="text-sm font-medium text-vs-gray-700">Continuer avec Google</span>
+            </button>
+            <button class="w-full flex items-center justify-center py-3 px-4 border border-vs-gray-300 rounded-lg hover:bg-vs-gray-100 transition duration-200">
+                 <svg class="h-5 w-5 mr-3 text-vs-gray-900" fill="currentColor" viewBox="0 0 20 20"><path d="M10 0C4.477 0 0 4.477 0 10c0 4.845 3.43 8.878 7.95 9.81.1.02.15-.04.15-.1V16.94c-3.338.725-4.043-1.61-4.043-1.61-.41-1.042-1-1.32-1-1.32-.818-.56.06-.55.06-.55.905.063 1.38.93 1.38.93.8 1.37 2.1.975 2.61.745.08-.58.315-.975.57-1.2-2-.225-4.1-1-4.1-4.45 0-.98.35-1.78.92-2.4-.09-.225-.4-.1.13-.08.75-.24 2.46.9 2.46.9.76-.21 1.57-.315 2.38-.315.81 0 1.62.105 2.38.315 0 0 1.71-1.14 2.46-.9.53.13.22.345.13.08.57.62.92 1.42.92 2.4 0 3.45-2.1 4.225-4.1 4.45.325.28.61.825.61 1.65v2.38c0 .06.05.12.15.1.452-.932 7.95-4.965 7.95-9.81C20 4.477 15.523 0 10 0z"/></svg>
+                <span class="text-sm font-medium text-vs-gray-700">Continuer avec Apple</span> <!-- Placeholder, needs Apple logo -->
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        const loginTab = document.getElementById('login-tab');
+        const signupTab = document.getElementById('signup-tab');
+        const loginForm = document.getElementById('login-form');
+        const signupForm = document.getElementById('signup-form');
+
+        loginTab.addEventListener('click', () => {
+            loginTab.classList.add('text-vs-blue-primary', 'border-vs-blue-primary');
+            loginTab.classList.remove('text-vs-gray-500');
+            signupTab.classList.add('text-vs-gray-500');
+            signupTab.classList.remove('text-vs-blue-primary', 'border-vs-blue-primary');
+            loginForm.classList.remove('hidden');
+            signupForm.classList.add('hidden');
+        });
+
+        signupTab.addEventListener('click', () => {
+            signupTab.classList.add('text-vs-blue-primary', 'border-vs-blue-primary');
+            signupTab.classList.remove('text-vs-gray-500');
+            loginTab.classList.add('text-vs-gray-500');
+            loginTab.classList.remove('text-vs-blue-primary', 'border-vs-blue-primary');
+            signupForm.classList.remove('hidden');
+            loginForm.classList.add('hidden');
+        });
+    </script>
+
+</body>
+</html>
+
