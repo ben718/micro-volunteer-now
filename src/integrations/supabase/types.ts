@@ -1759,6 +1759,10 @@ export type Database = {
         Args: { "": unknown }
         Returns: unknown
       }
+      increment_spots_taken: {
+        Args: { mission_id: string }
+        Returns: undefined
+      }
       json: {
         Args: { "": unknown }
         Returns: Json
