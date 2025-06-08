@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/marker.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2563EB" />
+    <meta name="description" content="Micro-Volunteer Now - Plateforme de bénévolat" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Micro-Volunteer Now</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom colors from design system */
+        :root {
+            --vs-blue-primary: #3B82F6;
+            --vs-blue-light: #93C5FD;
+            --vs-blue-dark: #1E40AF;
+            --vs-green-secondary: #10B981;
+            --vs-green-light: #A7F3D0;
+            --vs-green-dark: #047857;
+            --vs-orange-accent: #F59E0B;
+            --vs-orange-light: #FCD34D;
+            --vs-orange-dark: #D97706;
+            --vs-gray-100: #F3F4F6;
+            --vs-gray-200: #E5E7EB;
+            --vs-gray-300: #D1D5DB;
+            --vs-gray-400: #9CA3AF;
+            --vs-gray-500: #6B7280;
+            --vs-gray-600: #4B5563;
+            --vs-gray-700: #374151;
+            --vs-gray-800: #1F2937;
+            --vs-gray-900: #111827;
+            --vs-error: #EF4444;
+        }
+        .mission-card {
+            transition: transform 0.2s ease-in-out;
+        }
+        .mission-card:hover {
+            transform: translateY(-2px);
+        }
+        .bottom-nav-item.active {
+            color: #3B82F6;
+        }
+        .bottom-nav-item.active i {
+            color: #3B82F6;
+        }
+    </style>
+</head>
+<body class="bg-[#F3F4F6] flex flex-col min-h-screen">
+    <!-- Header -->
+    <header class="bg-white p-4 shadow-sm sticky top-0 z-10">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <h1 class="text-xl font-bold text-[#1F2937]">Voisin Solidaire</h1>
+            </div>
+            <div class="flex items-center space-x-3">
+                <a href="/login" target="_self" class="text-[#3B82F6] font-medium">Connexion</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow p-4 pb-20">
+        <!-- Hero Section -->
+        <section class="mb-8 text-center">
+            <h2 class="text-3xl font-bold text-[#1F2937] mb-3">Le bénévolat accessible à tous</h2>
+            <p class="text-[#6B7280] mb-6">Aidez près de chez vous, même pour seulement 15 minutes.</p>
+            <div class="flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-3 justify-center">
+                <a href="/signup" target="_self" class="bg-[#3B82F6] text-white font-medium py-3 px-6 rounded-lg hover:bg-[#1E40AF] transition duration-200">
+                    Je deviens bénévole
+                </a>
+                <a href="/signup" target="_self" class="bg-white border border-[#3B82F6] text-[#3B82F6] font-medium py-3 px-6 rounded-lg hover:bg-[#EFF6FF] transition duration-200">
+                    Je suis une association
+                </a>
+            </div>
+        </section>
+
+        <!-- How It Works -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold text-[#1F2937] mb-6 text-center">Comment ça marche ?</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-xl p-6 shadow-sm text-center">
+                    <div class="h-16 w-16 rounded-full bg-[#93C5FD] flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-search text-[#1E40AF] text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-[#1F2937] mb-2">1. Trouvez</h3>
+                    <p class="text-[#6B7280]">Découvrez des missions de bénévolat à moins de 15 minutes de chez vous.</p>
+                </div>
+                <div class="bg-white rounded-xl p-6 shadow-sm text-center">
+                    <div class="h-16 w-16 rounded-full bg-[#A7F3D0] flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-bolt text-[#047857] text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-[#1F2937] mb-2">2. Participez</h3>
+                    <p class="text-[#6B7280]">Inscrivez-vous en 2 clics et aidez pendant le temps que vous avez.</p>
+                </div>
+                <div class="bg-white rounded-xl p-6 shadow-sm text-center">
+                    <div class="h-16 w-16 rounded-full bg-[#FCD34D] flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-heart text-[#D97706] text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-[#1F2937] mb-2">3. Impactez</h3>
+                    <p class="text-[#6B7280]">Voyez l'impact concret de votre engagement sur votre communauté.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Mission Examples -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold text-[#1F2937] mb-6 text-center">Exemples de missions</h2>
+            <div class="space-y-4">
+                <div class="bg-white rounded-xl p-4 shadow-sm border-l-4 border-[#F59E0B]">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-medium text-[#1F2937]">Distribution alimentaire</h3>
+                        <span class="bg-[#FCD34D] text-[#D97706] text-xs px-2 py-1 rounded-full font-medium">15 min</span>
+                    </div>
+                    <p class="text-sm text-[#6B7280] mb-3">Aider à distribuer des repas aux personnes sans-abri</p>
+                </div>
+                <div class="bg-white rounded-xl p-4 shadow-sm border-l-4 border-[#10B981]">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-medium text-[#1F2937]">Lecture aux seniors</h3>
+                        <span class="bg-[#A7F3D0] text-[#047857] text-xs px-2 py-1 rounded-full font-medium">30 min</span>
+                    </div>
+                    <p class="text-sm text-[#6B7280] mb-3">Lire le journal à des personnes âgées</p>
+                </div>
+                <div class="bg-white rounded-xl p-4 shadow-sm border-l-4 border-[#3B82F6]">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-medium text-[#1F2937]">Aide aux courses</h3>
+                        <span class="bg-[#93C5FD] text-[#1E40AF] text-xs px-2 py-1 rounded-full font-medium">45 min</span>
+                    </div>
+                    <p class="text-sm text-[#6B7280] mb-3">Accompagner une personne âgée pour ses courses</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Impact Stats -->
+        <section class="mb-8 bg-white rounded-xl p-6 shadow-sm">
+            <h2 class="text-2xl font-bold text-[#1F2937] mb-6 text-center">Notre impact collectif</h2>
+            <div class="grid grid-cols-3 gap-4 text-center">
+                <div>
+                    <p class="text-3xl font-bold text-[#3B82F6]">5 000+</p>
+                    <p class="text-sm text-[#6B7280]">Bénévoles</p>
+                </div>
+                <div>
+                    <p class="text-3xl font-bold text-[#10B981]">12 000+</p>
+                    <p class="text-sm text-[#6B7280]">Missions</p>
+                </div>
+                <div>
+                    <p class="text-3xl font-bold text-[#F59E0B]">350+</p>
+                    <p class="text-sm text-[#6B7280]">Associations</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold text-[#1F2937] mb-6 text-center">Témoignages</h2>
+            <div class="bg-white rounded-xl p-6 shadow-sm">
+                <div class="flex items-center mb-4">
+                    <img src="https://randomuser.me/api/portraits/women/17.jpg" alt="Témoignage" class="h-12 w-12 rounded-full mr-4">
+                    <div>
+                        <p class="font-medium text-[#1F2937]">Sophie L.</p>
+                        <p class="text-xs text-[#6B7280]">Bénévole depuis 3 mois</p>
+                    </div>
+                </div>
+                <p class="text-[#6B7280] italic">
+                    "Avec mon emploi du temps chargé, je pensais ne jamais pouvoir faire du bénévolat. Voisin Solidaire m'a permis de m'engager à mon rythme, même pour 15 minutes. C'est incroyable de voir l'impact que ces petits moments peuvent avoir !"
+                </p>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="bg-[#3B82F6] rounded-xl p-6 shadow-sm text-center">
+            <h2 class="text-2xl font-bold text-white mb-3">Prêt à aider ?</h2>
+            <p class="text-white opacity-90 mb-6">Rejoignez notre communauté de bénévoles et commencez à aider près de chez vous dès aujourd'hui.</p>
+            <a href="/signup" target="_self" class="bg-white text-[#3B82F6] font-medium py-3 px-6 rounded-lg hover:bg-[#F3F4F6] transition duration-200 inline-block">
+                Je m'inscris
+            </a>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white p-6 border-t border-[#E5E7EB]">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between mb-6">
+                <div class="mb-6 md:mb-0">
+                    <h3 class="text-lg font-bold text-[#1F2937] mb-3">Voisin Solidaire</h3>
+                    <p class="text-sm text-[#6B7280]">Le bénévolat accessible à tous</p>
+                </div>
+                <div class="grid grid-cols-2 gap-8 sm:grid-cols-3">
+                    <div>
+                        <h4 class="text-sm font-semibold text-[#1F2937] mb-3">À propos</h4>
+                        <ul class="space-y-2 text-sm">
+                            <li><a href="#" class="text-[#6B7280] hover:text-[#3B82F6]">Notre mission</a></li>
+                            <li><a href="#" class="text-[#6B7280] hover:text-[#3B82F6]">L'équipe</a></li>
+                            <li><a href="#" class="text-[#6B7280] hover:text-[#3B82F6]">Nos partenaires</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-semibold text-[#1F2937] mb-3">Ressources</h4>
+                        <ul class="space-y-2 text-sm">
+                            <li><a href="#" class="text-[#6B7280] hover:text-[#3B82F6]">FAQ</a></li>
+                            <li><a href="#" class="text-[#6B7280] hover:text-[#3B82F6]">Guide du bénévole</a></li>
+                            <li><a href="#" class="text-[#6B7280] hover:text-[#3B82F6]">Blog</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-semibold text-[#1F2937] mb-3">Contact</h4>
+                        <ul class="space-y-2 text-sm">
+                            <li><a href="#" class="text-[#6B7280] hover:text-[#3B82F6]">Nous contacter</a></li>
+                            <li><a href="#" class="text-[#6B7280] hover:text-[#3B82F6]">Support</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="pt-4 border-t border-[#E5E7EB] flex flex-col md:flex-row justify-between items-center">
+                <p class="text-sm text-[#6B7280]">© 2025 Voisin Solidaire. Tous droits réservés.</p>
+                <div class="flex space-x-4 mt-4 md:mt-0">
+                    <a href="#" class="text-[#6B7280] hover:text-[#3B82F6]">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="text-[#6B7280] hover:text-[#3B82F6]">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="text-[#6B7280] hover:text-[#3B82F6]">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" class="text-[#6B7280] hover:text-[#3B82F6]">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(registration => {
+              console.log('ServiceWorker enregistré avec succès:', registration.scope);
+            })
+            .catch(error => {
+              console.log('Échec de l\'enregistrement du ServiceWorker:', error);
+            });
+        });
+      }
+    </script>
+</body>
+</html>
